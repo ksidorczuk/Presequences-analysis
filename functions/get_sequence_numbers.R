@@ -50,3 +50,25 @@ summarise_TM_info <- function(seq_dataset_vec, annotations) {
     )
   }) %>% bind_rows()
 }
+
+summarise_amyloid_info <- function(dataset_list) {
+  lapply(names(dataset_list), function(ith_set) {
+    data.frame(
+      dataset = ith_set,
+      sequences = length(dataset_list[[ith_set]]),
+      with_nonstandard_aa = length(dataset_list[[ith_set]]) - length(filter_nonstandard_aa(dataset_list[[ith_set]])),
+      shorter_than_10 = sum(lengths(dataset_list[[ith_set]]) < 10),
+      to_analyse = sum(lengths(dataset_list[[ith_set]]) >= 10)
+    )
+  }) %>% bind_rows()
+}
+
+summarise_amp_info <- function(amp_all) {
+  data.frame(
+    dataset = "AMP",
+    sequences = length(amp_all),
+    with_nonstandard_aa = length(amp_all) - length(filter_nonstandard_aa(amp_all)),
+    shorter_than_10 = sum(lengths(amp_all) < 10),
+    to_analyse = sum(lengths(filter_nonstandard_aa(amp_all)) >= 10)
+  )
+}

@@ -1,12 +1,4 @@
-predict_all_with_amPEPpy <- function(data_path, organism, n_threads, amPEPpy_model_path = "~/Programy/amPEPpy/amPEP.model") {
-  seq_files <- list.files(paste0(data_path, "Sequences_for_analysis/"), pattern = organism, full.names = TRUE)
-  lapply(seq_files, function(ith_file) {
-    predict_with_amPEPpy(ith_file, n_threads)
-  })
-}
-
-predict_with_amPEPpy <- function(sequence_file, n_threads = 8, amPEPpy_model_path = "~/Programy/amPEPpy/amPEP.model") {
-  out_file <- paste0(gsub("Data/Sequences_for_analysis/", "Analizy/Wyniki/", gsub(".fa$", "", sequence_file)), "_amPEPpy.tsv")
+predict_with_amPEPpy <- function(sequence_file, out_file, n_threads = 8, amPEPpy_model_path = "~/Programy/amPEPpy/amPEP.model") {
   system(paste0("ampep predict -m ", amPEPpy_model_path, " -i ", sequence_file, " -o ", out_file, " -t ", n_threads))
 }
 

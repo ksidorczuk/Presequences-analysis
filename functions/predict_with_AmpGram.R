@@ -42,7 +42,7 @@ predict_with_AmpGram <- function(sequence_file, output_path, output_name) {
     ngrams <- count_multimers(mers,
                               k_vector = c(1, rep(2, 4), c(rep(3, 4))),
                               kmer_gaps_list = list(NULL, NULL, 1, 2, 3, c(0, 0), c(0, 1), c(1, 0), c(1, 1)),
-                              alphabet = toupper(colnames(aaprop)),
+                              kmer_alphabet = toupper(colnames(aaprop)),
                               with_kmer_counts = FALSE)
     colnames(ngrams)[1:20] <- paste0(colnames(ngrams)[1:20], "_0")
     to_add <- AmpGram_model[["imp_features"]][which(!(AmpGram_model[["imp_features"]] %in% colnames(ngrams)))]

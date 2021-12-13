@@ -15,3 +15,9 @@ SP_summ <- summarise_SP_info(c("SP_secreted_sp.exp_seqs", "SP_secreted.er_sp.exp
 
 TM_summ <- summarise_TM_info(c("TM_exp_seqs", "TM_seqs"),
                              annotations_tm)
+
+amyloid_summ <- summarise_amyloid_info(list("AmyPro" = amypro_regions_all,
+                                            "CPAD" = cpad_peptides_all,
+                                            "Combined (unique)" = unique(c(amypro_regions_all, cpad_peptides_all))))
+
+amp_summ <- summarise_amp_info(dbaasp_amp_all)
