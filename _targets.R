@@ -330,7 +330,7 @@ list(
   ),
   tar_target(
     amyloids_combined,
-    c(amypro_regions[!(which(amypro_regions %in% cpad_peptides))], cpad_peptides)
+    c(amypro_regions[which(!(amypro_regions %in% cpad_peptides))], cpad_peptides)
   ),
   tar_target(
     amyloids_combined_dataset,

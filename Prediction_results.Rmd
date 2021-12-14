@@ -1,0 +1,190 @@
+---
+title: "Prediction results"
+author: "Katarzyna Sidorczuk"
+date: "12/13/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, fig.width = 9)
+library(targets)
+library(dplyr)
+library(biogram)
+library(ggplot2)
+
+source("functions/processing_results.R")
+
+software_color <- c("AmpGram" = "#e42b24", "AmpScanner" = "#815fc2",
+                    "amPEPpy" = "#84c924", "ampir" = "#2482c9")
+
+pred_res_files <- list.files("/media/kasia/Data/Dropbox/Presequences/Prediction_results/", full.names = TRUE)
+
+ampeppy_res <- lapply(pred_res_files[grepl("amPEPpy", pred_res_files)], function(ith_file) {
+  process_ampeppy_res_files(ith_file)
+}) %>% bind_rows()
+
+ampgram_res <- lapply(pred_res_files[grepl("AmpGram", pred_res_files)], function(ith_file) {
+  process_ampgram_res_files(ith_file)
+}) %>% bind_rows()
+
+ampir_res <- lapply(pred_res_files[grepl("ampir", pred_res_files)], function(ith_file) {
+  process_ampir_res_files(ith_file)
+}) %>% bind_rows()
+
+ampscanner_res <- lapply(pred_res_files[grepl("AMPScanner", pred_res_files)], function(ith_file) {
+  process_ampscanner_res_files(ith_file)
+}) %>% bind_rows()
+
+all_pred_res <- do.call(rbind, list(ampeppy_res, ampgram_res, ampir_res, ampscanner_res))
+```
+
+## Presequences
+
+| Data set    | Location term                 | Location evidence | Annotation      | Annotation evidence |
+|-------------|-------------------------------|-------------------|-----------------|---------------------|
+| cTP_tp      | Chloroplast NOT Mitochondrion | any assertion     | transit peptide | any experimental    |
+| cTP_loc     | Chloroplast NOT Mitochondrion | any experimental  | transit peptide | any assertion       |
+| cTP-mTP_tp  | Chloroplast AND Mitochondrion | any assertion     | transit peptide | any experimental    |
+| cTP-mTP_loc | Chloroplast AND Mitochondrion | any experimental  | transit peptide | any assertion       |
+| mTP_tp      | Mitochondrion NOT Chloroplast | any assertion     | transit peptide | any experimental    |
+| mTP_loc     | Mitochondrion NOT Chloroplast | any experimental  | transit peptide | any assertion       |
+| SP_sp       |                               | any assertion     | signal peptide  | any experimental    |
+
+
+#### Numbers of sequences
+
+|   Data set  | Number of sequences in UniProt | Number of extracted  presequences | With non-standard aa | Shorter than 10 aa | Used for analysis |
+|:-----------:|:------------------------------:|:---------------------------------:|:--------------------:|:------------------:|:-----------------:|
+|    cTP_tp   |               280              |                246                |           0          |          0         |        246        |
+|   cTP_loc   |               902              |                835                |           0          |          0         |        835        |
+|  cTP-mTP_tp |               10               |                 9                 |           0          |          0         |         9         |
+| cTP-mTP_loc |               63               |                 42                |           0          |          1         |         41        |
+|    mTP_tp   |               555              |                549                |           1          |         17         |        531        |
+|   mTP_loc   |              1348              |                1174               |           0          |         22         |        1152       |
+|    SP_sp    |              3776              |                3721               |           2          |          1         |        3718       |
+
+
+#### Prediction results
+
+```{r}
+presequence_dat <- filter(all_pred_res, Dataset %in% c("cTP_loc_exp", "cTP_tp_exp", "cTP-mTP_loc_exp", "cTP-mTP_tp_exp", 
+                                                       "mTP_loc_exp", "mTP_tp_exp", "SP_sp_exp")) %>% 
+  mutate(Presequence = sapply(.[["Dataset"]], function(i) strsplit(i, "_")[[1]][1]),
+         Evidence = sapply(.[["Dataset"]], function(i) ifelse(grepl("loc_exp", i), 
+                                                              "Experimentally verified localization", 
+                                                              "Experimentally verified presequence")))
+presequence_plot_dat <- presequence_dat %>% 
+  group_by(Evidence, Presequence, Software) %>% 
+  summarise(mean_pred = mean(Probability),
+            amp_frac = mean(Prediction))
+
+ggplot(presequence_plot_dat, aes(x = Presequence, y = mean_pred, fill = Software)) +
+  geom_col(position = "dodge") +
+  facet_wrap(~Evidence, nrow = 2) +
+  theme_bw() +
+  scale_fill_manual("Software", values = software_color) +
+  ylab("Mean value of prediction")
+
+ggplot(presequence_plot_dat, aes(x = Presequence, y = amp_frac, fill = Software)) +
+  geom_col(position = "dodge") +
+  facet_wrap(~Evidence, nrow = 2) +
+  theme_bw() +
+  scale_fill_manual("Software", values = software_color) +
+  ylab("Fraction of sequences predicted as AMPs")
+```
+
+## Transmembrane regions
+
+#### Numbers of sequences
+
+|      Data set      | Number of extracted  TM regions | Regions with  non-standard aa | Regions shorter than 10 aa | Used for analysis |
+|:------------------:|:-------------------------------:|:-----------------------------:|:--------------------------:|:-----------------:|
+|    TM - Helical    |               1471              |               0               |              1             |        1470       |
+| TM - Beta stranded |               156               |               0               |             42             |        114        |
+
+#### Prediction results
+
+```{r}
+tm_dat <- filter(all_pred_res, Dataset %in% c("TM_beta_exp", "TM_alpha_exp")) %>% 
+  mutate(Type = sapply(.[["Dataset"]], function(i) strsplit(i, "_")[[1]][2]))
+tm_plot_dat <- tm_dat %>% 
+  group_by(Type, Software) %>% 
+  summarise(mean_pred = mean(Probability),
+            amp_frac = mean(Prediction))
+
+ggplot(tm_plot_dat, aes(x = Type, y = mean_pred, fill = Software)) +
+  geom_col(position = "dodge") +
+  theme_bw() +
+  scale_fill_manual("Software", values = software_color) +
+  ylab("Mean value of prediction")
+
+ggplot(tm_plot_dat, aes(x = Type, y = amp_frac, fill = Software)) +
+  geom_col(position = "dodge") +
+  theme_bw() +
+  scale_fill_manual("Software", values = software_color) +
+  ylab("Fraction of sequences predicted as AMPs")
+```
+
+## Amyloids
+
+#### Numbers of sequences
+
+| Data set |               Type of sequences               | Sequences | Sequences with non-standard aa | Sequences shorter than 10 aa | Used for analysis |
+|:--------:|:---------------------------------------------:|:---------:|:------------------------------:|:----------------------------:|:-----------------:|
+|  AmyPro  | Amyloidogenic regions extracted from proteins |    188    |                0               |              48              |        140        |
+|   CPAD   |                Amyloid peptides               |    716    |                0               |              412             |        304        |
+| Combined |       Combined AmyPro and CPAD data sets      |    864    |                0               |              444             |        421        |
+
+#### Prediction results
+
+AmpScanner predictions for 4 amyloid regions (AP00043_1, AP00044_1, AP00045_2, AP00083_1) were obtained using webserver as the standalone version did not process sequences longer than 200aa. 
+
+```{r}
+amy_dat <- filter(all_pred_res, Dataset %in% c("Amyloids_combined", "AmyPro_regions", "CPAD_peptides")) 
+amy_plot_dat <- amy_dat %>% 
+  group_by(Dataset, Software) %>% 
+  summarise(mean_pred = mean(Probability),
+            amp_frac = mean(Prediction))
+
+ggplot(amy_plot_dat, aes(x = Dataset, y = mean_pred, fill = Software)) +
+  geom_col(position = "dodge") +
+  theme_bw() +
+  scale_fill_manual("Software", values = software_color) +
+  ylab("Mean value of prediction")
+
+ggplot(amy_plot_dat, aes(x = Dataset, y = amp_frac, fill = Software)) +
+  geom_col(position = "dodge") +
+  theme_bw() +
+  scale_fill_manual("Software", values = software_color) +
+  ylab("Fraction of sequences predicted as AMPs")
+```
+
+## AMP
+
+#### Numbers of sequences
+
+| Data set | Sequences | Sequences with non-standard aa | Sequences shorter than 10 aa | Sequences longer than 100 aa | Used for analysis (DBAASP_AMP) | Used for analysis (DBAASP_AMP_max100) |
+|:--------:|:---------:|:------------------------------:|:----------------------------:|:----------------------------:|:------------------------------:|---------------------------------------|
+|    AMP   |   15564   |              3447              |             2481             |              21              |              10647             | 10630                                 |
+
+#### Prediction results
+
+```{r}
+amp_dat <- filter(all_pred_res, Dataset %in% c("DBAASP_AMP", "DBAASP_AMP_max100")) 
+amp_plot_dat <- amp_dat %>% 
+  group_by(Dataset, Software) %>% 
+  summarise(mean_pred = mean(Probability),
+            amp_frac = mean(Prediction))
+
+ggplot(amp_plot_dat, aes(x = Dataset, y = mean_pred, fill = Software)) +
+  geom_col(position = "dodge") +
+  theme_bw() +
+  scale_fill_manual("Software", values = software_color) +
+  ylab("Mean value of prediction")
+
+ggplot(amp_plot_dat, aes(x = Dataset, y = amp_frac, fill = Software)) +
+  geom_col(position = "dodge") +
+  theme_bw() +
+  scale_fill_manual("Software", values = software_color) +
+  ylab("Fraction of sequences predicted as AMPs")
+```

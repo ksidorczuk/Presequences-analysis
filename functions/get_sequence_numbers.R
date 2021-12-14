@@ -69,6 +69,7 @@ summarise_amp_info <- function(amp_all) {
     sequences = length(amp_all),
     with_nonstandard_aa = length(amp_all) - length(filter_nonstandard_aa(amp_all)),
     shorter_than_10 = sum(lengths(amp_all) < 10),
+    longer_than_100 = sum(lengths(amp_all) > 100),
     to_analyse = sum(lengths(filter_nonstandard_aa(amp_all)) >= 10)
   )
 }
