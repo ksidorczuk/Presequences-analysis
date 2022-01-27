@@ -9,6 +9,7 @@ source("functions/extract_presequences.R")
 source("functions/extract_transmembrane_regions.R")
 source("functions/get_sequence_numbers.R")
 source("functions/process_data_files.R")
+source("functions/filter_sequences.R")
 
 list(
   # Annotation files
@@ -365,6 +366,80 @@ list(
   tar_target(
     dbaasp_amp_max100_dataset,
     write_fasta(dbaasp_amp_max100, paste0(data_path, "Datasets/DBAASP_AMP_max100.fa"))
+  ),
+  tar_target(
+    amyloids_combined_70,
+    filter_with_cdhit(amyloids_combined, 0.7)
+  ),
+  tar_target(
+    amypro_regions_70,
+    filter_with_cdhit(amypro_regions, 0.7)
+  ),
+  tar_target(
+    cpad_peptides_70,
+    filter_with_cdhit(cpad_peptides, 0.7)
+  ),
+  tar_target(
+    cTP_loc_exp_70,
+    filter_with_cdhit(cTP_loc_exp, 0.7)
+  ),
+  tar_target(
+    cTP.mTP_loc_exp_70,
+    filter_with_cdhit(cTP.mTP_loc_exp, 0.7)
+  ),
+  tar_target(
+    cTP.mTP_tp_exp_70,
+    filter_with_cdhit(cTP.mTP_tp_exp, 0.7)
+  ),
+  tar_target(
+    cTP_tp_exp_70,
+    filter_with_cdhit(cTP_tp_exp, 0.7)
+  ),
+  tar_target(
+    dbaasp_amp_70,
+    filter_with_cdhit(dbaasp_amp, 0.7)
+  ),
+  tar_target(
+    dbaasp_amp_max100_70,
+    filter_with_cdhit(dbaasp_amp_max100, 0.7)
+  ),
+  tar_target(
+    mTP_loc_exp_70,
+    filter_with_cdhit(mTP_loc_exp, 0.7)
+  ),
+  tar_target(
+    mTP_tp_exp_70,
+    filter_with_cdhit(mTP_tp_exp, 0.7)
+  ),
+  tar_target(
+    SP_sp_exp_70,
+    filter_with_cdhit(SP_sp_exp, 0.7)
+  ),
+  tar_target(
+    TM_exp_alpha_70,
+    filter_with_cdhit(TM_exp_alpha, 0.7)
+  ),
+  tar_target(
+    TM_exp_beta_70,
+    filter_with_cdhit(TM_exp_beta, 0.7)
+  ),
+  tar_target(
+    datasets_list,
+    list("Amyloids combined" = amyloids_combined, "AmyPro regions" = amypro_regions, "CPAD peptides" = cpad_peptides,
+         "cTP experimentally verified location" = cTP_loc_exp, "cTP-mTP experimentally verified location" = cTP.mTP_loc_exp,
+         "cTP-mTP experimentally verified presequence" = cTP.mTP_tp_exp, "cTP experimentally verified presequence" = cTP_tp_exp,
+         "DBAASP AMP" = dbaasp_amp, "DBAASP AMP max 100 aa" = dbaasp_amp_max100, "mTP experimentally verified location" = mTP_loc_exp,
+         "mTP experimentally verified presequence" = mTP_tp_exp, "SP experimentally verified presequence" = SP_sp_exp,
+         "TM regions experimentally verified - alpha" = TM_exp_alpha, "TM regions experimentally verified - beta" = TM_exp_beta)
+  ),
+  tar_target(
+    datasets_list_cdhit,
+    list("Amyloids combined" = amyloids_combined_70, "AmyPro regions" = amypro_regions_70, "CPAD peptides" = cpad_peptides_70,
+         "cTP experimentally verified location" = cTP_loc_exp_70, "cTP-mTP experimentally verified location" = cTP.mTP_loc_exp_70,
+         "cTP-mTP experimentally verified presequence" = cTP.mTP_tp_exp_70, "cTP experimentally verified presequence" = cTP_tp_exp_70,
+         "DBAASP AMP" = dbaasp_amp_70, "DBAASP AMP max 100 aa" = dbaasp_amp_max100_70, "mTP experimentally verified location" = mTP_loc_exp_70,
+         "mTP experimentally verified presequence" = mTP_tp_exp_70, "SP experimentally verified presequence" = SP_sp_exp_70,
+         "TM regions experimentally verified - alpha" = TM_exp_alpha_70, "TM regions experimentally verified - beta" = TM_exp_beta_70)
   )
 )
 

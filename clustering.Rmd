@@ -1,0 +1,353 @@
+---
+title: "Clustering presequences"
+author: "Katarzyna Sidorczuk"
+date: "24/01/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.width = 12, fig.height = 12)
+
+library(dplyr)
+library(biogram)
+library(seqR)
+library(ggbiplot)
+library(ggrepel)
+library(cluster)
+library(factoextra)
+library(tsne)
+library(umap)
+library(DT)
+library(tidyr)
+library(ggplot2)
+library(ggdendro)
+library(grid)
+library(gridExtra)
+library(targets)
+
+set.seed(73607254)
+
+my_DT <- function(x, ...)
+  datatable(x, ..., escape = FALSE, extensions = 'Buttons', filter = "top", rownames = FALSE,
+            style = "bootstrap")
+
+options(DT.options = list(dom = "Brtip",
+                          buttons = c("copy", "csv", "excel", "print"),
+                          pageLength = 50
+))
+
+source("functions/extract_features.R")
+
+colors <- c("Amyloids combined" = "#bb45e4", "AmyPro regions" = "#e44496", "CPAD peptides" = "#8d44e4", 
+            "cTP experimentally verified location" = "#528313", "cTP-mTP experimentally verified location" = "#837713", 
+            "cTP-mTP experimentally verified presequence" ="#e4d345", "cTP experimentally verified presequence" = "#9de444", 
+            "DBAASP AMP" = "#831313", "DBAASP AMP max 100 aa" = "#e44444", "mTP experimentally verified location" = "#834813", 
+            "mTP experimentally verified presequence" = "#e49144", "SP experimentally verified presequence" = "#45e495", 
+            "TM regions experimentally verified - alpha" = "#44aee4", "TM regions experimentally verified - beta" = "#4451e4")
+
+tar_load(c(datasets_list, datasets_list_cdhit))
+
+
+ngrams <- lapply(names(datasets_list_cdhit), function(i) {
+  calculate_binary_ngram_matrix(datasets_list_cdhit[[i]])
+}) %>% bind_rows()
+
+datasets <- unlist(sapply(names(datasets_list_cdhit), function(i) rep(i, length(datasets_list_cdhit[[i]])), USE.NAMES = FALSE))
+
+prop_list <- c("BIGC670101", "CHAM820101", "CHOP780201", "CHOP780202", "CHOP780203",
+               "FAUJ880103", "KLEP840101", "KYTJ820101", "ZIMJ680103")
+
+props <- lapply(seq_along(datasets_list_cdhit), function(i) {
+  as.data.frame(calculate_properties(datasets_list_cdhit[[i]], prop_list))
+}) %>% do.call(rbind, .)
+
+aa_comp_datasets <- lapply(names(datasets_list_cdhit), function(i) {
+  aa <- unlist(datasets_list_cdhit[[i]], use.names = FALSE)
+  as.data.frame(table(aa)/length(aa)) %>% 
+    mutate(dataset = i)
+}) %>% bind_rows()
+
+```
+
+## Data exploration
+
+Numbers of sequences in each data set
+```{r}
+ds_len <- lengths(datasets_list) %>% 
+  data.frame() %>% 
+  setNames("Number of sequences")
+ds_len_cdhit <- lengths(datasets_list_cdhit) %>% 
+  data.frame() %>% 
+  setNames("After CD-HIT 70%")
+knitr::kable(cbind(ds_len, ds_len_cdhit))
+```
+
+PCA on amino acid composition
+```{r}
+pca_data_all <- aa_comp_datasets %>% 
+  pivot_wider(names_from = aa, values_from = Freq, values_fill = 0) 
+
+pca_res_all <- prcomp(pca_data_all[, 2:ncol(pca_data_all)], center = TRUE, scale = TRUE)
+
+ggbiplot(pca_res_all, choices = 1:2) +
+  theme_bw() +
+  geom_point(aes(color = pca_data_all[["dataset"]]), size = 3) +
+  geom_text_repel(label = pca_data_all[["dataset"]]) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_color_manual("Data set", values = colors) +
+  theme(legend.position = "none")
+```
+
+PCA on physicochemical properties
+```{r}
+pca_res_props_all <- prcomp(props, center = TRUE, scale = TRUE)
+
+ggbiplot(pca_res_props_all, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = datasets) +
+  theme_bw() +
+#  geom_point(aes(color = datasets), alpha = 0.5) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_color_manual("Data set", values = colors)
+
+pca_res_props_all[["x"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = datasets,
+         group = case_when(dataset %in% c("Amyloids combined", "AmyPro regions", "CPAD peptides") ~ "Amyloids",
+                           dataset %in% c("cTP experimentally verified location", "cTP experimentally verified presequence") ~ "cTP",
+                           dataset %in% c("cTP-mTP experimentally verified location", "cTP-mTP experimentally verified presequence") ~ "cTP-mTP",
+                           dataset %in% c("mTP experimentally verified location", "mTP experimentally verified presequence") ~ "mTP",
+                           dataset == "SP experimentally verified presequence" ~ "SP",
+                           dataset %in% c("DBAASP AMP", "DBAASP AMP max 100 aa") ~ "AMP",
+                           dataset %in% c("TM regions experimentally verified - alpha", "TM regions experimentally verified - beta") ~ "Transmembrane")) %>% 
+  ggplot(aes(x = PC1, y = PC2, color = dataset)) +
+  geom_point(alpha = 0.5) +
+  scale_color_manual("Data set", values = colors) +
+  facet_wrap(~group) + 
+  theme_bw()
+```
+
+### PCA on n-gram composition
+
+```{r}
+pca_ngram_res <- prcomp(ngrams, center = TRUE, scale = TRUE)
+
+```
+
+## Clustering cTPs and mTPs
+
+### PCA
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+### Hierarchical clustering
+```{r}
+dendro_genes <- hclust(dist(clust_data_genes),
+                       method = "ward.D2")
+dendro_genes[["labels"]] <- unique_gene_data[["pathotype"]]
+
+acc_order <- order.dendrogram(as.dendrogram(dendro_genes))
+dat <- add_rownames(unique_gene_data) 
+heatmap_dat <- pivot_longer(dat, 2:434, names_to = "Gene", values_to = "presence")
+heatmap_dat[["rowname"]] <- factor(as.character(heatmap_dat[["rowname"]]),
+                                   levels = as.character(dat[["rowname"]])[acc_order],
+                                   ordered = TRUE)
+
+heatmap <- ggplot(heatmap_dat, aes(x = Gene, y = rowname, fill = presence)) +
+  geom_tile() +
+  scale_fill_gradient(high = "darkgreen", low = "grey90") +
+  theme_bw() +
+  theme(legend.position = "none",
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(angle = 90, size = 5))
+
+dendro <- dendro_genes %>% 
+  as.dendrogram() %>% 
+  dendro_data() %>% 
+  segment %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_segment() +
+  scale_y_continuous("") +
+  scale_x_discrete("",
+                   limits = factor(1L:nobs(as.dendrogram(dendro_genes))),
+                   labels = labels(dendro_genes)) + 
+  coord_flip() +
+  theme_dendro() +
+  theme(axis.text.y = element_text(color = sapply(labels(dendro_genes), function(i) colors[[i]]),
+                                   size = 2))
+
+x <- arrange_dendrogram(heatmap, dendro)
+
+# x <- fviz_dend(dendro_genes, as.ggplot = TRUE, horiz = TRUE, cex = 0.1, ggtheme = theme_void(),
+#           xlab = "", main = NULL, label_cols = sapply(dendro_genes[["labels"]], function(i) colors[[i]])[dendro_genes[["order"]]]) +
+#   theme(axis.text.x = element_blank())
+
+ggsave(paste0(data_path, "Hierarchical_clustering_genes_heatmap.png"), x, width = 30, height = 100, limitsize = FALSE)
+```
+
+Plot saved on Dropbox
+
+Distribution of pathotypes assuming 20 clusters:
+```{r}
+df <- arrange(
+  data.frame(
+    pathotype = dendro_genes[["labels"]],
+    cluster = cutree(dendro_genes, 20)
+  ), cluster) 
+df %>% 
+  group_by(cluster, pathotype) %>% 
+  summarise(n = n()) %>% 
+  my_DT()
+
+```
+
+
+### K-means clustering
+
+```{r}
+clust_genes <- kmeans(clust_data_genes, 20)
+```
+
+Distribution of pathotypes assuming 20 clusters:
+```{r}
+df <- arrange(
+  data.frame(
+    pathotype = unique_gene_data[["pathotype"]],
+    cluster = clust_genes[["cluster"]]
+  ), cluster)
+df %>% 
+  group_by(cluster, pathotype) %>% 
+  summarise(n = n()) %>% 
+  my_DT()
+```
+
+
+### PAM clustering
+
+```{r}
+pam_res <- pam(clust_data_genes, 20)
+
+df <- arrange(
+  data.frame(
+    pathotype = unique_gene_data[["pathotype"]],
+    cluster = pam_res[["clustering"]]
+  ), cluster)
+df %>% 
+  group_by(cluster, pathotype) %>% 
+  summarise(n = n()) %>% 
+  my_DT()
+```
+
+
+### t-SNE
+
+Perplexity = 15
+```{r}
+tsne_res_p15 <- tsne(clust_data_genes, k = 2, perplexity = 15, max_iter = 1000)
+mutate(as.data.frame(tsne_res_p15), name = unique_gene_data[["pathotype"]]) %>% 
+  ggplot(aes(x = V1, y = V2, color = name)) +
+  geom_point(size = 2) +
+  scale_color_manual("Pathotype", values = colors) + 
+  theme_bw()
+```
+
+Perplexity = 30
+```{r}
+tsne_res_p30 <- tsne(clust_data_genes, k = 2, perplexity = 30, max_iter = 1000)
+mutate(as.data.frame(tsne_res_p30), name = unique_gene_data[["pathotype"]]) %>% 
+  ggplot(aes(x = V1, y = V2, color = name)) +
+  geom_point(size = 2) +
+  scale_color_manual("Pathotype", values = colors) + 
+  theme_bw()
+
+mutate(as.data.frame(tsne_res_p30), name = unique_gene_data[["pathotype"]],
+       type = case_when(name %in% c("UPEC", "NMEC") ~ "InPEC",
+                        name %in% c("aEPEC", "DAEC", "EAEC", "EHEC", "EIEC", "ETEC", "STEC", "tEPEC") ~ "ExPEC",
+                        name == "Nonpathogenic" ~ "Nonpathogenic",
+                        name == "NA" ~ "NA")) %>% 
+  ggplot(aes(x = V1, y = V2, color = type)) +
+  geom_point(size = 2) +
+  scale_color_manual("Pathotype", values = c("InPEC" = "#e1e444", "NA" = "#949494", "ExPEC" = "#e44444", "Nonpathogenic" = "#44b7e4")) + 
+  theme_bw()
+```
+
+Perplexity = 50
+```{r}
+tsne_res_p50 <- tsne(clust_data_genes, k = 2, perplexity = 50, max_iter = 1000)
+mutate(as.data.frame(tsne_res_p50), name = unique_gene_data[["pathotype"]]) %>% 
+  ggplot(aes(x = V1, y = V2, color = name)) +
+  geom_point(size = 2) +
+  scale_color_manual("Pathotype", values = colors) + 
+  theme_bw()
+```
+
+
+### UMAP 
+
+Neighbors = 15, spread = 2, min_dist = 0.5
+```{r}
+umap_config <- umap.defaults
+umap_config[["random_state"]] <- 73607254
+umap_config[["spread"]] <- 2
+umap_config[["min_dist"]] <- 0.5
+
+umap_res <- umap(clust_data_genes, config = umap_config)
+umap_res[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(pathotype = unique_gene_data[["pathotype"]]) %>% 
+  ggplot(aes(x = V1, y = V2, color = pathotype)) +
+  geom_point() +
+  scale_color_manual("Pathotype", values = colors) + 
+  theme_bw()
+```
+
+Neighbors = 30, spread = 2, min_dist = 0.5
+```{r}
+umap_config[["n_neighbors"]] <- 30
+umap_res <- umap(clust_data_genes, config = umap_config)
+
+umap_res[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(pathotype = unique_gene_data[["pathotype"]]) %>% 
+  ggplot(aes(x = V1, y = V2, color = pathotype)) +
+  geom_point() +
+  scale_color_manual("Pathotype", values = colors) + 
+  theme_bw()
+
+umap_res[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(pathotype = unique_gene_data[["pathotype"]],
+         type = case_when(pathotype %in% c("UPEC", "NMEC") ~ "InPEC",
+                          pathotype %in% c("aEPEC", "DAEC", "EAEC", "EHEC", "EIEC", "ETEC", "STEC", "tEPEC") ~ "ExPEC",
+                          pathotype == "Nonpathogenic" ~ "Nonpathogenic",
+                          pathotype == "NA" ~ "NA")) %>% 
+  ggplot(aes(x = V1, y = V2, color = type)) +
+  geom_point() +
+  scale_color_manual("Pathotype", values = c("InPEC" = "#e1e444", "NA" = "#949494", "ExPEC" = "#e44444", "Nonpathogenic" = "#44b7e4")) + 
+  theme_bw()
+```
+
+Neighbors = 50, spread = 2, min_dist = 0.5
+```{r}
+umap_config[["n_neighbors"]] <- 50
+umap_res <- umap(clust_data_genes, config = umap_config)
+
+umap_res[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(pathotype = unique_gene_data[["pathotype"]]) %>% 
+  ggplot(aes(x = V1, y = V2, color = pathotype)) +
+  geom_point() +
+  scale_color_manual("Pathotype", values = colors) + 
+  theme_bw()
+```
+
