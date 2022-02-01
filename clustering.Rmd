@@ -60,6 +60,7 @@ prop_list <- c("BIGC670101", "CHAM820101", "CHOP780201", "CHOP780202", "CHOP7802
                "FAUJ880103", "KLEP840101", "KYTJ820101", "ZIMJ680103")
 
 tar_load(c(datasets_list, datasets_list_cdhit))
+datasets <- unlist(sapply(names(datasets_list_cdhit), function(i) rep(i, length(datasets_list_cdhit[[i]])), USE.NAMES = FALSE))
 ```
 
 ## Data exploration
