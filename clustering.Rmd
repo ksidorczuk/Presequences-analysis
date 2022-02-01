@@ -159,7 +159,6 @@ datasets_list_amyloids_combined <- datasets_list_cdhit[c("Amyloids combined", "c
 
 filtered_datasets_amyloids_both <- unlist(sapply(names(datasets_list_amyloids_both), function(i) rep(i, length(datasets_list_amyloids_both[[i]])), USE.NAMES = FALSE))
 filtered_datasets_amyloids_combined <- unlist(sapply(names(datasets_list_amyloids_combined), function(i) rep(i, length(datasets_list_amyloids_combined[[i]])), USE.NAMES = FALSE))
-  
 ```
 
 ## Amino acid composition of peptides
@@ -211,19 +210,19 @@ ggbiplot(pca_aa_res2, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = filt
   facet_wrap(~groups, ncol = 5)
 ```
 
-## t-SNE
+### t-SNE
 Perplexity = 10
 ```{r}
 tsne_aa_res1 <- tsne(aa_comp_peptides1_clust_data, k = 2, perplexity = 10, max_iter = 1000)
 mutate(as.data.frame(tsne_aa_res1), dataset = filtered_datasets_amyloids_both) %>% 
-  ggplot(aes(x = V1, y = V2, color = name)) +
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point(size = 2) +
   scale_color_manual("Data set", values = colors) + 
   theme_bw()
 
 tsne_aa_res2 <- tsne(aa_comp_peptides2_clust_data, k = 2, perplexity = 10, max_iter = 1000)
-mutate(as.data.frame(tsne_aa_res2), dataset = filtered_datasets_amyloids_both) %>% 
-  ggplot(aes(x = V1, y = V2, color = name)) +
+mutate(as.data.frame(tsne_aa_res2), dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point(size = 2) +
   scale_color_manual("Data set", values = colors) + 
   theme_bw()
@@ -233,14 +232,14 @@ Perplexity = 15
 ```{r}
 tsne_aa_res1 <- tsne(aa_comp_peptides1_clust_data, k = 2, perplexity = 15, max_iter = 1000)
 mutate(as.data.frame(tsne_aa_res1), dataset = filtered_datasets_amyloids_both) %>% 
-  ggplot(aes(x = V1, y = V2, color = name)) +
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point(size = 2) +
   scale_color_manual("Data set", values = colors) + 
   theme_bw()
 
 tsne_aa_res2 <- tsne(aa_comp_peptides2_clust_data, k = 2, perplexity = 15, max_iter = 1000)
-mutate(as.data.frame(tsne_aa_res2), dataset = filtered_datasets_amyloids_both) %>% 
-  ggplot(aes(x = V1, y = V2, color = name)) +
+mutate(as.data.frame(tsne_aa_res2), dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point(size = 2) +
   scale_color_manual("Data set", values = colors) + 
   theme_bw()
@@ -250,14 +249,14 @@ Perplexity = 30
 ```{r}
 tsne_aa_res1 <- tsne(aa_comp_peptides1_clust_data, k = 2, perplexity = 30, max_iter = 1000)
 mutate(as.data.frame(tsne_aa_res1), dataset = filtered_datasets_amyloids_both) %>% 
-  ggplot(aes(x = V1, y = V2, color = name)) +
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point(size = 2) +
   scale_color_manual("Data set", values = colors) + 
   theme_bw()
 
 tsne_aa_res2 <- tsne(aa_comp_peptides2_clust_data, k = 2, perplexity = 30, max_iter = 1000)
-mutate(as.data.frame(tsne_aa_res2), dataset = filtered_datasets_amyloids_both) %>% 
-  ggplot(aes(x = V1, y = V2, color = name)) +
+mutate(as.data.frame(tsne_aa_res2), dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point(size = 2) +
   scale_color_manual("Data set", values = colors) + 
   theme_bw()
@@ -267,14 +266,14 @@ Perplexity = 15, k = 5
 ```{r}
 tsne_aa_res1 <- tsne(aa_comp_peptides1_clust_data, k = 5, perplexity = 15, max_iter = 1000)
 mutate(as.data.frame(tsne_aa_res1), dataset = filtered_datasets_amyloids_both) %>% 
-  ggplot(aes(x = V1, y = V2, color = name)) +
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point(size = 2) +
   scale_color_manual("Data set", values = colors) + 
   theme_bw()
 
 tsne_aa_res2 <- tsne(aa_comp_peptides2_clust_data, k = 5, perplexity = 15, max_iter = 1000)
-mutate(as.data.frame(tsne_aa_res2), dataset = filtered_datasets_amyloids_both) %>% 
-  ggplot(aes(x = V1, y = V2, color = name)) +
+mutate(as.data.frame(tsne_aa_res2), dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point(size = 2) +
   scale_color_manual("Data set", values = colors) + 
   theme_bw()
@@ -379,6 +378,472 @@ umap_res1[["layout"]] %>%
   theme_bw()
 
 umap_res2 <- umap(aa_comp_peptides2_clust_data, config = umap_config)
+umap_res2[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+
+## Physicochemical properties
+
+```{r}
+props_amyloids_both <- props %>% 
+  mutate(dataset = datasets) %>% 
+  filter(dataset %in% c("AmyPro regions", "CPAD peptides", "cTP-mTP experimentally verified presequence", 
+                        "cTP experimentally verified presequence", "DBAASP AMP max 100 aa", 
+                        "mTP experimentally verified presequence", "SP experimentally verified presequence", 
+                        "TM regions experimentally verified - alpha", "TM regions experimentally verified - beta")) %>% 
+  select(-dataset)
+
+props_amyloids_combined <- props %>% 
+  mutate(dataset = datasets) %>% 
+  filter(dataset %in% c("Amyloids combined", "cTP-mTP experimentally verified presequence", 
+                        "cTP experimentally verified presequence", "DBAASP AMP max 100 aa", 
+                        "mTP experimentally verified presequence", "SP experimentally verified presequence", 
+                        "TM regions experimentally verified - alpha", "TM regions experimentally verified - beta")) %>% 
+  select(-dataset)
+```
+
+### PCA
+```{r}
+pca_props_res1 <- prcomp(props_amyloids_both, center = TRUE, scale = TRUE)
+
+ggbiplot(pca_props_res1, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = filtered_datasets_amyloids_both) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_color_manual("Data set", values = colors)
+
+ggbiplot(pca_props_res1, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = filtered_datasets_amyloids_both) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none") +
+  scale_color_manual("Data set", values = colors) +
+  facet_wrap(~groups, ncol = 5)
+```
+
+```{r}
+pca_props_res2 <- prcomp(props_amyloids_combined, center = TRUE, scale = TRUE)
+
+ggbiplot(pca_props_res2, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = filtered_datasets_amyloids_combined) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_color_manual("Data set", values = colors)
+
+ggbiplot(pca_props_res2, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = filtered_datasets_amyloids_combined) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none") +
+  scale_color_manual("Data set", values = colors) +
+  facet_wrap(~groups, ncol = 5)
+```
+
+### t-SNE
+Perplexity = 10
+```{r}
+tsne_props_res1 <- tsne(props_amyloids_both, k = 2, perplexity = 10, max_iter = 1000)
+mutate(as.data.frame(tsne_props_res1), dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+tsne_props_res2 <- tsne(props_amyloids_combined, k = 2, perplexity = 10, max_iter = 1000)
+mutate(as.data.frame(tsne_props_res2), dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+Perplexity = 15
+```{r}
+tsne_props_res1 <- tsne(props_amyloids_both, k = 2, perplexity = 15, max_iter = 1000)
+mutate(as.data.frame(tsne_props_res1), dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+tsne_props_res2 <- tsne(props_amyloids_combined, k = 2, perplexity = 15, max_iter = 1000)
+mutate(as.data.frame(tsne_props_res2), dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+Perplexity = 30
+```{r}
+tsne_props_res1 <- tsne(props_amyloids_both, k = 2, perplexity = 30, max_iter = 1000)
+mutate(as.data.frame(tsne_props_res1), dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+tsne_props_res2 <- tsne(props_amyloids_combined, k = 2, perplexity = 30, max_iter = 1000)
+mutate(as.data.frame(tsne_props_res2), dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+Perplexity = 15, k = 5
+```{r}
+tsne_props_res1 <- tsne(props_amyloids_both, k = 5, perplexity = 15, max_iter = 1000)
+mutate(as.data.frame(tsne_props_res1), dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+tsne_props_res2 <- tsne(props_amyloids_combined, k = 5, perplexity = 15, max_iter = 1000)
+mutate(as.data.frame(tsne_props_res2), dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+### UMAP
+
+Neighbors = 15, spread = 2, min_dist = 0.5
+```{r}
+umap_config <- umap.defaults
+umap_config[["random_state"]] <- 73607254
+umap_config[["spread"]] <- 2
+umap_config[["min_dist"]] <- 0.5
+
+umap_res1 <- umap(props_amyloids_both, config = umap_config)
+umap_res1[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+umap_res2 <- umap(props_amyloids_combined, config = umap_config)
+umap_res2[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+Neighbors = 15, spread = 1, min_dist = 0.5
+```{r}
+umap_config <- umap.defaults
+umap_config[["random_state"]] <- 73607254
+umap_config[["spread"]] <- 1
+umap_config[["min_dist"]] <- 0.5
+
+umap_res1 <- umap(props_amyloids_both, config = umap_config)
+umap_res1[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+umap_res2 <- umap(props_amyloids_combined, config = umap_config)
+umap_res2[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+Neighbors = 30, spread = 1, min_dist = 0.5
+```{r}
+umap_config <- umap.defaults
+umap_config[["random_state"]] <- 73607254
+umap_config[["spread"]] <- 1
+umap_config[["min_dist"]] <- 0.5
+umap_config[["n_neighbors"]] <- 30
+
+umap_res1 <- umap(props_amyloids_both, config = umap_config)
+umap_res1[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+umap_res2 <- umap(props_amyloids_combined, config = umap_config)
+umap_res2[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+Neighbors = 50, spread = 1, min_dist = 0.5
+```{r}
+umap_config <- umap.defaults
+umap_config[["random_state"]] <- 73607254
+umap_config[["spread"]] <- 1
+umap_config[["min_dist"]] <- 0.5
+umap_config[["n_neighbors"]] <- 50
+
+umap_res1 <- umap(props_amyloids_both, config = umap_config)
+umap_res1[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+umap_res2 <- umap(props_amyloids_combined, config = umap_config)
+umap_res2[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+
+## Bigrams
+
+```{r}
+bigrams_amyloids_both <- lapply(names(datasets_list_amyloids_both), function(i) {
+  calculate_binary_ngram_matrix(datasets_list_amyloids_both[[i]],
+                                c(2, 2),
+                                list(NULL, 1))
+}) %>% bind_rows()
+bigrams_amyloids_both[is.na(bigrams_amyloids_both)] <- 0
+
+bigrams_amyloids_combined <- lapply(names(datasets_list_amyloids_combined), function(i) {
+  calculate_binary_ngram_matrix(datasets_list_amyloids_combined[[i]],
+                                c(2, 2),
+                                list(NULL, 1))
+}) %>% bind_rows()
+bigrams_amyloids_combined[is.na(bigrams_amyloids_combined)] <- 0
+```
+
+### PCA
+```{r}
+pca_bigram_res1 <- prcomp(bigrams_amyloids_both, center = TRUE, scale = TRUE)
+pca_bigram_res1[["x"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = PC1, y = PC2, color = dataset)) +
+  geom_point(alpha = 0.5) +
+  scale_color_manual("Data set", values = colors) +
+  theme_bw()
+pca_bigram_res1[["x"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = PC1, y = PC2, color = dataset)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~dataset) +
+  scale_color_manual("Data set", values = colors) +
+  theme_bw() +
+  theme(legend.position = "none")
+
+pca_bigram_res2 <- prcomp(bigrams_amyloids_combined, center = TRUE, scale = TRUE)
+pca_bigram_res2[["x"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = PC1, y = PC2, color = dataset)) +
+  geom_point(alpha = 0.5) +
+  scale_color_manual("Data set", values = colors) +
+  theme_bw()
+pca_bigram_res2[["x"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = PC1, y = PC2, color = dataset)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~dataset) +
+  scale_color_manual("Data set", values = colors) +
+  theme_bw() +
+  theme(legend.position = "none")
+```
+
+### t-SNE
+Perplexity = 10
+```{r}
+tsne_bigrams_res1 <- tsne(bigrams_amyloids_both, k = 2, perplexity = 10, max_iter = 1000)
+mutate(as.data.frame(tsne_bigrams_res1), dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+tsne_bigrams_res2 <- tsne(bigrams_amyloids_combined, k = 2, perplexity = 10, max_iter = 1000)
+mutate(as.data.frame(tsne_bigrams_res2), dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+Perplexity = 15
+```{r}
+tsne_bigrams_res1 <- tsne(bigrams_amyloids_both, k = 2, perplexity = 15, max_iter = 1000)
+mutate(as.data.frame(tsne_bigrams_res1), dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+tsne_bigrams_res2 <- tsne(bigrams_amyloids_combined, k = 2, perplexity = 15, max_iter = 1000)
+mutate(as.data.frame(tsne_bigrams_res2), dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+Perplexity = 30
+```{r}
+tsne_bigrams_res1 <- tsne(bigrams_amyloids_both, k = 2, perplexity = 30, max_iter = 1000)
+mutate(as.data.frame(tsne_bigrams_res1), dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+tsne_bigrams_res2 <- tsne(bigrams_amyloids_combined, k = 2, perplexity = 30, max_iter = 1000)
+mutate(as.data.frame(tsne_bigrams_res2), dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+Perplexity = 15, k = 5
+```{r}
+tsne_bigrams_res1 <- tsne(bigrams_amyloids_both, k = 5, perplexity = 15, max_iter = 1000)
+mutate(as.data.frame(tsne_bigrams_res1), dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+tsne_bigrams_res2 <- tsne(bigrams_amyloids_combined, k = 5, perplexity = 15, max_iter = 1000)
+mutate(as.data.frame(tsne_bigrams_res2), dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+### UMAP
+
+Neighbors = 15, spread = 2, min_dist = 0.5
+```{r}
+umap_config <- umap.defaults
+umap_config[["random_state"]] <- 73607254
+umap_config[["spread"]] <- 2
+umap_config[["min_dist"]] <- 0.5
+
+umap_res1 <- umap(bigrams_amyloids_both, config = umap_config)
+umap_res1[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+umap_res2 <- umap(bigrams_amyloids_combined, config = umap_config)
+umap_res2[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+Neighbors = 15, spread = 1, min_dist = 0.5
+```{r}
+umap_config <- umap.defaults
+umap_config[["random_state"]] <- 73607254
+umap_config[["spread"]] <- 1
+umap_config[["min_dist"]] <- 0.5
+
+umap_res1 <- umap(bigrams_amyloids_both, config = umap_config)
+umap_res1[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+umap_res2 <- umap(bigrams_amyloids_combined, config = umap_config)
+umap_res2[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+Neighbors = 30, spread = 1, min_dist = 0.5
+```{r}
+umap_config <- umap.defaults
+umap_config[["random_state"]] <- 73607254
+umap_config[["spread"]] <- 1
+umap_config[["min_dist"]] <- 0.5
+umap_config[["n_neighbors"]] <- 30
+
+umap_res1 <- umap(bigrams_amyloids_both, config = umap_config)
+umap_res1[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+umap_res2 <- umap(bigrams_amyloids_combined, config = umap_config)
+umap_res2[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_combined) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+```
+
+Neighbors = 50, spread = 1, min_dist = 0.5
+```{r}
+umap_config <- umap.defaults
+umap_config[["random_state"]] <- 73607254
+umap_config[["spread"]] <- 1
+umap_config[["min_dist"]] <- 0.5
+umap_config[["n_neighbors"]] <- 50
+
+umap_res1 <- umap(bigrams_amyloids_both, config = umap_config)
+umap_res1[["layout"]] %>% 
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_both) %>% 
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors) + 
+  theme_bw()
+
+umap_res2 <- umap(bigrams_amyloids_combined, config = umap_config)
 umap_res2[["layout"]] %>% 
   as.data.frame() %>% 
   mutate(dataset = filtered_datasets_amyloids_combined) %>% 
