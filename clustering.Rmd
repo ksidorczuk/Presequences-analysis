@@ -2,7 +2,9 @@
 title: "Clustering presequences"
 author: "Katarzyna Sidorczuk"
 date: "24/01/2022"
-output: html_document
+output: 
+  html_document:
+    toc:true
 ---
 
 ```{r setup, include=FALSE}
@@ -668,7 +670,7 @@ pca_bigram_res1[["x"]] %>%
 
 pca_bigram_res2 <- prcomp(bigrams_amyloids_combined, center = TRUE, scale = TRUE)
 
-ggbiplot(pca_trigram_res1, choices = 1:2, groups = filtered_datasets_amyloids_combined, var.axes = FALSE) +
+ggbiplot(pca_bigram_res1, choices = 1:2, groups = filtered_datasets_amyloids_combined, var.axes = FALSE) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual("Data set", values = colors) +
