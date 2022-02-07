@@ -4,7 +4,7 @@ author: "Katarzyna Sidorczuk"
 date: "24/01/2022"
 output: 
   html_document:
-    toc:true
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
