@@ -278,13 +278,30 @@ plot_motif_position_density(presequence_datasets_list, "SP experimentally verifi
 ### Motif positions within scaled sequences
 ```{r}
 plot_motif_positions_scaled(presequence_datasets_list, "cTP-mTP experimentally verified presequence", 
-                            locate_motifs(presequence_datasets_list, most_frequent_cTPmTP_25))
+                            locate_motifs(presequence_datasets_list, most_frequent_cTPmTP_25),
+                            type = "point")
 plot_motif_positions_scaled(presequence_datasets_list, "cTP experimentally verified presequence", 
-                            locate_motifs(presequence_datasets_list, most_frequent_cTP_25))
+                            locate_motifs(presequence_datasets_list, most_frequent_cTP_25),
+                            type = "point")
 plot_motif_positions_scaled(presequence_datasets_list, "mTP experimentally verified presequence", 
-                            locate_motifs(presequence_datasets_list, most_frequent_mTP_25))
+                            locate_motifs(presequence_datasets_list, most_frequent_mTP_25),
+                            type = "point")
 plot_motif_positions_scaled(presequence_datasets_list, "SP experimentally verified presequence", 
-                            locate_motifs(presequence_datasets_list, most_frequent_SP_25))
+                            locate_motifs(presequence_datasets_list, most_frequent_SP_25),
+                            type = "point")
+
+plot_motif_positions_scaled(presequence_datasets_list, "cTP-mTP experimentally verified presequence", 
+                            locate_motifs(presequence_datasets_list, most_frequent_cTPmTP_25),
+                            type = "violin")
+plot_motif_positions_scaled(presequence_datasets_list, "cTP experimentally verified presequence", 
+                            locate_motifs(presequence_datasets_list, most_frequent_cTP_25),
+                            type = "violin")
+plot_motif_positions_scaled(presequence_datasets_list, "mTP experimentally verified presequence", 
+                            locate_motifs(presequence_datasets_list, most_frequent_mTP_25),
+                            type = "violin")
+plot_motif_positions_scaled(presequence_datasets_list, "SP experimentally verified presequence", 
+                            locate_motifs(presequence_datasets_list, most_frequent_SP_25),
+                            type = "violin")
 ```
 
 

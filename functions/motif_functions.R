@@ -226,18 +226,29 @@ plot_motif_position_density <- function(dataset_list, dataset_name, found_motifs
 }
 
 
-plot_motif_positions_scaled <- function(dataset_list, dataset_name, found_motifs) {
+plot_motif_positions_scaled <- function(dataset_list, dataset_name, found_motifs, type = "point") {
   lens <- data.frame(seq = names(dataset_list[[dataset_name]]),
                      len = lengths(dataset_list[[dataset_name]]))
   
   lens_dat <- left_join(filter(found_motifs, dataset == dataset_name), lens, by = "seq") %>% 
     mutate(start = start*100/len) 
   
-  ggplot(lens_dat, aes(x = start, y = dataset)) +
-    geom_point(shape = 15) +
-    facet_wrap(~motif) +
-    theme_bw()  +
-    theme(axis.text.y = element_blank(),
-          axis.ticks.y = element_blank()) +
-    ggtitle(dataset_name)
+  if(type == "point") {
+    ggplot(lens_dat, aes(x = start, y = dataset)) +
+      geom_point(shape = 15) +
+      facet_wrap(~motif) +
+      theme_bw()  +
+      theme(axis.text.y = element_blank(),
+            axis.ticks.y = element_blank()) +
+      ggtitle(dataset_name)
+  } else {
+    ggplot(lens_dat, aes(x = start, y = dataset)) +
+      geom_violin() +
+      facet_wrap(~motif) +
+      theme_bw()  +
+      theme(axis.text.y = element_blank(),
+            axis.ticks.y = element_blank()) +
+      ggtitle(dataset_name)
+  }
+
 }
