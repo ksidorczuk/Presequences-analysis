@@ -18,6 +18,8 @@ library(tidyr)
 library(pbapply)
 library(stringr)
 library(ggnewscale)
+library(biogram)
+library(FCBF)
 
 source("functions/extract_features.R")
 source("functions/motif_functions.R")
@@ -304,4 +306,136 @@ plot_motif_positions_scaled(presequence_datasets_list, "SP experimentally verifi
                             type = "violin")
 ```
 
+
+# Motif numbers
+
+## Detailed analysis of presequences
+```{r}
+bigram_fracs <- calculate_ngram_fractions(presequence_datasets_list, 2, 0)
+
+bigram_fracs_plot_dat <- get_motif_plot_dat(bigram_fracs)
+
+most_frequent_cTP <- get_dataset_most_frequent_motifs(bigram_fracs_plot_dat, 
+                                                      "cTP experimentally verified presequence", 
+                                                      n_motifs = 50)
+
+most_frequent_mTP <- get_dataset_most_frequent_motifs(bigram_fracs_plot_dat, 
+                                                      "mTP experimentally verified presequence", 
+                                                      n_motifs = 50)
+
+most_frequent_cTPmTP <- get_dataset_most_frequent_motifs(bigram_fracs_plot_dat, 
+                                                         "cTP-mTP experimentally verified presequence", 
+                                                         n_motifs = 50)
+
+most_frequent_SP <- get_dataset_most_frequent_motifs(bigram_fracs_plot_dat, 
+                                                     "SP experimentally verified presequence", 
+                                                     n_motifs = 50)
+
+plot_most_frequent_motifs(bigram_fracs_plot_dat, 
+                          most_frequent_cTP, 
+                          colors2, 
+                          "50 most frequent motifs of cTP data set")
+
+plot_most_frequent_motifs(bigram_fracs_plot_dat, 
+                          most_frequent_mTP, 
+                          colors2, 
+                          "50 most frequent motifs of mTP data set")
+
+plot_most_frequent_motifs(bigram_fracs_plot_dat, 
+                          most_frequent_cTPmTP, 
+                          colors2, 
+                          "50 most frequent motifs of cTP-mTP data set")
+
+plot_most_frequent_motifs(bigram_fracs_plot_dat, 
+                          most_frequent_SP, 
+                          colors2, 
+                          "50 most frequent motifs of SP data set")
+
+
+frequent_for_all <- Reduce(intersect, list(most_frequent_cTP, most_frequent_cTPmTP, most_frequent_mTP, most_frequent_SP))
+
+plot_most_frequent_motifs(bigram_fracs_plot_dat, 
+                          frequent_for_all, 
+                          colors2, 
+                          "Intersection of the 100 most frequent motifs in all data sets")
+```
+
+# Motif presence/absence
+
+## Detailed analysis of presequences
+
+### QuiPT most informative motifs
+
+```{r}
+binary_bigrams <- lapply(names(presequence_datasets_list), function(ith_dataset) {
+  calculate_binary_ngram_matrix(presequence_datasets_list[[ith_dataset]], 2, 0) %>% 
+    mutate(dataset = ith_dataset)
+}) %>% bind_rows()
+binary_bigrams[is.na(binary_bigrams)] <- 0
+
+# cTP vs. mTP
+select_quipt_informative_motifs(binary_bigrams,
+                                "cTP experimentally verified presequence",
+                                "mTP experimentally verified presequence") %>% 
+  knitr::kable()
+
+# cTP-mTP vs. cTP & mTP 
+select_quipt_informative_motifs(binary_bigrams,
+                                "cTP-mTP experimentally verified presequence",
+                                c("cTP experimentally verified presequence", "mTP experimentally verified presequence")) %>% 
+  knitr::kable()
+
+# cTP vs. cTP-mTP
+select_quipt_informative_motifs(binary_bigrams,
+                                "cTP experimentally verified presequence",
+                                "cTP-mTP experimentally verified presequence") %>% 
+  knitr::kable()
+
+# mTP vs. cTP-mTP
+select_quipt_informative_motifs(binary_bigrams,
+                                "mTP experimentally verified presequence",
+                                "cTP-mTP experimentally verified presequence") %>% 
+  knitr::kable()
+
+# SP vs. cTP & mTP
+select_quipt_informative_motifs(binary_bigrams,
+                                "SP experimentally verified presequence",
+                                c("cTP experimentally verified presequence", "mTP experimentally verified presequence")) %>% 
+  knitr::kable()
+
+```
+
+### FCBF most informative motifs
+
+```{r}
+# cTP vs. mTP
+select_fcbf_informative_motifs(binary_bigrams,
+                               "cTP experimentally verified presequence",
+                               "mTP experimentally verified presequence") %>% 
+  knitr::kable()
+
+# cTP-mTP vs. cTP & mTP 
+select_fcbf_informative_motifs(binary_bigrams,
+                               "cTP-mTP experimentally verified presequence",
+                               c("cTP experimentally verified presequence", "mTP experimentally verified presequence")) %>% 
+  knitr::kable()
+
+# cTP vs. cTP-mTP
+select_fcbf_informative_motifs(binary_bigrams,
+                               "cTP experimentally verified presequence",
+                               "cTP-mTP experimentally verified presequence") %>% 
+  knitr::kable()
+
+# mTP vs. cTP-mTP
+select_fcbf_informative_motifs(binary_bigrams,
+                               "mTP experimentally verified presequence",
+                               "cTP-mTP experimentally verified presequence") %>% 
+  knitr::kable()
+
+# SP vs. cTP & mTP
+select_fcbf_informative_motifs(binary_bigrams,
+                               "SP experimentally verified presequence",
+                               c("cTP experimentally verified presequence", "mTP experimentally verified presequence")) %>% 
+  knitr::kable()
+```
 

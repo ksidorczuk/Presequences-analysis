@@ -250,5 +250,48 @@ plot_motif_positions_scaled <- function(dataset_list, dataset_name, found_motifs
             axis.ticks.y = element_blank()) +
       ggtitle(dataset_name)
   }
+}
 
+
+calculate_ngram_fractions <- function(datasets, k, kmer_gaps) {
+  fracs <- lapply(names(datasets), function(ith_dataset) {
+    x <- count_multimers(datasets[[ith_dataset]],
+                         k_vector = k,
+                         kmer_gaps_list = kmer_gaps, 
+                         kmer_alphabet = toupper(colnames(biogram::aaprop)),
+                         with_kmer_counts = TRUE) 
+    frac <- colSums(as.matrix(x/sum(x)))
+    frac %>%
+      t() %>% 
+      as.data.frame() %>% 
+      mutate(dataset = ith_dataset)
+  }) %>% bind_rows()
+  fracs[is.na(fracs)] <- 0
+  fracs
+}
+
+select_quipt_informative_motifs <- function(binary_ngrams, dataset1_name, dataset2_name, pval = 0.05) {
+  x <- binary_ngrams %>% 
+    filter(dataset %in% c(dataset1_name,
+                          dataset2_name)) %>% 
+    mutate(dataset = ifelse(dataset == dataset1_name, 1, 0)) 
+  tf <- test_features(x[["dataset"]], select(x, -dataset))
+  filter(as.data.frame(tf), p.value <= pval) %>% 
+    mutate(ngram = sapply(.[["ngram"]], function(i) gsub("_", ".", decode_ngrams(i), fixed = TRUE))) %>% 
+    arrange(p.value) %>% 
+    setNames(c("motif", "p-value", dataset1_name, paste0(dataset2_name, collapse = "/")))
+}
+
+select_fcbf_informative_motifs <- function(binary_ngrams, dataset1_name, dataset2_name, min_su = 0.05) {
+  x <- binary_ngrams %>% 
+    filter(dataset %in% c(dataset1_name,
+                          dataset2_name)) %>% 
+    mutate(dataset = ifelse(dataset == dataset1_name, 1, 0))
+  tar <- x[["dataset"]]
+  x <- select(x, -dataset)
+  x[sapply(x, is.numeric)] <- lapply(x[sapply(x, is.numeric)], 
+                                     as.factor)
+  fcbf_res <- fcbf(x, as.factor(tar), samples_in_rows = TRUE, minimum_su = min_su)
+  as.data.frame(fcbf_res) %>% 
+    mutate(motif = sapply(rownames(.), function(i) gsub("_", ".", decode_ngrams(i), fixed = TRUE)))
 }
