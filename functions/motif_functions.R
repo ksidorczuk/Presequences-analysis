@@ -226,7 +226,7 @@ plot_motif_position_density <- function(dataset_list, dataset_name, found_motifs
 }
 
 
-plot_motif_positions_scaled <- function(dataset_list, dataset_name, found_motifs, type = "point") {
+plot_motif_positions_scaled <- function(dataset_list, dataset_name, found_motifs, type = "point", density_col = "white") {
   lens <- data.frame(seq = names(dataset_list[[dataset_name]]),
                      len = lengths(dataset_list[[dataset_name]]))
   
@@ -243,7 +243,7 @@ plot_motif_positions_scaled <- function(dataset_list, dataset_name, found_motifs
       ggtitle(dataset_name)
   } else {
     ggplot(lens_dat, aes(x = start, y = dataset)) +
-      geom_violin() +
+      geom_violin(fill = density_col, alpha = 0.25) +
       facet_wrap(~motif) +
       theme_bw()  +
       theme(axis.text.y = element_blank(),
