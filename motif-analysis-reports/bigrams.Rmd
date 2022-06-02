@@ -20,11 +20,22 @@ library(stringr)
 library(ggnewscale)
 library(biogram)
 library(FCBF)
+library(DT)
+library(ggVennDiagram)
+library(ggdendro)
+library(grid)
+library(gridExtra)
 
 source("../functions/extract_features.R")
 source("../functions/motif_functions.R")
 withr::with_dir("../", 
                 tar_load(datasets_list))
+
+my_DT <- function(df) {
+  datatable(df, extensions = 'FixedColumns', filter = "top", style = "bootstrap",
+            options = list(dom = 't', scrollX = TRUE, scrollCollapse = TRUE,
+                           scrollY = "700px", paging = FALSE))
+}
 
 colors <- c("AmyPro regions" = "#e44496", "CPAD peptides" = "#8d44e4", 
             "cTP-mTP experimentally verified presequence" ="#e4d345", 
@@ -380,92 +391,105 @@ binary_bigrams[is.na(binary_bigrams)] <- 0
 ```
 cTP vs. mTP
 ```{r}
-x <- select_quipt_informative_motifs(binary_bigrams,
+x <- select_quipt_informative_motifs(binary_trigrams,
                                      "cTP experimentally verified presequence",
                                      "mTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(x)))
-knitr::kable(x)
+my_DT(x)
 ```
-cTP-mTP vs. cTP & mTP 
+cTP-mTP vs. cTP & mTP
 ```{r}
-x <- select_quipt_informative_motifs(binary_bigrams,
+x <- select_quipt_informative_motifs(binary_trigrams,
                                      "cTP-mTP experimentally verified presequence",
-                                     c("cTP experimentally verified presequence", "mTP experimentally verified presequence")) 
+                                     c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
 print(paste0("Number of informative motifs: ", nrow(x)))
-knitr::kable(x)
+my_DT(x)
 ```
 
 cTP vs. cTP-mTP
 ```{r}
-x <- select_quipt_informative_motifs(binary_bigrams,
+x <- select_quipt_informative_motifs(binary_trigrams,
                                      "cTP experimentally verified presequence",
-                                     "cTP-mTP experimentally verified presequence") 
+                                     "cTP-mTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(x)))
-knitr::kable(x)
+my_DT(x)
 ```
 
 mTP vs. cTP-mTP
 ```{r}
-x <- select_quipt_informative_motifs(binary_bigrams,
+x <- select_quipt_informative_motifs(binary_trigrams,
                                      "mTP experimentally verified presequence",
-                                     "cTP-mTP experimentally verified presequence") 
+                                     "cTP-mTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(x)))
-knitr::kable(x)
+my_DT(x)
 ```
 
 SP vs. cTP & mTP
 ```{r}
-x <- select_quipt_informative_motifs(binary_bigrams,
+x <- select_quipt_informative_motifs(binary_trigrams,
                                      "SP experimentally verified presequence",
                                      c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
 print(paste0("Number of informative motifs: ", nrow(x)))
-knitr::kable(x)
-```
+my_DT(x)
 
 
 ### FCBF most informative motifs
 cTP vs. mTP
 ```{r}
-y <- select_fcbf_informative_motifs(binary_bigrams,
+y <- select_fcbf_informative_motifs(binary_trigrams,
                                     "cTP experimentally verified presequence",
                                     "mTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(y)))
-knitr::kable(y)
+my_DT(y)
 ```
 
-cTP-mTP vs. cTP & mTP 
+cTP-mTP vs. cTP & mTP
 ```{r}
-y <- select_fcbf_informative_motifs(binary_bigrams,
+y <- select_fcbf_informative_motifs(binary_trigrams,
                                     "cTP-mTP experimentally verified presequence",
-                                    c("cTP experimentally verified presequence", "mTP experimentally verified presequence")) 
+                                    c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
 print(paste0("Number of informative motifs: ", nrow(y)))
-knitr::kable(y)
+my_DT(y)
 ```
 
 cTP vs. cTP-mTP
 ```{r}
-y <- select_fcbf_informative_motifs(binary_bigrams,
+y <- select_fcbf_informative_motifs(binary_trigrams,
                                     "cTP experimentally verified presequence",
                                     "cTP-mTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(y)))
-knitr::kable(y)
+my_DT(y)
 ```
 
 mTP vs. cTP-mTP
 ```{r}
-y <- select_fcbf_informative_motifs(binary_bigrams,
+y <- select_fcbf_informative_motifs(binary_trigrams,
                                     "mTP experimentally verified presequence",
                                     "cTP-mTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(y)))
-knitr::kable(y)
+my_DT(y)
 ```
 
 SP vs. cTP & mTP
 ```{r}
-y <- select_fcbf_informative_motifs(binary_bigrams,
+y <- select_fcbf_informative_motifs(binary_trigrams,
                                     "SP experimentally verified presequence",
-                                    c("cTP experimentally verified presequence", "mTP experimentally verified presequence")) 
+                                    c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
 print(paste0("Number of informative motifs: ", nrow(y)))
-knitr::kable(y)
+my_DT(y)
 ```
 
+### Statistical analysis with Mann-Whitney test
+
+```{r fig.height = 20}
+test_res <- do_statistical_analysis(binary_bigrams)
+
+plot_clustered_statistical_analysis_res(test_res)
+```
+
+Significant comparisons
+```{r}
+test_res %>% 
+  filter(pval_adjusted < 0.05) %>% 
+  my_DT()
+```

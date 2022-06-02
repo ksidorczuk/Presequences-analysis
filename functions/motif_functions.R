@@ -304,3 +304,102 @@ plot_motif_venn_diagram <- function(datasets, colors) {
     scale_color_manual("Dataset", values = unname(colors)) +
     scale_fill_continuous(low = "white", high = "tan1")
 }
+
+
+do_statistical_analysis <- function(ngram_binary_matrix) {
+  combns <- unique(ngram_binary_matrix[["dataset"]]) %>% 
+    combn(., 2, simplify = FALSE)
+  colnames(ngram_binary_matrix) <- sapply(colnames(ngram_binary_matrix), function(i) {
+    ifelse(i == "dataset", "dataset", gsub("_", ".", decode_ngrams(i), fixed = TRUE))
+  })
+  lapply(seq_along(combns), function(ith_combn) {
+    test_dat <- filter(ngram_binary_matrix, dataset %in% combns[[ith_combn]])
+    lapply(colnames(ngram_binary_matrix)[which(colnames(ngram_binary_matrix) != "dataset")], function(ith_motif) {
+      data.frame(comparison = paste0(strsplit(combns[[ith_combn]][1], " ")[[1]][1], "_", 
+                                     strsplit(combns[[ith_combn]][2], " ")[[1]][1]),
+                 motif = ith_motif,
+                 pval = wilcox.test(x = filter(test_dat, dataset == combns[[ith_combn]][1])[[ith_motif]],
+                                    y = filter(test_dat, dataset == combns[[ith_combn]][2])[[ith_motif]],
+                                    exact = FALSE)[["p.value"]]) 
+    }) %>% bind_rows() %>% 
+      mutate(pval_adjusted = p.adjust(pval))
+  }) %>% bind_rows()
+}
+
+
+plot_clustered_statistical_analysis_res <- function(test_res) {
+  test_res_plot_dat <- test_res %>% 
+    select(-pval)  %>% 
+    group_by(motif, comparison) %>% 
+    summarise(is_significant = as.logical(pval_adjusted < 0.05)) %>% 
+    pivot_wider(motif, names_from = comparison, values_from = is_significant)
+  
+  clustering_motifs <- as.dendrogram(hclust(dist(as.matrix(test_res_plot_dat[,2:7]))))
+  motifs_order <- order.dendrogram(clustering_motifs)
+  
+  dendro_motifs <- clustering_motifs %>%
+    dendro_data %>%
+    segment %>%
+    ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+    geom_segment() +
+    scale_y_continuous("") +
+    scale_x_discrete("",
+                     limits = factor(1L:nobs(clustering_motifs))) + 
+    theme_void() + 
+    coord_flip()
+  
+  test_res[["motif"]] <- factor(test_res[["motif"]],
+                                levels = test_res_plot_dat[["motif"]][motifs_order], ordered = TRUE)
+  
+  clustering_comparisons <- as.dendrogram(hclust(dist(t(as.matrix(test_res_plot_dat[,2:7])))))
+  comparisons_order <- order.dendrogram(clustering_comparisons)
+  dendro_comparisons <- clustering_comparisons %>%
+    dendro_data %>%
+    segment %>%
+    ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+    geom_segment() +
+    scale_y_continuous("") +
+    scale_x_discrete("",
+                     limits = factor(1L:nobs(clustering_comparisons))) + 
+    theme_void() 
+  
+  test_res[["comparison"]] <- factor(test_res[["comparison"]],
+                                     levels = colnames(test_res_plot_dat)[2:7][comparisons_order], ordered = TRUE)
+  
+  heatmap <- test_res %>% 
+    select(-pval)  %>% 
+    group_by(motif, comparison) %>% 
+    summarise(is_significant = as.logical(pval_adjusted < 0.05)) %>% 
+    ggplot(aes(y = motif, x = comparison)) +
+    geom_tile(aes(fill = is_significant)) +
+    scale_fill_manual(values = c("TRUE" = "red4", "FALSE" = "wheat")) +
+    theme_bw() +
+    theme(legend.position = "bottom",
+          legend.key.width = unit(2, "lines")) 
+  
+  max_height <- unit.pmax(ggplotGrob(heatmap)[["heights"]],
+                          ggplotGrob(dendro_motifs)[["heights"]])
+  
+  grob_list <- list(heatmap = ggplotGrob(heatmap),
+                    dendrogram_right = ggplotGrob(dendro_motifs),
+                    dendrogram_top = ggplotGrob(dendro_comparisons))
+  
+  max_width <- unit.pmax(grob_list[["heatmap"]][["widths"]],
+                         grob_list[["dendrogram_top"]][["widths"]])
+  
+  grob_list[["heatmap"]][["widths"]] <-
+    grob_list[["dendrogram_top"]][["widths"]] <-
+    max_width
+  
+  grob_list[["heatmap"]][["heights"]] <-
+    grob_list[["dendrogram_right"]][["heights"]] <-
+    max_height
+  
+  top_right <- grid.rect(gp = gpar(col = NA), draw = FALSE)
+  
+  grid.arrange(grob_list[["dendrogram_top"]],
+               top_right,
+               grob_list[["heatmap"]],
+               grob_list[["dendrogram_right"]],
+               widths = c(0.9, 0.1), heights = c(0.1, 0.9))
+}
