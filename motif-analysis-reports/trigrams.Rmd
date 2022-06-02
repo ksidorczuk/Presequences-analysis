@@ -29,9 +29,9 @@ withr::with_dir("../",
                 tar_load(datasets_list))
 
 my_DT <- function(df) {
-  datatable(df, extensions = 'FixedColumns', filter = "top", rownames = FALSE, style = "bootstrap",
+  datatable(df, extensions = 'FixedColumns', filter = "top", style = "bootstrap",
             options = list(dom = 't', scrollX = TRUE, scrollCollapse = TRUE,
-                           scrollY = "700px", paging = FALSE, fixedColumns = list(leftColumns = 1)))
+                           scrollY = "700px", paging = FALSE))
 }
 
 colors <- c("AmyPro regions" = "#e44496", "CPAD peptides" = "#8d44e4", 
@@ -217,7 +217,7 @@ plot_most_frequent_motifs(trigram_plot_dat_presequences,
 
 
 ### Position of the intersection of the 100 most frequent motifs within sequences
-```{r fig.width = 12, fig.height = 22}
+```{r fig.width = 12, fig.height = 14}
 presequence_datasets_list <- datasets_list[c("cTP-mTP experimentally verified presequence",
                                              "cTP experimentally verified presequence",
                                              "mTP experimentally verified presequence",
@@ -321,7 +321,7 @@ plot_motif_positions_scaled(presequence_datasets_list, "SP experimentally verifi
 
 ## Detailed analysis of presequences
 ```{r}
-trigram_fracs <- calculate_ngram_fractions(presequence_datasets_list, 2, 0)
+trigram_fracs <- calculate_ngram_fractions(presequence_datasets_list, 3, 0)
 
 trigram_fracs_plot_dat <- get_motif_plot_dat(trigram_fracs)
 
@@ -378,7 +378,7 @@ plot_most_frequent_motifs(trigram_fracs_plot_dat,
 
 ```{r}
 binary_trigrams <- lapply(names(presequence_datasets_list), function(ith_dataset) {
-  calculate_binary_ngram_matrix(presequence_datasets_list[[ith_dataset]], 2, 0) %>%
+  calculate_binary_ngram_matrix(presequence_datasets_list[[ith_dataset]], 3, 0) %>%
     mutate(dataset = ith_dataset)
 }) %>% bind_rows()
 binary_trigrams[is.na(binary_trigrams)] <- 0
