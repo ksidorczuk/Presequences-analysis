@@ -61,16 +61,10 @@ locate_motifs <- function(datasets, motifs) {
 #' 
 #' @return a long data frame with the following columns: dataset
 #' name, motif, frequency of the motif
-get_motif_plot_dat <- function(motif_freqs, gapped = FALSE) {
-  if(gapped == TRUE) {
+get_motif_plot_dat <- function(motif_freqs) {
     colnames(motif_freqs) <- sapply(colnames(motif_freqs), function(i) {
       ifelse(i == "dataset", "dataset", gsub("_", ".", decode_ngrams(i), fixed = TRUE))
     })
-  } else {
-    colnames(motif_freqs) <- sapply(colnames(motif_freqs), function(i) {
-      ifelse(i == "dataset", "dataset", gsub(".", "", gsub("_0", "", i), fixed = TRUE))
-    }) 
-  }
   pivot_longer(motif_freqs, colnames(motif_freqs)[which(colnames(motif_freqs) != "dataset")], 
                names_to = "motif", values_to = "frequency")
 }
@@ -294,4 +288,19 @@ select_fcbf_informative_motifs <- function(binary_ngrams, dataset1_name, dataset
   fcbf_res <- fcbf(x, as.factor(tar), samples_in_rows = TRUE, minimum_su = min_su)
   as.data.frame(fcbf_res) %>% 
     mutate(motif = sapply(rownames(.), function(i) gsub("_", ".", decode_ngrams(i), fixed = TRUE)))
+}
+
+
+plot_motif_venn_diagram <- function(datasets, colors) {
+  ggVennDiagram(list("cTP-mTP" = filter(datasets, 
+                                        dataset == "cTP-mTP experimentally verified presequence" & frequency > 0)[["motif"]],
+                     "cTP" = filter(datasets, 
+                                    dataset == "cTP experimentally verified presequence" & frequency > 0)[["motif"]],
+                     "mTP" = filter(datasets, 
+                                    dataset == "mTP experimentally verified presequence" & frequency > 0)[["motif"]],
+                     "SP" = filter(datasets, 
+                                   dataset == "SP experimentally verified presequence" & frequency > 0)[["motif"]]),
+                label_alpha = 0) +
+    scale_color_manual("Dataset", values = unname(colors)) +
+    scale_fill_continuous(low = "white", high = "tan1")
 }
