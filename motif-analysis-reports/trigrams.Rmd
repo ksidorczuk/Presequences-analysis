@@ -19,7 +19,7 @@ library(pbapply)
 library(stringr)
 library(ggnewscale)
 library(biogram)
-library(FCBF)
+library(FCBF) 
 library(DT)
 library(ggVennDiagram)
 library(ggdendro)
@@ -481,8 +481,8 @@ my_DT(y)
 
 ```{r fig.height = 20}
 test_res <- do_statistical_analysis(binary_trigrams)
-
-plot_clustered_statistical_analysis_res(test_res)
+save(test_res, file = "trigrams_test_res.rda")
+#plot_clustered_statistical_analysis_res(test_res)
 ```
 
 Significant comparisons

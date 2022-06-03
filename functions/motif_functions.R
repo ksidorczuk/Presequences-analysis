@@ -285,7 +285,7 @@ select_fcbf_informative_motifs <- function(binary_ngrams, dataset1_name, dataset
   x <- select(x, -dataset)
   x[sapply(x, is.numeric)] <- lapply(x[sapply(x, is.numeric)], 
                                      as.factor)
-  fcbf_res <- fcbf(x, as.factor(tar), samples_in_rows = TRUE, minimum_su = min_su)
+  fcbf_res <- fcbf(x, as.factor(tar), samples_in_rows = TRUE, thresh = min_su)
   as.data.frame(fcbf_res) %>% 
     mutate(motif = sapply(rownames(.), function(i) gsub("_", ".", decode_ngrams(i), fixed = TRUE)))
 }
@@ -334,7 +334,7 @@ plot_clustered_statistical_analysis_res <- function(test_res) {
     summarise(is_significant = as.logical(pval_adjusted < 0.05)) %>% 
     pivot_wider(motif, names_from = comparison, values_from = is_significant)
   
-  clustering_motifs <- as.dendrogram(hclust(dist(as.matrix(test_res_plot_dat[,2:7]))))
+  clustering_motifs <- as.dendrogram(hclust(dist(as.matrix(test_res_plot_dat[, 2:7]))))
   motifs_order <- order.dendrogram(clustering_motifs)
   
   dendro_motifs <- clustering_motifs %>%
@@ -375,7 +375,8 @@ plot_clustered_statistical_analysis_res <- function(test_res) {
     scale_fill_manual(values = c("TRUE" = "red4", "FALSE" = "wheat")) +
     theme_bw() +
     theme(legend.position = "bottom",
-          legend.key.width = unit(2, "lines")) 
+          legend.key.width = unit(2, "lines"),
+          axis.text.y = element_text(size = 3)) 
   
   max_height <- unit.pmax(ggplotGrob(heatmap)[["heights"]],
                           ggplotGrob(dendro_motifs)[["heights"]])

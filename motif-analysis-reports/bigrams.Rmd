@@ -431,7 +431,7 @@ x <- select_quipt_informative_motifs(binary_trigrams,
                                      c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
 print(paste0("Number of informative motifs: ", nrow(x)))
 my_DT(x)
-
+```
 
 ### FCBF most informative motifs
 cTP vs. mTP
