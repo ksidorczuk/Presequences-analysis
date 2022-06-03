@@ -36,7 +36,7 @@ calculate_ngram_freq <- function(datasets, k, kmer_gaps) {
 #' @return a data frame with the following columns: start/end 
 #' positions of a motif, dataset name, sequence name and motif
 locate_motifs <- function(datasets, motifs) {
-  pblapply(motifs, cl = 8, function(ith_motif) {
+  pblapply(motifs, cl = 4, function(ith_motif) {
     lapply(names(datasets), function(ith_set) {
       lapply(names(datasets[[ith_set]]), function(ith_seq) {
         str_locate_all(paste0(datasets[[ith_set]][[ith_seq]], collapse = ""), ith_motif) %>%
@@ -189,7 +189,7 @@ plot_motif_position_density <- function(dataset_list, dataset_name, found_motifs
   
   lens_dat <- left_join(filter(found_motifs, dataset == dataset_name), lens, by = "seq")
   
-  plot_dat <- pblapply(1:nrow(lens_dat), cl = 8, function(i) {
+  plot_dat <- pblapply(1:nrow(lens_dat), cl = 4, function(i) {
     data.frame(dataset = lens_dat[["dataset"]][i],
                seq_name = lens_dat[["seq"]][i],
                motif_pos = lens_dat[["start"]][i]:lens_dat[["end"]][i],
@@ -201,7 +201,7 @@ plot_motif_position_density <- function(dataset_list, dataset_name, found_motifs
     group_by(dataset, seq_name, len, motif, motif_pos) %>% 
     summarise(n = n()) 
   
-  pblapply(1:nrow(lens_dat), cl = 8, function(i) {
+  pblapply(1:nrow(lens_dat), cl = 4, function(i) {
     data.frame(dataset = lens_dat[["dataset"]][i],
                seq_name = lens_dat[["seq"]][i],
                pos = 1:lens_dat[["len"]][i])
