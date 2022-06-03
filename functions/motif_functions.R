@@ -140,7 +140,7 @@ plot_motif_positions <- function(dataset_list, dataset_name, found_motifs) {
   
   lens_dat <- left_join(filter(found_motifs, dataset == dataset_name), lens, by = "seq")
   
-  plot_dat <- pblapply(1:nrow(lens_dat), cl = 8, function(i) {
+  plot_dat <- pblapply(1:nrow(lens_dat), cl = 4, function(i) {
     data.frame(dataset = lens_dat[["dataset"]][i],
                seq_name = lens_dat[["seq"]][i],
                motif_pos = lens_dat[["start"]][i]:lens_dat[["end"]][i],
@@ -402,5 +402,5 @@ plot_clustered_statistical_analysis_res <- function(test_res) {
                top_right,
                grob_list[["heatmap"]],
                grob_list[["dendrogram_right"]],
-               widths = c(0.9, 0.1), heights = c(0.1, 0.9))
+               widths = c(0.9, 0.1), heights = c(0.025, 0.975))
 }

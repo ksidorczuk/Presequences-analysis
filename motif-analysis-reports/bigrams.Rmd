@@ -391,7 +391,7 @@ binary_bigrams[is.na(binary_bigrams)] <- 0
 ```
 cTP vs. mTP
 ```{r}
-x <- select_quipt_informative_motifs(binary_trigrams,
+x <- select_quipt_informative_motifs(binary_bigrams,
                                      "cTP experimentally verified presequence",
                                      "mTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(x)))
@@ -399,7 +399,7 @@ my_DT(x)
 ```
 cTP-mTP vs. cTP & mTP
 ```{r}
-x <- select_quipt_informative_motifs(binary_trigrams,
+x <- select_quipt_informative_motifs(binary_bigrams,
                                      "cTP-mTP experimentally verified presequence",
                                      c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
 print(paste0("Number of informative motifs: ", nrow(x)))
@@ -408,7 +408,7 @@ my_DT(x)
 
 cTP vs. cTP-mTP
 ```{r}
-x <- select_quipt_informative_motifs(binary_trigrams,
+x <- select_quipt_informative_motifs(binary_bigrams,
                                      "cTP experimentally verified presequence",
                                      "cTP-mTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(x)))
@@ -417,7 +417,7 @@ my_DT(x)
 
 mTP vs. cTP-mTP
 ```{r}
-x <- select_quipt_informative_motifs(binary_trigrams,
+x <- select_quipt_informative_motifs(binary_bigrams,
                                      "mTP experimentally verified presequence",
                                      "cTP-mTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(x)))
@@ -426,7 +426,7 @@ my_DT(x)
 
 SP vs. cTP & mTP
 ```{r}
-x <- select_quipt_informative_motifs(binary_trigrams,
+x <- select_quipt_informative_motifs(binary_bigrams,
                                      "SP experimentally verified presequence",
                                      c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
 print(paste0("Number of informative motifs: ", nrow(x)))
@@ -436,7 +436,7 @@ my_DT(x)
 ### FCBF most informative motifs
 cTP vs. mTP
 ```{r}
-y <- select_fcbf_informative_motifs(binary_trigrams,
+y <- select_fcbf_informative_motifs(binary_bigrams,
                                     "cTP experimentally verified presequence",
                                     "mTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(y)))
@@ -445,7 +445,7 @@ my_DT(y)
 
 cTP-mTP vs. cTP & mTP
 ```{r}
-y <- select_fcbf_informative_motifs(binary_trigrams,
+y <- select_fcbf_informative_motifs(binary_bigrams,
                                     "cTP-mTP experimentally verified presequence",
                                     c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
 print(paste0("Number of informative motifs: ", nrow(y)))
@@ -454,7 +454,7 @@ my_DT(y)
 
 cTP vs. cTP-mTP
 ```{r}
-y <- select_fcbf_informative_motifs(binary_trigrams,
+y <- select_fcbf_informative_motifs(binary_bigrams,
                                     "cTP experimentally verified presequence",
                                     "cTP-mTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(y)))
@@ -463,7 +463,7 @@ my_DT(y)
 
 mTP vs. cTP-mTP
 ```{r}
-y <- select_fcbf_informative_motifs(binary_trigrams,
+y <- select_fcbf_informative_motifs(binary_bigrams,
                                     "mTP experimentally verified presequence",
                                     "cTP-mTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(y)))
@@ -472,7 +472,7 @@ my_DT(y)
 
 SP vs. cTP & mTP
 ```{r}
-y <- select_fcbf_informative_motifs(binary_trigrams,
+y <- select_fcbf_informative_motifs(binary_bigrams,
                                     "SP experimentally verified presequence",
                                     c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
 print(paste0("Number of informative motifs: ", nrow(y)))
