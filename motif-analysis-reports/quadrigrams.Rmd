@@ -106,7 +106,8 @@ motif_counts_datasets <- trigram_plot_dat %>%
   mutate(n_datasets = apply(select(., -motif), 1, function(r) sum(r!=0)))
 
 print(paste0("Number of motifs occuring in all datasets: ", nrow(filter(motif_counts_datasets, n_datasets == 9))))
-filter(motif_counts_datasets, n_datasets == 9) %>% 
+if(nrow(filter(motif_counts_datasets, n_datasets == 9)) > 0) {
+  filter(motif_counts_datasets, n_datasets == 9) %>% 
   select(-n_datasets) %>% 
   pivot_longer(2:10, names_to = "dataset", values_to = "frequency") %>% 
   ggplot(aes(x = dataset, y = frequency, fill = dataset)) +
@@ -117,6 +118,7 @@ filter(motif_counts_datasets, n_datasets == 9) %>%
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank()) +
   scale_fill_manual("Data set", values = colors)
+}
 ```
 
 
@@ -305,7 +307,7 @@ plot_motif_positions_scaled(presequence_datasets_list, "SP experimentally verifi
 
 ## Detailed analysis of presequences
 ```{r}
-trigram_fracs <- calculate_ngram_fractions(presequence_datasets_list, 4, c(0, 0, 0))
+trigram_fracs <- calculate_ngram_fractions(presequence_datasets_list, 4, list(c(0, 0, 0)))
 
 trigram_fracs_plot_dat <- get_motif_plot_dat(trigram_fracs)
 
@@ -363,7 +365,7 @@ if(length(frequent_for_all) > 0) {
 
 ```{r}
 binary_trigrams <- lapply(names(presequence_datasets_list), function(ith_dataset) {
-  calculate_binary_ngram_matrix(presequence_datasets_list[[ith_dataset]], 4, c(0, 0, 0)) %>%
+  calculate_binary_ngram_matrix(presequence_datasets_list[[ith_dataset]], 4, list(c(0, 0, 0))) %>%
     mutate(dataset = ith_dataset)
 }) %>% bind_rows()
 binary_trigrams[is.na(binary_trigrams)] <- 0

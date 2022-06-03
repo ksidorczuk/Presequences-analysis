@@ -62,9 +62,9 @@ locate_motifs <- function(datasets, motifs) {
 #' @return a long data frame with the following columns: dataset
 #' name, motif, frequency of the motif
 get_motif_plot_dat <- function(motif_freqs) {
-    colnames(motif_freqs) <- sapply(colnames(motif_freqs), function(i) {
-      ifelse(i == "dataset", "dataset", gsub("_", ".", decode_ngrams(i), fixed = TRUE))
-    })
+  colnames(motif_freqs) <- sapply(colnames(motif_freqs), function(i) {
+    ifelse(i == "dataset", "dataset", gsub("_", ".", decode_ngrams(i), fixed = TRUE))
+  })
   pivot_longer(motif_freqs, colnames(motif_freqs)[which(colnames(motif_freqs) != "dataset")], 
                names_to = "motif", values_to = "frequency")
 }
@@ -120,7 +120,7 @@ plot_most_frequent_motifs <- function(motif_plot_data, selected_motifs, colors, 
     scale_fill_manual("Data set", values = colors) +
     ggtitle(title)
 }
-                                      
+
 
 #' Plot motif positions within sequences
 #' 
@@ -285,9 +285,16 @@ select_fcbf_informative_motifs <- function(binary_ngrams, dataset1_name, dataset
   x <- select(x, -dataset)
   x[sapply(x, is.numeric)] <- lapply(x[sapply(x, is.numeric)], 
                                      as.factor)
-  fcbf_res <- fcbf(x, as.factor(tar), samples_in_rows = TRUE, thresh = min_su)
-  as.data.frame(fcbf_res) %>% 
-    mutate(motif = sapply(rownames(.), function(i) gsub("_", ".", decode_ngrams(i), fixed = TRUE)))
+  fcbf_res <- tryCatch({
+    fcbf(x, as.factor(tar), samples_in_rows = TRUE, thresh = min_su)
+  },
+  error = function(e) NULL)
+  if(!is.null(fcbf_res)) {
+    as.data.frame(fcbf_res) %>% 
+      mutate(motif = sapply(rownames(.), function(i) gsub("_", ".", decode_ngrams(i), fixed = TRUE)))
+  } else {
+    NULL
+  }
 }
 
 
