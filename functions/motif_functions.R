@@ -321,14 +321,16 @@ do_statistical_analysis <- function(ngram_binary_matrix) {
   })
   lapply(seq_along(combns), function(ith_combn) {
     test_dat <- filter(ngram_binary_matrix, dataset %in% combns[[ith_combn]])
-    lapply(colnames(ngram_binary_matrix)[which(colnames(ngram_binary_matrix) != "dataset")], function(ith_motif) {
-      data.frame(comparison = paste0(strsplit(combns[[ith_combn]][1], " ")[[1]][1], "_", 
-                                     strsplit(combns[[ith_combn]][2], " ")[[1]][1]),
-                 motif = ith_motif,
-                 pval = wilcox.test(x = filter(test_dat, dataset == combns[[ith_combn]][1])[[ith_motif]],
-                                    y = filter(test_dat, dataset == combns[[ith_combn]][2])[[ith_motif]],
-                                    exact = FALSE)[["p.value"]]) 
-    }) %>% bind_rows() %>% 
+    pblapply(colnames(ngram_binary_matrix)[which(colnames(ngram_binary_matrix) != "dataset")], 
+             cl = 3, 
+             function(ith_motif) {
+               data.frame(comparison = paste0(strsplit(combns[[ith_combn]][1], " ")[[1]][1], "_", 
+                                              strsplit(combns[[ith_combn]][2], " ")[[1]][1]),
+                          motif = ith_motif,
+                          pval = wilcox.test(x = filter(test_dat, dataset == combns[[ith_combn]][1])[[ith_motif]],
+                                             y = filter(test_dat, dataset == combns[[ith_combn]][2])[[ith_motif]],
+                                             exact = FALSE)[["p.value"]]) 
+             }) %>% bind_rows() %>% 
       mutate(pval_adjusted = p.adjust(pval))
   }) %>% bind_rows()
 }
