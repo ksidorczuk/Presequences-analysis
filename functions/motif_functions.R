@@ -292,8 +292,9 @@ select_fcbf_informative_motifs <- function(binary_ngrams, dataset1_name, dataset
   if(!is.null(fcbf_res)) {
     if(nrow(fcbf_res) == 1) {
       rownames(fcbf_res) <- colnames(binary_ngrams)[fcbf_res[["index"]][1]]
+      fcbf_res
     } else {
-      as.data.frame(fcbf_res) %>% 
+      as.data.frame(fcbf_res) %>%
         mutate(motif = sapply(rownames(.), function(i) gsub("_", ".", decode_ngrams(i), fixed = TRUE)))
     }
   } else {

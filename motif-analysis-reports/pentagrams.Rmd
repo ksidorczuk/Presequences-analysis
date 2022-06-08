@@ -56,7 +56,7 @@ filtered_datasets_list <- datasets_list[c("AmyPro regions", "CPAD peptides", "cT
 filtered_datasets <- unlist(sapply(names(filtered_datasets_list), function(i) rep(i, length(filtered_datasets_list[[i]])), USE.NAMES = FALSE))
 
 
-trigram_freqs <- calculate_ngram_freq(filtered_datasets_list, 5, c(0, 0, 0, 0))
+trigram_freqs <- calculate_ngram_freq(filtered_datasets_list, 5, list(c(0, 0, 0, 0)))
 trigram_plot_dat <- get_motif_plot_dat(trigram_freqs)
 
 ```
@@ -106,7 +106,8 @@ motif_counts_datasets <- trigram_plot_dat %>%
   mutate(n_datasets = apply(select(., -motif), 1, function(r) sum(r!=0)))
 
 print(paste0("Number of motifs occuring in all datasets: ", nrow(filter(motif_counts_datasets, n_datasets == 9))))
-filter(motif_counts_datasets, n_datasets == 9) %>% 
+if(nrow(filter(motif_counts_datasets, n_datasets == 9)) > 0) {
+  filter(motif_counts_datasets, n_datasets == 9) %>% 
   select(-n_datasets) %>% 
   pivot_longer(2:10, names_to = "dataset", values_to = "frequency") %>% 
   ggplot(aes(x = dataset, y = frequency, fill = dataset)) +
@@ -117,6 +118,8 @@ filter(motif_counts_datasets, n_datasets == 9) %>%
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank()) +
   scale_fill_manual("Data set", values = colors)
+}
+
 ```
 
 
@@ -137,7 +140,8 @@ motif_counts_datasets2 <- trigram_plot_dat_presequences %>%
   pivot_wider(motif, names_from = dataset, values_from = frequency) %>% 
   mutate(n_datasets = apply(select(., -motif), 1, function(r) sum(r!=0)))
 
-filter(motif_counts_datasets2, n_datasets == 4) %>% 
+if(nrow(filter(motif_counts_datasets2, n_datasets == 4)) > 0) {
+  filter(motif_counts_datasets2, n_datasets == 4) %>% 
   select(-n_datasets) %>% 
   pivot_longer(2:5, names_to = "dataset", values_to = "frequency") %>% 
   ggplot(aes(x = dataset, y = frequency, fill = dataset)) +
@@ -148,6 +152,7 @@ filter(motif_counts_datasets2, n_datasets == 4) %>%
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank()) +
   scale_fill_manual("Data set", values = colors2)
+}
 ```
 
 ### Motifs unique for specific classes
@@ -212,10 +217,12 @@ plot_most_frequent_motifs(trigram_plot_dat_presequences,
 
 frequent_for_all <- Reduce(intersect, list(most_frequent_cTP, most_frequent_cTPmTP, most_frequent_mTP, most_frequent_SP))
 
-plot_most_frequent_motifs(trigram_plot_dat_presequences,
+if(length(frequent_for_all) > 0) {
+  plot_most_frequent_motifs(trigram_plot_dat_presequences,
                           frequent_for_all,
                           colors2,
                           "Intersection of the 100 most frequent motifs in all data sets")
+}
 ```
 
 ### Position density of the intersection of the 100 most frequent motifs
@@ -303,7 +310,7 @@ plot_motif_positions_scaled(presequence_datasets_list, "SP experimentally verifi
 
 ## Detailed analysis of presequences
 ```{r}
-trigram_fracs <- calculate_ngram_fractions(presequence_datasets_list, 5, c(0, 0, 0, 0))
+trigram_fracs <- calculate_ngram_fractions(presequence_datasets_list, 5, list(c(0, 0, 0, 0)))
 
 trigram_fracs_plot_dat <- get_motif_plot_dat(trigram_fracs)
 
@@ -360,7 +367,7 @@ plot_most_frequent_motifs(trigram_fracs_plot_dat,
 
 ```{r}
 binary_trigrams <- lapply(names(presequence_datasets_list), function(ith_dataset) {
-  calculate_binary_ngram_matrix(presequence_datasets_list[[ith_dataset]], 5, c(0, 0, 0, 0)) %>%
+  calculate_binary_ngram_matrix(presequence_datasets_list[[ith_dataset]], 5, list(c(0, 0, 0, 0))) %>%
     mutate(dataset = ith_dataset)
 }) %>% bind_rows()
 binary_trigrams[is.na(binary_trigrams)] <- 0
