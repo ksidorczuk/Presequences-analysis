@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, fig.width = 14, fig.height = 10, warning = FALSE, message = FALSE, cache = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.width = 14, fig.height = 10, warning = FALSE, message = FALSE, cache = TRUE, cache.lazy = FALSE)
 
 library(targets)
 library(dplyr)
@@ -65,7 +65,7 @@ trigram_plot_dat <- get_motif_plot_dat(trigram_freqs)
 
 ## Overall analysis of all data sets
 
-### Numbers of distinct trigrams
+### Numbers of distinct motifs
 ```{r fig.width = 8, fig.height = 3}
 trigram_plot_dat %>% 
   filter(frequency > 0) %>% 
@@ -79,7 +79,7 @@ trigram_plot_dat %>%
   theme(legend.position = "none")
 ```
 
-### Numbers of trigrams with given frequency
+### Numbers of motifs with given frequency
 ```{r}
 trigram_plot_dat %>% 
   filter(frequency > 0) %>% 
@@ -108,16 +108,16 @@ motif_counts_datasets <- trigram_plot_dat %>%
 print(paste0("Number of motifs occuring in all datasets: ", nrow(filter(motif_counts_datasets, n_datasets == 9))))
 if(nrow(filter(motif_counts_datasets, n_datasets == 9)) > 0) {
   filter(motif_counts_datasets, n_datasets == 9) %>% 
-  select(-n_datasets) %>% 
-  pivot_longer(2:10, names_to = "dataset", values_to = "frequency") %>% 
-  ggplot(aes(x = dataset, y = frequency, fill = dataset)) +
-  geom_col() +
-  facet_wrap(~motif) +
-  theme_bw() +
-  theme(legend.position = "bottom",
-        axis.text.x = element_blank(),
-        axis.ticks.x = element_blank()) +
-  scale_fill_manual("Data set", values = colors)
+    select(-n_datasets) %>% 
+    pivot_longer(2:10, names_to = "dataset", values_to = "frequency") %>% 
+    ggplot(aes(x = dataset, y = frequency, fill = dataset)) +
+    geom_col() +
+    facet_wrap(~motif) +
+    theme_bw() +
+    theme(legend.position = "bottom",
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank()) +
+    scale_fill_manual("Data set", values = colors)
 }
 
 ```
@@ -142,16 +142,16 @@ motif_counts_datasets2 <- trigram_plot_dat_presequences %>%
 
 if(nrow(filter(motif_counts_datasets2, n_datasets == 4)) > 0) {
   filter(motif_counts_datasets2, n_datasets == 4) %>% 
-  select(-n_datasets) %>% 
-  pivot_longer(2:5, names_to = "dataset", values_to = "frequency") %>% 
-  ggplot(aes(x = dataset, y = frequency, fill = dataset)) +
-  geom_col() +
-  facet_wrap(~motif, ncol = 20) +
-  theme_bw() +
-  theme(legend.position = "bottom",
-        axis.text.x = element_blank(),
-        axis.ticks.x = element_blank()) +
-  scale_fill_manual("Data set", values = colors2)
+    select(-n_datasets) %>% 
+    pivot_longer(2:5, names_to = "dataset", values_to = "frequency") %>% 
+    ggplot(aes(x = dataset, y = frequency, fill = dataset)) +
+    geom_col() +
+    facet_wrap(~motif, ncol = 20) +
+    theme_bw() +
+    theme(legend.position = "bottom",
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank()) +
+    scale_fill_manual("Data set", values = colors2)
 }
 ```
 
@@ -219,9 +219,9 @@ frequent_for_all <- Reduce(intersect, list(most_frequent_cTP, most_frequent_cTPm
 
 if(length(frequent_for_all) > 0) {
   plot_most_frequent_motifs(trigram_plot_dat_presequences,
-                          frequent_for_all,
-                          colors2,
-                          "Intersection of the 100 most frequent motifs in all data sets")
+                            frequent_for_all,
+                            colors2,
+                            "Intersection of the 100 most frequent motifs in all data sets")
 }
 ```
 
@@ -231,17 +231,18 @@ presequence_datasets_list <- datasets_list[c("cTP-mTP experimentally verified pr
                                              "cTP experimentally verified presequence",
                                              "mTP experimentally verified presequence",
                                              "SP experimentally verified presequence")]
-
-found_motifs <- locate_motifs(presequence_datasets_list, frequent_for_all)
-
-plot_motif_position_density(presequence_datasets_list, "cTP-mTP experimentally verified presequence",
-                            found_motifs, density_col = colors2[["cTP-mTP experimentally verified presequence"]])
-plot_motif_position_density(presequence_datasets_list, "cTP experimentally verified presequence",
-                            found_motifs, density_col = colors2[["cTP experimentally verified presequence"]])
-plot_motif_position_density(presequence_datasets_list, "mTP experimentally verified presequence",
-                            found_motifs, density_col = colors2[["mTP experimentally verified presequence"]])
-plot_motif_position_density(presequence_datasets_list, "SP experimentally verified presequence",
-                            found_motifs, density_col = colors2[["SP experimentally verified presequence"]])
+if(length(frequent_for_all) > 0) {
+  found_motifs <- locate_motifs(presequence_datasets_list, frequent_for_all)
+  
+  plot_motif_position_density(presequence_datasets_list, "cTP-mTP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["cTP-mTP experimentally verified presequence"]])
+  plot_motif_position_density(presequence_datasets_list, "cTP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["cTP experimentally verified presequence"]])
+  plot_motif_position_density(presequence_datasets_list, "mTP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["mTP experimentally verified presequence"]])
+  plot_motif_position_density(presequence_datasets_list, "SP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["SP experimentally verified presequence"]])
+}
 ```
 
 ### Position density of the 25 most frequent motifs for each dataset
@@ -350,13 +351,14 @@ plot_most_frequent_motifs(trigram_fracs_plot_dat,
                           colors2,
                           "50 most frequent motifs of SP data set")
 
-
 frequent_for_all <- Reduce(intersect, list(most_frequent_cTP, most_frequent_cTPmTP, most_frequent_mTP, most_frequent_SP))
 
-plot_most_frequent_motifs(trigram_fracs_plot_dat,
-                          frequent_for_all,
-                          colors2,
-                          "Intersection of the 50 most frequent motifs in all data sets")
+if(length(frequent_for_all) > 0) {
+  plot_most_frequent_motifs(trigram_fracs_plot_dat,
+                            frequent_for_all,
+                            colors2,
+                            "Intersection of the 50 most frequent motifs in all data sets")
+}
 ```
 
 # Motif presence/absence

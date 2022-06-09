@@ -65,7 +65,7 @@ trigram_plot_dat <- get_motif_plot_dat(trigram_freqs)
 
 ## Overall analysis of all data sets
 
-### Numbers of distinct trigrams
+### Numbers of distinct motifs
 ```{r fig.width = 8, fig.height = 3}
 trigram_plot_dat %>% 
   filter(frequency > 0) %>% 
