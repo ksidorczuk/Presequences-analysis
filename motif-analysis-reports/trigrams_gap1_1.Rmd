@@ -56,7 +56,7 @@ filtered_datasets_list <- datasets_list[c("AmyPro regions", "CPAD peptides", "cT
 filtered_datasets <- unlist(sapply(names(filtered_datasets_list), function(i) rep(i, length(filtered_datasets_list[[i]])), USE.NAMES = FALSE))
 
 
-trigram_freqs <- calculate_ngram_freq(filtered_datasets_list, 3, c(1, 1))
+trigram_freqs <- calculate_ngram_freq(filtered_datasets_list, 3, list(c(1, 1)))
 trigram_plot_dat <- get_motif_plot_dat(trigram_freqs)
 
 ```
@@ -304,7 +304,7 @@ plot_motif_positions_scaled(presequence_datasets_list, "SP experimentally verifi
 
 ## Detailed analysis of presequences
 ```{r}
-trigram_fracs <- calculate_ngram_fractions(presequence_datasets_list, 3, c(1, 1))
+trigram_fracs <- calculate_ngram_fractions(presequence_datasets_list, 3, list(c(1, 1)))
 
 trigram_fracs_plot_dat <- get_motif_plot_dat(trigram_fracs)
 
@@ -361,7 +361,7 @@ plot_most_frequent_motifs(trigram_fracs_plot_dat,
 
 ```{r}
 binary_trigrams <- lapply(names(presequence_datasets_list), function(ith_dataset) {
-  calculate_binary_ngram_matrix(presequence_datasets_list[[ith_dataset]], 3, c(1, 1)) %>%
+  calculate_binary_ngram_matrix(presequence_datasets_list[[ith_dataset]], 3, list(c(1, 1))) %>%
     mutate(dataset = ith_dataset)
 }) %>% bind_rows()
 binary_trigrams[is.na(binary_trigrams)] <- 0
