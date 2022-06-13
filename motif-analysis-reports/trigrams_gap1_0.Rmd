@@ -348,10 +348,12 @@ plot_most_frequent_motifs(trigram_fracs_plot_dat,
 
 frequent_for_all <- Reduce(intersect, list(most_frequent_cTP, most_frequent_cTPmTP, most_frequent_mTP, most_frequent_SP))
 
-plot_most_frequent_motifs(trigram_fracs_plot_dat,
+if(length(frequent_for_all) > 0) {
+  plot_most_frequent_motifs(trigram_fracs_plot_dat,
                           frequent_for_all,
                           colors2,
                           "Intersection of the 50 most frequent motifs in all data sets")
+}
 ```
 
 # Motif presence/absence
