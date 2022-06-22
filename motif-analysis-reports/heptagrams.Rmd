@@ -1,0 +1,466 @@
+---
+title: "Heptagrams analysis"
+author: "Katarzyna Sidorczuk"
+date: "02/06/2022"
+output: 
+  html_document:
+  toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.width = 14, fig.height = 10, warning = FALSE, message = FALSE, cache = TRUE, cache.lazy = FALSE)
+
+library(targets)
+library(dplyr)
+library(ggplot2)
+library(seqR)
+library(tidyr)
+library(pbapply)
+library(stringr)
+library(ggnewscale)
+library(biogram)
+library(FCBF)
+library(DT)
+library(ggVennDiagram)
+library(ggdendro)
+library(grid)
+library(gridExtra)
+
+source("../functions/extract_features.R")
+source("../functions/motif_functions.R")
+withr::with_dir("../", 
+                tar_load(datasets_list))
+
+my_DT <- function(df) {
+  datatable(df, extensions = 'FixedColumns', filter = "top", style = "bootstrap",
+            options = list(dom = 't', scrollX = TRUE, scrollCollapse = TRUE,
+                           scrollY = "700px", paging = FALSE))
+}
+
+colors <- c("AmyPro regions" = "#e44496", "CPAD peptides" = "#8d44e4", 
+            "cTP-mTP experimentally verified presequence" ="#e4d345", 
+            "cTP experimentally verified presequence" = "#9de444", "DBAASP AMP max 100 aa" = "#e44444", 
+            "mTP experimentally verified presequence" = "#e49144", "SP experimentally verified presequence" = "#45e495", 
+            "TM regions experimentally verified - alpha" = "#44aee4", "TM regions experimentally verified - beta" = "#4451e4")
+
+colors2 <- c("cTP-mTP experimentally verified presequence" ="#e4d345", 
+             "cTP experimentally verified presequence" = "#9de444", 
+             "mTP experimentally verified presequence" = "#e49144", 
+             "SP experimentally verified presequence" = "#45e495")
+
+filtered_datasets_list <- datasets_list[c("AmyPro regions", "CPAD peptides", "cTP-mTP experimentally verified presequence", 
+                                          "cTP experimentally verified presequence", "DBAASP AMP max 100 aa", 
+                                          "mTP experimentally verified presequence", "SP experimentally verified presequence", 
+                                          "TM regions experimentally verified - alpha", "TM regions experimentally verified - beta")]
+
+filtered_datasets <- unlist(sapply(names(filtered_datasets_list), function(i) rep(i, length(filtered_datasets_list[[i]])), USE.NAMES = FALSE))
+
+
+trigram_freqs <- calculate_ngram_freq(filtered_datasets_list, 5, list(c(0, 0, 0, 0, 0, 0)))
+trigram_plot_dat <- get_motif_plot_dat(trigram_freqs)
+
+```
+
+# Motif frequency analysis
+
+## Overall analysis of all data sets
+
+### Numbers of distinct motifs
+```{r fig.width = 8, fig.height = 3}
+trigram_plot_dat %>% 
+  filter(frequency > 0) %>% 
+  group_by(dataset) %>% 
+  summarise(n_motifs = n()) %>% 
+  ggplot(aes(x = dataset, y = n_motifs, fill = dataset)) +
+  geom_col(color = "black", alpha = 0.5) +
+  coord_flip() + 
+  theme_bw() +
+  scale_fill_manual("Data set", values = colors) +
+  theme(legend.position = "none")
+```
+
+### Numbers of motifs with given frequency
+```{r}
+trigram_plot_dat %>% 
+  filter(frequency > 0) %>% 
+  group_by(dataset, frequency) %>% 
+  summarise(n_motifs = n()) %>% 
+  ggplot(aes(x = frequency, y = n_motifs)) +
+  geom_point() +
+  facet_wrap(~dataset, scales = "free") +
+  theme_bw()
+
+trigram_plot_dat %>% 
+  filter(frequency > 0) %>% 
+  ggplot(aes(x = frequency)) +
+  geom_histogram(binwidth = 0.05, color = "black", fill = "white", alpha = 0.5) +
+  facet_wrap(~dataset, scales = "free_y") +
+  theme_bw()
+```
+
+
+### Motifs occuring in all datasets
+```{r fig.height = 14}
+motif_counts_datasets <- trigram_plot_dat %>% 
+  pivot_wider(motif, names_from = dataset, values_from = frequency) %>% 
+  mutate(n_datasets = apply(select(., -motif), 1, function(r) sum(r!=0)))
+
+print(paste0("Number of motifs occuring in all datasets: ", nrow(filter(motif_counts_datasets, n_datasets == 9))))
+if(nrow(filter(motif_counts_datasets, n_datasets == 9)) > 0) {
+  filter(motif_counts_datasets, n_datasets == 9) %>% 
+    select(-n_datasets) %>% 
+    pivot_longer(2:10, names_to = "dataset", values_to = "frequency") %>% 
+    ggplot(aes(x = dataset, y = frequency, fill = dataset)) +
+    geom_col() +
+    facet_wrap(~motif) +
+    theme_bw() +
+    theme(legend.position = "bottom",
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank()) +
+    scale_fill_manual("Data set", values = colors)
+}
+
+```
+
+
+## Detailed analysis of presequences
+
+```{r}
+trigram_plot_dat_presequences <- trigram_plot_dat %>% 
+  filter(dataset %in% c("cTP-mTP experimentally verified presequence", "cTP experimentally verified presequence", 
+                        "mTP experimentally verified presequence", "SP experimentally verified presequence"))
+
+plot_motif_venn_diagram(trigram_plot_dat_presequences, colors2)
+
+```
+
+### Motifs occuring in all presequence datasets
+```{r fig.height = 20}
+motif_counts_datasets2 <- trigram_plot_dat_presequences %>% 
+  pivot_wider(motif, names_from = dataset, values_from = frequency) %>% 
+  mutate(n_datasets = apply(select(., -motif), 1, function(r) sum(r!=0)))
+
+if(nrow(filter(motif_counts_datasets2, n_datasets == 4)) > 0) {
+  filter(motif_counts_datasets2, n_datasets == 4) %>% 
+    select(-n_datasets) %>% 
+    pivot_longer(2:5, names_to = "dataset", values_to = "frequency") %>% 
+    ggplot(aes(x = dataset, y = frequency, fill = dataset)) +
+    geom_col() +
+    facet_wrap(~motif, ncol = 20) +
+    theme_bw() +
+    theme(legend.position = "bottom",
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank()) +
+    scale_fill_manual("Data set", values = colors2)
+}
+```
+
+### Motifs unique for specific classes
+
+```{r}
+x <- filter(motif_counts_datasets2, n_datasets == 1) %>% 
+  select(-n_datasets) 
+pivoted_x <- pivot_longer(x, 2:5, names_to = "dataset", values_to = "frequency") %>% 
+  filter(frequency > 0) 
+
+group_by(pivoted_x, dataset) %>% 
+  summarise(`Number of unique motifs` = n()) %>% 
+  my_DT()
+```
+
+### Motifs specific for two classes
+```{r}
+x <- filter(motif_counts_datasets2, n_datasets == 2) %>% 
+  select(-n_datasets) 
+
+my_DT(x)
+```
+
+### The most frequent motifs for specific classes
+```{r}
+most_frequent_cTP <- get_dataset_most_frequent_motifs(trigram_plot_dat_presequences,
+                                                      "cTP experimentally verified presequence",
+                                                      n_motifs = 100)
+
+most_frequent_mTP <- get_dataset_most_frequent_motifs(trigram_plot_dat_presequences,
+                                                      "mTP experimentally verified presequence",
+                                                      n_motifs = 100)
+
+most_frequent_cTPmTP <- get_dataset_most_frequent_motifs(trigram_plot_dat_presequences,
+                                                         "cTP-mTP experimentally verified presequence",
+                                                         n_motifs = 100)
+
+most_frequent_SP <- get_dataset_most_frequent_motifs(trigram_plot_dat_presequences,
+                                                     "SP experimentally verified presequence",
+                                                     n_motifs = 100)
+
+plot_most_frequent_motifs(trigram_plot_dat_presequences,
+                          most_frequent_cTP,
+                          colors2,
+                          "100 most frequent motifs of cTP data set")
+
+plot_most_frequent_motifs(trigram_plot_dat_presequences,
+                          most_frequent_mTP,
+                          colors2,
+                          "100 most frequent motifs of mTP data set")
+
+plot_most_frequent_motifs(trigram_plot_dat_presequences,
+                          most_frequent_cTPmTP,
+                          colors2,
+                          "100 most frequent motifs of cTP-mTP data set")
+
+plot_most_frequent_motifs(trigram_plot_dat_presequences,
+                          most_frequent_SP,
+                          colors2,
+                          "100 most frequent motifs of SP data set")
+
+
+frequent_for_all <- Reduce(intersect, list(most_frequent_cTP, most_frequent_cTPmTP, most_frequent_mTP, most_frequent_SP))
+
+if(length(frequent_for_all) > 0) {
+  plot_most_frequent_motifs(trigram_plot_dat_presequences,
+                            frequent_for_all,
+                            colors2,
+                            "Intersection of the 100 most frequent motifs in all data sets")
+}
+```
+
+### Position density of the intersection of the 100 most frequent motifs
+```{r}
+presequence_datasets_list <- datasets_list[c("cTP-mTP experimentally verified presequence",
+                                             "cTP experimentally verified presequence",
+                                             "mTP experimentally verified presequence",
+                                             "SP experimentally verified presequence")]
+if(length(frequent_for_all) > 0) {
+  found_motifs <- locate_motifs(presequence_datasets_list, frequent_for_all)
+  
+  plot_motif_position_density(presequence_datasets_list, "cTP-mTP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["cTP-mTP experimentally verified presequence"]])
+  plot_motif_position_density(presequence_datasets_list, "cTP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["cTP experimentally verified presequence"]])
+  plot_motif_position_density(presequence_datasets_list, "mTP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["mTP experimentally verified presequence"]])
+  plot_motif_position_density(presequence_datasets_list, "SP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["SP experimentally verified presequence"]])
+}
+```
+
+### Position density of the 25 most frequent motifs for each dataset
+```{r}
+most_frequent_cTP_25 <- get_dataset_most_frequent_motifs(trigram_plot_dat_presequences,
+                                                         "cTP experimentally verified presequence",
+                                                         n_motifs = 25)
+
+most_frequent_mTP_25 <- get_dataset_most_frequent_motifs(trigram_plot_dat_presequences,
+                                                         "mTP experimentally verified presequence",
+                                                         n_motifs = 25)
+
+most_frequent_cTPmTP_25 <- get_dataset_most_frequent_motifs(trigram_plot_dat_presequences,
+                                                            "cTP-mTP experimentally verified presequence",
+                                                            n_motifs = 25)
+
+most_frequent_SP_25 <- get_dataset_most_frequent_motifs(trigram_plot_dat_presequences,
+                                                        "SP experimentally verified presequence",
+                                                        n_motifs = 25)
+
+plot_motif_position_density(presequence_datasets_list, "cTP-mTP experimentally verified presequence",
+                            locate_motifs(presequence_datasets_list, most_frequent_cTPmTP_25),
+                            density_col = colors2[["cTP-mTP experimentally verified presequence"]])
+plot_motif_position_density(presequence_datasets_list, "cTP experimentally verified presequence",
+                            locate_motifs(presequence_datasets_list, most_frequent_cTP_25),
+                            density_col = colors2[["cTP experimentally verified presequence"]])
+plot_motif_position_density(presequence_datasets_list, "mTP experimentally verified presequence",
+                            locate_motifs(presequence_datasets_list, most_frequent_mTP_25),
+                            density_col = colors2[["mTP experimentally verified presequence"]])
+plot_motif_position_density(presequence_datasets_list, "SP experimentally verified presequence",
+                            locate_motifs(presequence_datasets_list, most_frequent_SP_25),
+                            density_col = colors2[["SP experimentally verified presequence"]])
+```
+
+### Motif positions within scaled sequences
+```{r}
+plot_motif_positions_scaled(presequence_datasets_list, "cTP-mTP experimentally verified presequence",
+                            locate_motifs(presequence_datasets_list, most_frequent_cTPmTP_25),
+                            type = "point")
+plot_motif_positions_scaled(presequence_datasets_list, "cTP experimentally verified presequence",
+                            locate_motifs(presequence_datasets_list, most_frequent_cTP_25),
+                            type = "point")
+plot_motif_positions_scaled(presequence_datasets_list, "mTP experimentally verified presequence",
+                            locate_motifs(presequence_datasets_list, most_frequent_mTP_25),
+                            type = "point")
+plot_motif_positions_scaled(presequence_datasets_list, "SP experimentally verified presequence",
+                            locate_motifs(presequence_datasets_list, most_frequent_SP_25),
+                            type = "point")
+
+plot_motif_positions_scaled(presequence_datasets_list, "cTP-mTP experimentally verified presequence",
+                            locate_motifs(presequence_datasets_list, most_frequent_cTPmTP_25),
+                            type = "violin", density_col = colors2[["cTP-mTP experimentally verified presequence"]])
+plot_motif_positions_scaled(presequence_datasets_list, "cTP experimentally verified presequence",
+                            locate_motifs(presequence_datasets_list, most_frequent_cTP_25),
+                            type = "violin", density_col = colors2[["cTP experimentally verified presequence"]])
+plot_motif_positions_scaled(presequence_datasets_list, "mTP experimentally verified presequence",
+                            locate_motifs(presequence_datasets_list, most_frequent_mTP_25),
+                            type = "violin", density_col = colors2[["mTP experimentally verified presequence"]])
+plot_motif_positions_scaled(presequence_datasets_list, "SP experimentally verified presequence",
+                            locate_motifs(presequence_datasets_list, most_frequent_SP_25),
+                            type = "violin", density_col = colors2[["SP experimentally verified presequence"]])
+```
+
+
+# Motif numbers
+
+## Detailed analysis of presequences
+```{r}
+trigram_fracs <- calculate_ngram_fractions(presequence_datasets_list, 5, list(c(0, 0, 0, 0, 0, 0)))
+
+trigram_fracs_plot_dat <- get_motif_plot_dat(trigram_fracs)
+
+most_frequent_cTP <- get_dataset_most_frequent_motifs(trigram_fracs_plot_dat,
+                                                      "cTP experimentally verified presequence",
+                                                      n_motifs = 50)
+
+most_frequent_mTP <- get_dataset_most_frequent_motifs(trigram_fracs_plot_dat,
+                                                      "mTP experimentally verified presequence",
+                                                      n_motifs = 50)
+
+most_frequent_cTPmTP <- get_dataset_most_frequent_motifs(trigram_fracs_plot_dat,
+                                                         "cTP-mTP experimentally verified presequence",
+                                                         n_motifs = 50)
+
+most_frequent_SP <- get_dataset_most_frequent_motifs(trigram_fracs_plot_dat,
+                                                     "SP experimentally verified presequence",
+                                                     n_motifs = 50)
+
+plot_most_frequent_motifs(trigram_fracs_plot_dat,
+                          most_frequent_cTP,
+                          colors2,
+                          "50 most frequent motifs of cTP data set")
+
+plot_most_frequent_motifs(trigram_fracs_plot_dat,
+                          most_frequent_mTP,
+                          colors2,
+                          "50 most frequent motifs of mTP data set")
+
+plot_most_frequent_motifs(trigram_fracs_plot_dat,
+                          most_frequent_cTPmTP,
+                          colors2,
+                          "50 most frequent motifs of cTP-mTP data set")
+
+plot_most_frequent_motifs(trigram_fracs_plot_dat,
+                          most_frequent_SP,
+                          colors2,
+                          "50 most frequent motifs of SP data set")
+
+frequent_for_all <- Reduce(intersect, list(most_frequent_cTP, most_frequent_cTPmTP, most_frequent_mTP, most_frequent_SP))
+
+if(length(frequent_for_all) > 0) {
+  plot_most_frequent_motifs(trigram_fracs_plot_dat,
+                            frequent_for_all,
+                            colors2,
+                            "Intersection of the 50 most frequent motifs in all data sets")
+}
+```
+
+# Motif presence/absence
+
+## Detailed analysis of presequences
+
+### QuiPT most informative motifs
+
+```{r}
+binary_trigrams <- lapply(names(presequence_datasets_list), function(ith_dataset) {
+  calculate_binary_ngram_matrix(presequence_datasets_list[[ith_dataset]], 5, list(c(0, 0, 0, 0, 0, 0))) %>%
+    mutate(dataset = ith_dataset)
+}) %>% bind_rows()
+binary_trigrams[is.na(binary_trigrams)] <- 0
+```
+cTP vs. mTP
+```{r}
+x <- select_quipt_informative_motifs(binary_trigrams,
+                                     "cTP experimentally verified presequence",
+                                     "mTP experimentally verified presequence")
+print(paste0("Number of informative motifs: ", nrow(x)))
+my_DT(x)
+```
+cTP-mTP vs. cTP & mTP
+```{r}
+x <- select_quipt_informative_motifs(binary_trigrams,
+                                     "cTP-mTP experimentally verified presequence",
+                                     c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
+print(paste0("Number of informative motifs: ", nrow(x)))
+my_DT(x)
+```
+
+cTP vs. cTP-mTP
+```{r}
+x <- select_quipt_informative_motifs(binary_trigrams,
+                                     "cTP experimentally verified presequence",
+                                     "cTP-mTP experimentally verified presequence")
+print(paste0("Number of informative motifs: ", nrow(x)))
+my_DT(x)
+```
+
+mTP vs. cTP-mTP
+```{r}
+x <- select_quipt_informative_motifs(binary_trigrams,
+                                     "mTP experimentally verified presequence",
+                                     "cTP-mTP experimentally verified presequence")
+print(paste0("Number of informative motifs: ", nrow(x)))
+my_DT(x)
+```
+
+SP vs. cTP & mTP
+```{r}
+x <- select_quipt_informative_motifs(binary_trigrams,
+                                     "SP experimentally verified presequence",
+                                     c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
+print(paste0("Number of informative motifs: ", nrow(x)))
+my_DT(x)
+```
+
+
+### FCBF most informative motifs
+cTP vs. mTP
+```{r}
+y <- select_fcbf_informative_motifs(binary_trigrams,
+                                    "cTP experimentally verified presequence",
+                                    "mTP experimentally verified presequence")
+print(paste0("Number of informative motifs: ", nrow(y)))
+my_DT(y)
+```
+
+cTP-mTP vs. cTP & mTP
+```{r}
+y <- select_fcbf_informative_motifs(binary_trigrams,
+                                    "cTP-mTP experimentally verified presequence",
+                                    c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
+print(paste0("Number of informative motifs: ", nrow(y)))
+my_DT(y)
+```
+
+cTP vs. cTP-mTP
+```{r}
+y <- select_fcbf_informative_motifs(binary_trigrams,
+                                    "cTP experimentally verified presequence",
+                                    "cTP-mTP experimentally verified presequence")
+print(paste0("Number of informative motifs: ", nrow(y)))
+my_DT(y)
+```
+
+mTP vs. cTP-mTP
+```{r}
+y <- select_fcbf_informative_motifs(binary_trigrams,
+                                    "mTP experimentally verified presequence",
+                                    "cTP-mTP experimentally verified presequence")
+print(paste0("Number of informative motifs: ", nrow(y)))
+my_DT(y)
+```
+
+SP vs. cTP & mTP
+```{r}
+y <- select_fcbf_informative_motifs(binary_trigrams,
+                                    "SP experimentally verified presequence",
+                                    c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
+print(paste0("Number of informative motifs: ", nrow(y)))
+my_DT(y)
+```
