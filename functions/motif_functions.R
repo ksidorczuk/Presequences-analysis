@@ -11,11 +11,14 @@
 #' 
 #' @return a data frame with datasets as rows and ngrams
 #' as columns with additional column specifying dataset name
-calculate_ngram_freq <- function(datasets, k, kmer_gaps) {
+calculate_ngram_freq <- function(datasets, k, kmer_gaps, alphabet = NULL) {
   freqs <- lapply(names(datasets), function(ith_dataset) {
     x <- calculate_binary_ngram_matrix(datasets[[ith_dataset]],
                                        k = k,
                                        kmer_gaps_list = kmer_gaps) 
+    if(!is.null(alphabet)) {
+      x <- degenerate_ngrams(x, alphabet, binarize = TRUE)
+    }
     freq <- colSums(x)/length(datasets[[ith_dataset]])
     t(freq) %>% 
       as.data.frame() %>% 
@@ -35,11 +38,16 @@ calculate_ngram_freq <- function(datasets, k, kmer_gaps) {
 #' 
 #' @return a data frame with the following columns: start/end 
 #' positions of a motif, dataset name, sequence name and motif
-locate_motifs <- function(datasets, motifs) {
+locate_motifs <- function(datasets, motifs, alphabet = NULL) {
   pblapply(motifs, cl = 4, function(ith_motif) {
     lapply(names(datasets), function(ith_set) {
-      lapply(names(datasets[[ith_set]]), function(ith_seq) {
-        str_locate_all(paste0(datasets[[ith_set]][[ith_seq]], collapse = ""), ith_motif) %>%
+      if(is.null(alphabet)) {
+        ds <- datasets[[ith_set]]
+      } else {
+        ds <- sapply(datasets[[ith_set]], function(i) degenerate(i, alphabet))
+      }
+      lapply(names(ds), function(ith_seq) {
+          str_locate_all(paste0(ds[[ith_seq]], collapse = ""), ith_motif) %>%
           as.data.frame() %>%
           mutate(dataset = ith_set,
                  seq = ith_seq,
