@@ -27,3 +27,16 @@ get_AMPs <- function(dbaasp_dat) {
     lapply(., function(ith_pep) strsplit(ith_pep, "")[[1]]) %>% 
     setNames(dbaasp_dat[["dbaasp_id"]])
 }
+
+
+filter_presequence_entries <- function(datasets_list, annotations_all) {
+  presequences_acc <- datasets_list[c("cTP experimentally verified presequence", "mTP experimentally verified presequence",
+                                      "cTP-mTP experimentally verified presequence", "SP experimentally verified presequence")] %>% 
+    unname() %>% 
+    unlist(recursive = FALSE) %>% 
+    names()
+  
+  annotations_all %>% 
+    filter(Entry %in% presequences_acc) 
+}
+

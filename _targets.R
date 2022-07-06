@@ -440,6 +440,11 @@ list(
          "DBAASP AMP" = dbaasp_amp_70, "DBAASP AMP max 100 aa" = dbaasp_amp_max100_70, "mTP experimentally verified location" = mTP_loc_exp_70,
          "mTP experimentally verified presequence" = mTP_tp_exp_70, "SP experimentally verified presequence" = SP_sp_exp_70,
          "TM regions experimentally verified - alpha" = TM_exp_alpha_70, "TM regions experimentally verified - beta" = TM_exp_beta_70)
+  ),
+  tar_target(
+    presequence_entries,
+    write.csv(filter_presequence_entries(datasets_list, annotations_all),
+              paste0(data_path, "Presequence_uniprot_entries.csv"), row.names = FALSE)
   )
 )
 
