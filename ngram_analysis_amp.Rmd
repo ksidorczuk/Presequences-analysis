@@ -1,10 +1,14 @@
 ---
-title: "Presequences + AMP: Bigrams with gap 3 analysis"
+title: "Presequences + AMP: Bigrams with gap 0 analysis"
 author: "Katarzyna Sidorczuk"
 date: "02/06/2022"
 output: 
   html_document:
   toc: true
+params:
+  encoding: NULL
+  k: 2
+  gaps: 0
 ---
 
 ```{r setup, include=FALSE}
@@ -63,7 +67,7 @@ filtered_datasets_list <- datasets_list[c("AmyPro regions", "CPAD peptides", "cT
 filtered_datasets <- unlist(sapply(names(filtered_datasets_list), function(i) rep(i, length(filtered_datasets_list[[i]])), USE.NAMES = FALSE))
 
 
-trigram_freqs <- calculate_ngram_freq(filtered_datasets_list, 2, 3)
+trigram_freqs <- calculate_ngram_freq(filtered_datasets_list, params[["k"]], params[["gaps"]])
 trigram_plot_dat <- get_motif_plot_dat(trigram_freqs)
 
 ```
@@ -301,7 +305,7 @@ plot_motif_positions_scaled(presequence_datasets_list, "SP experimentally verifi
 
 ```{r}
 binary_trigrams <- lapply(names(presequence_datasets_list), function(ith_dataset) {
-  calculate_binary_ngram_matrix(presequence_datasets_list[[ith_dataset]], 2, 3) %>%
+  calculate_binary_ngram_matrix(presequence_datasets_list[[ith_dataset]], params[["k"]], params[["gaps"]]) %>%
     mutate(dataset = ith_dataset)
 }) %>% bind_rows()
 binary_trigrams[is.na(binary_trigrams)] <- 0
@@ -408,7 +412,7 @@ trigram_plot_dat_amp <- trigram_plot_dat %>%
                         "mTP experimentally verified presequence", "SP experimentally verified presequence",
                         "DBAASP AMP max 100 aa")) 
 
-plot_motif_venn_diagram(trigram_plot_dat_amp, colors3)
+plot_motif_venn_diagram(trigram_plot_dat_amp, colors3, amp = TRUE)
 
 ```
 
@@ -428,7 +432,7 @@ filter(motif_counts_datasets3, n_datasets == 5) %>%
   theme(legend.position = "bottom",
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank()) +
-  scale_fill_manual("Data set", values = colors2)
+  scale_fill_manual("Data set", values = colors3)
 
 filter(motif_counts_datasets3, n_datasets == 5) %>% 
   select(-n_datasets) %>% 
@@ -519,7 +523,7 @@ plot_motif_positions_scaled(amp_datasets_list, "DBAASP AMP max 100 aa",
 
 ```{r}
 binary_trigrams <- lapply(names(amp_datasets_list), function(ith_dataset) {
-  calculate_binary_ngram_matrix(amp_datasets_list[[ith_dataset]], 2, 3) %>%
+  calculate_binary_ngram_matrix(amp_datasets_list[[ith_dataset]], params[["k"]], params[["gaps"]]) %>%
     mutate(dataset = ith_dataset)
 }) %>% bind_rows()
 binary_trigrams[is.na(binary_trigrams)] <- 0

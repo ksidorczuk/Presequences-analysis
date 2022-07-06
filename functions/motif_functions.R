@@ -47,7 +47,7 @@ locate_motifs <- function(datasets, motifs, alphabet = NULL) {
         ds <- sapply(datasets[[ith_set]], function(i) degenerate(i, alphabet))
       }
       lapply(names(ds), function(ith_seq) {
-          str_locate_all(paste0(ds[[ith_seq]], collapse = ""), ith_motif) %>%
+        str_locate_all(paste0(ds[[ith_seq]], collapse = ""), ith_motif) %>%
           as.data.frame() %>%
           mutate(dataset = ith_set,
                  seq = ith_seq,
@@ -311,15 +311,29 @@ select_fcbf_informative_motifs <- function(binary_ngrams, dataset1_name, dataset
 }
 
 
-plot_motif_venn_diagram <- function(datasets, colors) {
-  ggVennDiagram(list("cTP-mTP" = filter(datasets, 
-                                        dataset == "cTP-mTP experimentally verified presequence" & frequency > 0)[["motif"]],
-                     "cTP" = filter(datasets, 
-                                    dataset == "cTP experimentally verified presequence" & frequency > 0)[["motif"]],
-                     "mTP" = filter(datasets, 
-                                    dataset == "mTP experimentally verified presequence" & frequency > 0)[["motif"]],
-                     "SP" = filter(datasets, 
-                                   dataset == "SP experimentally verified presequence" & frequency > 0)[["motif"]]),
+plot_motif_venn_diagram <- function(datasets, colors, amp = FALSE) {
+  ds_list <- if(amp == TRUE) {
+    list("cTP-mTP" = filter(datasets, 
+                            dataset == "cTP-mTP experimentally verified presequence" & frequency > 0)[["motif"]],
+         "cTP" = filter(datasets, 
+                        dataset == "cTP experimentally verified presequence" & frequency > 0)[["motif"]],
+         "mTP" = filter(datasets, 
+                        dataset == "mTP experimentally verified presequence" & frequency > 0)[["motif"]],
+         "SP" = filter(datasets, 
+                       dataset == "SP experimentally verified presequence" & frequency > 0)[["motif"]],
+         "AMP" = filter(datasets, 
+                        dataset == "DBAASP AMP max 100 aa" & frequency > 0)[["motif"]])
+  } else {
+    list("cTP-mTP" = filter(datasets, 
+                            dataset == "cTP-mTP experimentally verified presequence" & frequency > 0)[["motif"]],
+         "cTP" = filter(datasets, 
+                        dataset == "cTP experimentally verified presequence" & frequency > 0)[["motif"]],
+         "mTP" = filter(datasets, 
+                        dataset == "mTP experimentally verified presequence" & frequency > 0)[["motif"]],
+         "SP" = filter(datasets, 
+                       dataset == "SP experimentally verified presequence" & frequency > 0)[["motif"]])
+  }
+  ggVennDiagram(ds_list,
                 label_alpha = 0) +
     scale_color_manual("Dataset", values = unname(colors)) +
     scale_fill_continuous(low = "white", high = "tan1")
