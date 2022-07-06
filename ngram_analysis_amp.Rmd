@@ -30,10 +30,9 @@ library(ggdendro)
 library(grid)
 library(gridExtra)
 
-source("../functions/extract_features.R")
-source("../functions/motif_functions.R")
-withr::with_dir("../", 
-                tar_load(datasets_list))
+source("./functions/extract_features.R")
+source("./functions/motif_functions.R")
+tar_load(datasets_list)
 
 my_DT <- function(df) {
   datatable(df, extensions = 'FixedColumns', filter = "top", style = "bootstrap",
