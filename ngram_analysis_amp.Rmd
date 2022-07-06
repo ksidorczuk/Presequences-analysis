@@ -1,5 +1,5 @@
 ---
-title: "Presequences + AMP: Bigrams with gap 0 analysis"
+title: "Presequences + AMP analysis"
 author: "Katarzyna Sidorczuk"
 date: "02/06/2022"
 output: 
@@ -241,30 +241,45 @@ if(length(frequent_for_all) > 0) {
 }
 ```
 
-
-### Position density of the 25 most frequent motifs for each dataset
+### Position density of the intersection of the 100 most frequent motifs
 ```{r}
 presequence_datasets_list <- datasets_list[c("cTP-mTP experimentally verified presequence",
                                              "cTP experimentally verified presequence",
                                              "mTP experimentally verified presequence",
                                              "SP experimentally verified presequence")]
 
+if(length(frequent_for_all) > 0) {
+  found_motifs <- locate_motifs(presequence_datasets_list, frequent_for_all)
+  plot_motif_position_density(presequence_datasets_list, "cTP-mTP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["cTP-mTP experimentally verified presequence"]])
+  plot_motif_position_density(presequence_datasets_list, "cTP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["cTP experimentally verified presequence"]])
+  plot_motif_position_density(presequence_datasets_list, "mTP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["mTP experimentally verified presequence"]])
+  plot_motif_position_density(presequence_datasets_list, "SP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["SP experimentally verified presequence"]])
+}
 
+```
+
+
+### Position density of the 50 most frequent motifs for each dataset
+```{r, fig.height = 20}
 most_frequent_cTP_25 <- get_dataset_most_frequent_motifs(trigram_plot_dat_presequences,
                                                          "cTP experimentally verified presequence",
-                                                         n_motifs = 25)
+                                                         n_motifs = 50)
 
 most_frequent_mTP_25 <- get_dataset_most_frequent_motifs(trigram_plot_dat_presequences,
                                                          "mTP experimentally verified presequence",
-                                                         n_motifs = 25)
+                                                         n_motifs = 50)
 
 most_frequent_cTPmTP_25 <- get_dataset_most_frequent_motifs(trigram_plot_dat_presequences,
                                                             "cTP-mTP experimentally verified presequence",
-                                                            n_motifs = 25)
+                                                            n_motifs = 50)
 
 most_frequent_SP_25 <- get_dataset_most_frequent_motifs(trigram_plot_dat_presequences,
                                                         "SP experimentally verified presequence",
-                                                        n_motifs = 25)
+                                                        n_motifs = 50)
 
 plot_motif_position_density(presequence_datasets_list, "cTP-mTP experimentally verified presequence",
                             locate_motifs(presequence_datasets_list, most_frequent_cTPmTP_25),
@@ -491,7 +506,7 @@ if(length(frequent_for_all) > 0) {
 ```
 
 
-### Position density of the 25 most frequent motifs for AMP dataset
+### Position density of the intersection of the 100 most frequent motifs
 ```{r}
 amp_datasets_list <- datasets_list[c("cTP-mTP experimentally verified presequence",
                                      "cTP experimentally verified presequence",
@@ -500,9 +515,26 @@ amp_datasets_list <- datasets_list[c("cTP-mTP experimentally verified presequenc
                                      "DBAASP AMP max 100 aa")]
 
 
+if(length(frequent_for_all) > 0) {
+  found_motifs <- locate_motifs(amp_datasets_list, frequent_for_all)
+  plot_motif_position_density(amp_datasets_list, "cTP-mTP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["cTP-mTP experimentally verified presequence"]])
+  plot_motif_position_density(amp_datasets_list, "cTP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["cTP experimentally verified presequence"]])
+  plot_motif_position_density(amp_datasets_list, "mTP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["mTP experimentally verified presequence"]])
+  plot_motif_position_density(amp_datasets_list, "SP experimentally verified presequence",
+                              found_motifs, density_col = colors2[["SP experimentally verified presequence"]])
+}
+
+```
+
+
+### Position density of the 25 most frequent motifs for AMP dataset
+```{r}
 most_frequent_AMP_25 <- get_dataset_most_frequent_motifs(trigram_plot_dat_amp,
                                                          "DBAASP AMP max 100 aa",
-                                                         n_motifs = 25)
+                                                         n_motifs = 50)
 
 plot_motif_position_density(amp_datasets_list, "DBAASP AMP max 100 aa",
                             locate_motifs(amp_datasets_list, most_frequent_AMP_25),
