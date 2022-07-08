@@ -1,17 +1,3 @@
-calculate_aa_comp_peptides <- function(datasets_list) {
-  lapply(names(datasets_list), function(i) {
-    seq <- datasets_list[[i]]
-    lapply(names(seq), function(ith_prot) {
-      data.frame(table(factor(seq[[ith_prot]], levels = c("A", "C", "D", "E", "F", "G", "H",
-                                                          "I", "K", "L", "M", "N", "P", "Q",
-                                                          "R", "S", "T", "V", "W", "Y")))/length(seq[[ith_prot]])) %>%
-        setNames(c("Amino acid", "Frequency"))  %>%
-        mutate(dataset = i)
-    }) %>% bind_rows()
-  }) %>% bind_rows() 
-} 
-
-
 get_aa_comp_heatmap <- function(aa_comp_all) {
   aa_comp_heatmap_dat <- aa_comp_all %>% 
     pivot_wider(names_from = "aa", values_from = "Freq", values_fill = 0) 
