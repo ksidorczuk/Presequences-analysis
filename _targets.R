@@ -428,7 +428,7 @@ list(
     list("Amyloids combined" = amyloids_combined[which(!duplicated(amyloids_combined))], "AmyPro regions" = amypro_regions[which(!duplicated(amypro_regions))], "CPAD peptides" = cpad_peptides[which(!duplicated(cpad_peptides))],
          "cTP experimentally verified location" = cTP_loc_exp[which(!duplicated(cTP_loc_exp))], "cTP-mTP experimentally verified location" = cTP.mTP_loc_exp[which(!duplicated(cTP.mTP_loc_exp))],
          "cTP-mTP experimentally verified presequence" = cTP.mTP_tp_exp[which(!duplicated(cTP.mTP_tp_exp))], "cTP experimentally verified presequence" = cTP_tp_exp[which(!duplicated(cTP_tp_exp))],
-         "DBAASP AMP" = dbaasp_amp[which(!duplicated(dbaasp_amp))], "DBAASP AMP max 100 aa" = dbaasp_amp_max100[which(!duplicated(dbaasp_amp_max100))], "mTP experimentally verified location" = unique(mTP_loc_exp),
+         "DBAASP AMP" = dbaasp_amp[which(!duplicated(dbaasp_amp))], "DBAASP AMP max 100 aa" = dbaasp_amp_max100[which(!duplicated(dbaasp_amp_max100))], "mTP experimentally verified location" = mTP_loc_exp[which(!duplicated(mTP_loc_exp))],
          "mTP experimentally verified presequence" = mTP_tp_exp[which(!duplicated(mTP_tp_exp))], "SP experimentally verified presequence" = SP_sp_exp[which(!duplicated(SP_sp_exp))],
          "TM regions experimentally verified - alpha" = TM_exp_alpha[which(!duplicated(TM_exp_alpha))], "TM regions experimentally verified - beta" = TM_exp_beta[which(!duplicated(TM_exp_beta))])
   ),

@@ -27,6 +27,7 @@ library(grid)
 library(gridExtra)
 library(targets)
 library(plotly)
+library(scales)
 
 set.seed(73607254)
 
@@ -51,6 +52,7 @@ add_group <- function(df) {
 }
 
 source("functions/extract_features.R")
+source("functions/aa_comp_functions.R")
 
 colors <- c("Amyloids combined" = "#bb45e4", "AmyPro regions" = "#e44496", "CPAD peptides" = "#8d44e4", 
             "cTP experimentally verified location" = "#528313", "cTP-mTP experimentally verified location" = "#837713", 
@@ -79,6 +81,30 @@ ds_len_cdhit <- lengths(datasets_list_cdhit) %>%
 knitr::kable(cbind(ds_len, ds_len_cdhit))
 ```
 
+Length distribution
+```{r}
+len_df <- lapply(names(datasets_list), function(i) {
+  data.frame(dataset = i,
+             length = unname(lengths(datasets_list[[i]])))
+}) %>% bind_rows()
+
+ggplot(len_df, aes(x = dataset, y = length, fill = dataset)) +
+  geom_violin() +
+  facet_wrap(~dataset, scales = "free", ncol = 5) +
+  scale_fill_manual("Data set", values = colors) +
+  theme_bw() +
+  theme(legend.position = "none")
+
+len_df %>% 
+  group_by(dataset) %>% 
+  summarise(min = min(length),
+            `1st_quartile` = summary(length)[["1st Qu."]],
+            mean = mean(length),
+            median = median(length),
+            `3rd_quartile` = summary(length)[["3rd Qu."]],
+            max = max(length))
+```
+
 Amino acid composition of whole datasets
 ```{r}
 aa_comp_datasets <- lapply(names(datasets_list_cdhit), function(i) {
@@ -102,6 +128,50 @@ ggplot(aa_comp_datasets, aes(x = dataset, y = Freq, fill = dataset)) +
   scale_fill_manual("Data set", values = colors) +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank()) 
+
+get_aa_comp_heatmap(aa_comp_datasets)
+```
+
+Amino acid composition of peptides
+```{r}
+aa_comp_peptides <- calculate_aa_comp_peptides(datasets_list)
+all_combns <- get_statistical_analysis_aa_comp(aa_comp_peptides, 
+                                               combn(sort(unique(aa_comp_peptides[["dataset"]])), 2, simplify = FALSE))
+
+ggplot(all_combns, aes(x = dataset1, y = dataset2, fill = is_signif)) +
+  geom_tile(color = "white") +
+  facet_wrap(~aa) +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        axis.text.x = element_text(angle = 90)) +
+  scale_fill_manual("Is significant", values = c(`FALSE` = "#76bef2", `TRUE` = "#ff4242")) +
+  xlab("First data set") +
+  ylab("Second data set")
+
+
+selected_combns <- get_statistical_analysis_aa_comp(aa_comp_peptides, list(c("Amyloids combined", "AmyPro regions"), 
+                                                                           c("Amyloids combined", "CPAD peptides"),
+                                                                           c("AmyPro regions", "CPAD peptides"),
+                                                                           c("cTP experimentally verified location", "cTP experimentally verified presequence"), 
+                                                                           c("cTP experimentally verified location", "cTP-mTP experimentally verified location"), 
+                                                                           c("cTP experimentally verified location", "cTP-mTP experimentally verified presequence"),
+                                                                           c("cTP experimentally verified presequence", "cTP-mTP experimentally verified location"), 
+                                                                           c("cTP experimentally verified presequence", "cTP-mTP experimentally verified presequence"),
+                                                                           c("cTP-mTP experimentally verified location", "cTP-mTP experimentally verified presequence"),
+                                                                           c("cTP-mTP experimentally verified location", "mTP experimentally verified presequence"),
+                                                                           c("cTP-mTP experimentally verified presequence", "mTP experimentally verified presequence"),
+                                                                           c("cTP-mTP experimentally verified location", "mTP experimentally verified location"),
+                                                                           c("cTP-mTP experimentally verified presequence", "mTP experimentally verified location"),
+                                                                           c("DBAASP AMP", "DBAASP AMP max 100 aa")))
+
+selected_combns %>% 
+  mutate(comparison = paste0(dataset1, " vs. ", dataset2)) %>% 
+  ggplot(aes(x = aa, y = comparison, fill = is_signif)) +
+  geom_tile(color = "white") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank()) +
+  scale_fill_manual("Is significant", values = c(`FALSE` = "#76bef2", `TRUE` = "#ff4242")) 
+
 ```
 
 PCA on amino acid composition
@@ -808,10 +878,10 @@ umap_res1[["layout"]] %>%
   theme_bw()
 
 umap_res1[["layout"]] %>% 
-            as.data.frame() %>% 
-            mutate(dataset = filtered_datasets_amyloids_both,
-                   name = unlist(sapply(names(datasets_list_amyloids_both), function(i) names(datasets_list_amyloids_both[[i]]), USE.NAMES = FALSE))) %>% 
-    plot_ly(x = ~V1, y = ~V2, color = ~dataset, colors = colors, text = ~name, hoverinfo = "text")
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_both,
+         name = unlist(sapply(names(datasets_list_amyloids_both), function(i) names(datasets_list_amyloids_both[[i]]), USE.NAMES = FALSE))) %>% 
+  plot_ly(x = ~V1, y = ~V2, color = ~dataset, colors = colors, text = ~name, hoverinfo = "text")
 
 umap_res2 <- umap(bigrams_amyloids_combined, config = umap_config)
 umap_res2[["layout"]] %>% 
@@ -918,7 +988,7 @@ pca_trigram_res1[["x"]] %>%
   as.data.frame() %>% 
   mutate(dataset = filtered_datasets_amyloids_both,
          name = unlist(sapply(names(datasets_list_amyloids_both), function(i) names(datasets_list_amyloids_both[[i]]), USE.NAMES = FALSE))) %>% 
-    plot_ly(x = ~PC1, y = ~PC2, color = ~dataset, colors = colors, text = ~name, hoverinfo = "text")
+  plot_ly(x = ~PC1, y = ~PC2, color = ~dataset, colors = colors, text = ~name, hoverinfo = "text")
 
 pca_trigram_res1[["x"]] %>% 
   as.data.frame() %>% 
@@ -1070,10 +1140,10 @@ umap_res1[["layout"]] %>%
   theme_bw()
 
 umap_res1[["layout"]] %>% 
-            as.data.frame() %>% 
-            mutate(dataset = filtered_datasets_amyloids_both,
-                   name = unlist(sapply(names(datasets_list_amyloids_both), function(i) names(datasets_list_amyloids_both[[i]]), USE.NAMES = FALSE))) %>% 
-    plot_ly(x = ~V1, y = ~V2, color = ~dataset, colors = colors, text = ~name, hoverinfo = "text")
+  as.data.frame() %>% 
+  mutate(dataset = filtered_datasets_amyloids_both,
+         name = unlist(sapply(names(datasets_list_amyloids_both), function(i) names(datasets_list_amyloids_both[[i]]), USE.NAMES = FALSE))) %>% 
+  plot_ly(x = ~V1, y = ~V2, color = ~dataset, colors = colors, text = ~name, hoverinfo = "text")
 
 umap_res2 <- umap(trigrams_amyloids_combined, config = umap_config)
 umap_res2[["layout"]] %>% 
