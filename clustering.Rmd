@@ -62,7 +62,7 @@ colors <- c("AmyPro regions" = "#e44496", "CPAD peptides" = "#8d44e4",
             "TM regions experimentally verified - alpha" = "#44aee4", "TM regions experimentally verified - beta" = "#4451e4")
 
 colors_short <- c("Amyloids" = "#bb45e4", "cTP-mTP" ="#e4d345", "cTP" = "#9de444", 
-                  "AMP" = "#831313", "mTP" = "#e49144", "SP" = "#45e495", 
+                  "AMP" = "#e44444", "mTP" = "#e49144", "SP" = "#45e495", 
                   "TM alpha" = "#44aee4", "TM beta" = "#4451e4")
 
 prop_list <- c("BIGC670101", "CHAM820101", "CHOP780201", "CHOP780202", "CHOP780203",
