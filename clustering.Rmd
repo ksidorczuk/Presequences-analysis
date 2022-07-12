@@ -328,7 +328,7 @@ tsne_aa_res1 <- tsne(aa_comp_peptides1_clust_data, k = 2, perplexity = 30, max_i
 mutate(as.data.frame(tsne_aa_res1), dataset = datasets) %>%
   ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point(size = 2) +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw()
 ```
 
@@ -348,7 +348,7 @@ umap_res1[["layout"]] %>%
   mutate(dataset = datasets) %>%
   ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point() +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw()
 ```
 
@@ -366,7 +366,7 @@ umap_res1[["layout"]] %>%
   mutate(dataset = datasets) %>%
   ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point() +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw()
 ```
 
@@ -386,13 +386,13 @@ pca_props_res1 <- prcomp(props, center = TRUE, scale = TRUE)
 ggbiplot(pca_props_res1, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = datasets) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  scale_color_manual("Data set", values = colors)
+  scale_color_manual("Data set", values = colors_short)
 
 ggbiplot(pca_props_res1, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = datasets) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5),
         legend.position = "none") +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   facet_wrap(~groups, ncol = 5)
 ```
 
@@ -404,7 +404,7 @@ tsne_props_res1 <- tsne(props, k = 2, perplexity = 30, max_iter = 1000)
 mutate(as.data.frame(tsne_props_res1), dataset = datasets) %>%
   ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point(size = 2) +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw()
 ```
 
@@ -424,7 +424,7 @@ umap_res1[["layout"]] %>%
   mutate(dataset = datasets) %>%
   ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point() +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw()
 ```
 
@@ -442,7 +442,7 @@ umap_res1[["layout"]] %>%
   mutate(dataset = datasets) %>%
   ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point() +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw()
 ```
 
@@ -465,7 +465,7 @@ pca_bigram_res1 <- prcomp(bigrams, center = TRUE, scale = TRUE)
 ggbiplot(pca_bigram_res1, choices = 1:2, groups = datasets, var.axes = FALSE) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme(legend.position = "none")
 
 pca_bigram_res1[["x"]] %>%
@@ -473,7 +473,7 @@ pca_bigram_res1[["x"]] %>%
   mutate(dataset = datasets) %>%
   ggplot(aes(x = PC1, y = PC2, color = dataset)) +
   geom_point(alpha = 0.5) +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw()
 pca_bigram_res1[["x"]] %>%
   as.data.frame() %>%
@@ -481,7 +481,7 @@ pca_bigram_res1[["x"]] %>%
   ggplot(aes(x = PC1, y = PC2, color = dataset)) +
   geom_point(alpha = 0.5) +
   facet_wrap(~dataset) +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw() +
   theme(legend.position = "none")
 ```
@@ -494,7 +494,7 @@ tsne_bigrams_res1 <- tsne(bigrams, k = 2, perplexity = 30, max_iter = 1000)
 mutate(as.data.frame(tsne_bigrams_res1), dataset = datasets) %>%
   ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point(size = 2) +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw()
 ```
 
@@ -514,7 +514,7 @@ umap_res1[["layout"]] %>%
   mutate(dataset = datasets) %>%
   ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point() +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw()
 ```
 
@@ -532,7 +532,7 @@ umap_res1[["layout"]] %>%
   mutate(dataset = datasets) %>%
   ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point() +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw()
 ```
 
@@ -555,7 +555,7 @@ pca_trigram_res1 <- prcomp(trigrams[vapply(trigrams, function(x) length(unique(x
 ggbiplot(pca_trigram_res1, choices = 1:2, groups = datasets, var.axes = FALSE) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme(legend.position = "none")
 
 pca_trigram_res1[["x"]] %>%
@@ -563,14 +563,14 @@ pca_trigram_res1[["x"]] %>%
   mutate(dataset = datasets) %>%
   ggplot(aes(x = PC1, y = PC2, color = dataset)) +
   geom_point(alpha = 0.5) +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw()
 
 pca_trigram_res1[["x"]] %>%
   as.data.frame() %>%
   mutate(dataset = datasets,
          name = unlist(sapply(names(datasets_list_reduced), function(i) names(datasets_list_reduced[[i]]), USE.NAMES = FALSE))) %>%
-  plot_ly(x = ~PC1, y = ~PC2, color = ~dataset, colors = colors, text = ~name, hoverinfo = "text")
+  plot_ly(x = ~PC1, y = ~PC2, color = ~dataset, colors = colors_short, text = ~name, hoverinfo = "text")
 
 pca_trigram_res1[["x"]] %>%
   as.data.frame() %>%
@@ -578,7 +578,7 @@ pca_trigram_res1[["x"]] %>%
   ggplot(aes(x = PC1, y = PC2, color = dataset)) +
   geom_point(alpha = 0.5) +
   facet_wrap(~dataset) +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw() +
   theme(legend.position = "none")
 ```
@@ -591,7 +591,7 @@ tsne_trigrams_res1 <- tsne(trigrams, k = 2, perplexity = 30, max_iter = 1000)
 mutate(as.data.frame(tsne_trigrams_res1), dataset = datasets) %>%
   ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point(size = 2) +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw()
 ```
 
@@ -611,7 +611,7 @@ umap_res1[["layout"]] %>%
   mutate(dataset = datasets) %>%
   ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point() +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw()
 ```
 
@@ -629,7 +629,7 @@ umap_res1[["layout"]] %>%
   mutate(dataset = datasets) %>%
   ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point() +
-  scale_color_manual("Data set", values = colors) +
+  scale_color_manual("Data set", values = colors_short) +
   theme_bw()
 ```
 
