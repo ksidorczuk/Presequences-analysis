@@ -536,102 +536,102 @@ umap_res1[["layout"]] %>%
   theme_bw()
 ```
 
-### Trigrams
+<!-- ### Trigrams -->
 
-```{r}
-trigrams <- lapply(names(datasets_list_reduced), function(i) {
-  calculate_binary_ngram_matrix(datasets_list_reduced[[i]],
-                                c(3, 3, 3, 3),
-                                list(c(0, 0), c(1, 0), c(0, 1), c(1, 1)))
-}) %>% bind_rows()
-trigrams[is.na(trigrams)] <- 0
-```
+<!-- ```{r} -->
+<!-- trigrams <- lapply(names(datasets_list_reduced), function(i) { -->
+<!--   calculate_binary_ngram_matrix(datasets_list_reduced[[i]], -->
+<!--                                 c(3, 3, 3, 3), -->
+<!--                                 list(c(0, 0), c(1, 0), c(0, 1), c(1, 1))) -->
+<!-- }) %>% bind_rows() -->
+<!-- trigrams[is.na(trigrams)] <- 0 -->
+<!-- ``` -->
 
-### PCA
-```{r}
-pca_trigram_res1 <- prcomp(trigrams[vapply(trigrams, function(x) length(unique(x)) > 1, logical(1L))],
-                           center = TRUE, scale = TRUE)
+<!-- ### PCA -->
+<!-- ```{r} -->
+<!-- pca_trigram_res1 <- prcomp(trigrams[vapply(trigrams, function(x) length(unique(x)) > 1, logical(1L))], -->
+<!--                            center = TRUE, scale = TRUE) -->
 
-ggbiplot(pca_trigram_res1, choices = 1:2, groups = datasets, var.axes = FALSE) +
-  theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  scale_color_manual("Data set", values = colors_short) +
-  theme(legend.position = "none")
+<!-- ggbiplot(pca_trigram_res1, choices = 1:2, groups = datasets, var.axes = FALSE) + -->
+<!--   theme_bw() + -->
+<!--   theme(plot.title = element_text(hjust = 0.5)) + -->
+<!--   scale_color_manual("Data set", values = colors_short) + -->
+<!--   theme(legend.position = "none") -->
 
-pca_trigram_res1[["x"]] %>%
-  as.data.frame() %>%
-  mutate(dataset = datasets) %>%
-  ggplot(aes(x = PC1, y = PC2, color = dataset)) +
-  geom_point(alpha = 0.5) +
-  scale_color_manual("Data set", values = colors_short) +
-  theme_bw()
+<!-- pca_trigram_res1[["x"]] %>% -->
+<!--   as.data.frame() %>% -->
+<!--   mutate(dataset = datasets) %>% -->
+<!--   ggplot(aes(x = PC1, y = PC2, color = dataset)) + -->
+<!--   geom_point(alpha = 0.5) + -->
+<!--   scale_color_manual("Data set", values = colors_short) + -->
+<!--   theme_bw() -->
 
-pca_trigram_res1[["x"]] %>%
-  as.data.frame() %>%
-  mutate(dataset = datasets,
-         name = unlist(sapply(names(datasets_list_reduced), function(i) names(datasets_list_reduced[[i]]), USE.NAMES = FALSE))) %>%
-  plot_ly(x = ~PC1, y = ~PC2, color = ~dataset, colors = colors_short, text = ~name, hoverinfo = "text")
+<!-- pca_trigram_res1[["x"]] %>% -->
+<!--   as.data.frame() %>% -->
+<!--   mutate(dataset = datasets, -->
+<!--          name = unlist(sapply(names(datasets_list_reduced), function(i) names(datasets_list_reduced[[i]]), USE.NAMES = FALSE))) %>% -->
+<!--   plot_ly(x = ~PC1, y = ~PC2, color = ~dataset, colors = colors_short, text = ~name, hoverinfo = "text") -->
 
-pca_trigram_res1[["x"]] %>%
-  as.data.frame() %>%
-  mutate(dataset = datasets) %>%
-  ggplot(aes(x = PC1, y = PC2, color = dataset)) +
-  geom_point(alpha = 0.5) +
-  facet_wrap(~dataset) +
-  scale_color_manual("Data set", values = colors_short) +
-  theme_bw() +
-  theme(legend.position = "none")
-```
+<!-- pca_trigram_res1[["x"]] %>% -->
+<!--   as.data.frame() %>% -->
+<!--   mutate(dataset = datasets) %>% -->
+<!--   ggplot(aes(x = PC1, y = PC2, color = dataset)) + -->
+<!--   geom_point(alpha = 0.5) + -->
+<!--   facet_wrap(~dataset) + -->
+<!--   scale_color_manual("Data set", values = colors_short) + -->
+<!--   theme_bw() + -->
+<!--   theme(legend.position = "none") -->
+<!-- ``` -->
 
-### t-SNE
+<!-- ### t-SNE -->
 
-Perplexity = 30
-```{r}
-tsne_trigrams_res1 <- tsne(trigrams, k = 2, perplexity = 30, max_iter = 1000)
-mutate(as.data.frame(tsne_trigrams_res1), dataset = datasets) %>%
-  ggplot(aes(x = V1, y = V2, color = dataset)) +
-  geom_point(size = 2) +
-  scale_color_manual("Data set", values = colors_short) +
-  theme_bw()
-```
+<!-- Perplexity = 30 -->
+<!-- ```{r} -->
+<!-- tsne_trigrams_res1 <- tsne(trigrams, k = 2, perplexity = 30, max_iter = 1000) -->
+<!-- mutate(as.data.frame(tsne_trigrams_res1), dataset = datasets) %>% -->
+<!--   ggplot(aes(x = V1, y = V2, color = dataset)) + -->
+<!--   geom_point(size = 2) + -->
+<!--   scale_color_manual("Data set", values = colors_short) + -->
+<!--   theme_bw() -->
+<!-- ``` -->
 
-### UMAP
+<!-- ### UMAP -->
 
-Neighbors = 30, spread = 1, min_dist = 0.5
-```{r}
-umap_config <- umap.defaults
-umap_config[["random_state"]] <- 73607254
-umap_config[["spread"]] <- 1
-umap_config[["min_dist"]] <- 0.5
-umap_config[["n_neighbors"]] <- 30
+<!-- Neighbors = 30, spread = 1, min_dist = 0.5 -->
+<!-- ```{r} -->
+<!-- umap_config <- umap.defaults -->
+<!-- umap_config[["random_state"]] <- 73607254 -->
+<!-- umap_config[["spread"]] <- 1 -->
+<!-- umap_config[["min_dist"]] <- 0.5 -->
+<!-- umap_config[["n_neighbors"]] <- 30 -->
 
-umap_res1 <- umap(trigrams, config = umap_config)
-umap_res1[["layout"]] %>%
-  as.data.frame() %>%
-  mutate(dataset = datasets) %>%
-  ggplot(aes(x = V1, y = V2, color = dataset)) +
-  geom_point() +
-  scale_color_manual("Data set", values = colors_short) +
-  theme_bw()
-```
+<!-- umap_res1 <- umap(trigrams, config = umap_config) -->
+<!-- umap_res1[["layout"]] %>% -->
+<!--   as.data.frame() %>% -->
+<!--   mutate(dataset = datasets) %>% -->
+<!--   ggplot(aes(x = V1, y = V2, color = dataset)) + -->
+<!--   geom_point() + -->
+<!--   scale_color_manual("Data set", values = colors_short) + -->
+<!--   theme_bw() -->
+<!-- ``` -->
 
-Neighbors = 50, spread = 1, min_dist = 0.5
-```{r}
-umap_config <- umap.defaults
-umap_config[["random_state"]] <- 73607254
-umap_config[["spread"]] <- 1
-umap_config[["min_dist"]] <- 0.5
-umap_config[["n_neighbors"]] <- 50
+<!-- Neighbors = 50, spread = 1, min_dist = 0.5 -->
+<!-- ```{r} -->
+<!-- umap_config <- umap.defaults -->
+<!-- umap_config[["random_state"]] <- 73607254 -->
+<!-- umap_config[["spread"]] <- 1 -->
+<!-- umap_config[["min_dist"]] <- 0.5 -->
+<!-- umap_config[["n_neighbors"]] <- 50 -->
 
-umap_res1 <- umap(trigrams, config = umap_config)
-umap_res1[["layout"]] %>%
-  as.data.frame() %>%
-  mutate(dataset = datasets) %>%
-  ggplot(aes(x = V1, y = V2, color = dataset)) +
-  geom_point() +
-  scale_color_manual("Data set", values = colors_short) +
-  theme_bw()
-```
+<!-- umap_res1 <- umap(trigrams, config = umap_config) -->
+<!-- umap_res1[["layout"]] %>% -->
+<!--   as.data.frame() %>% -->
+<!--   mutate(dataset = datasets) %>% -->
+<!--   ggplot(aes(x = V1, y = V2, color = dataset)) + -->
+<!--   geom_point() + -->
+<!--   scale_color_manual("Data set", values = colors_short) + -->
+<!--   theme_bw() -->
+<!-- ``` -->
 
 ## Clustering of experimental datasets
 
