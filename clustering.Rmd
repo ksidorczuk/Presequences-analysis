@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, fig.width = 14, fig.height = 10, warning = FALSE, message = FALSE, cache = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.width = 14, fig.height = 10, warning = FALSE, message = FALSE, cache = TRUE, cache.lazy = FALSE)
 
 library(dplyr)
 library(biogram)
@@ -536,52 +536,52 @@ umap_res1[["layout"]] %>%
   theme_bw()
 ```
 
-<!-- ### Trigrams -->
+### Trigrams
 
-<!-- ```{r} -->
-<!-- trigrams <- lapply(names(datasets_list_reduced), function(i) { -->
-<!--   calculate_binary_ngram_matrix(datasets_list_reduced[[i]], -->
-<!--                                 c(3, 3, 3, 3), -->
-<!--                                 list(c(0, 0), c(1, 0), c(0, 1), c(1, 1))) -->
-<!-- }) %>% bind_rows() -->
-<!-- trigrams[is.na(trigrams)] <- 0 -->
-<!-- ``` -->
+```{r}
+trigrams <- lapply(names(datasets_list_reduced), function(i) {
+  calculate_binary_ngram_matrix(datasets_list_reduced[[i]],
+                                 c(3, 3, 3, 3),
+                                 list(c(0, 0), c(1, 0), c(0, 1), c(1, 1)))
+}) %>% bind_rows()
+trigrams[is.na(trigrams)] <- 0
+```
 
-<!-- ### PCA -->
-<!-- ```{r} -->
-<!-- pca_trigram_res1 <- prcomp(trigrams[vapply(trigrams, function(x) length(unique(x)) > 1, logical(1L))], -->
-<!--                            center = TRUE, scale = TRUE) -->
+#### PCA
+```{r}
+pca_trigram_res1 <- prcomp(trigrams[vapply(trigrams, function(x) length(unique(x)) > 1, logical(1L))],
+                            center = TRUE, scale = TRUE)
 
-<!-- ggbiplot(pca_trigram_res1, choices = 1:2, groups = datasets, var.axes = FALSE) + -->
-<!--   theme_bw() + -->
-<!--   theme(plot.title = element_text(hjust = 0.5)) + -->
-<!--   scale_color_manual("Data set", values = colors_short) + -->
-<!--   theme(legend.position = "none") -->
+ggbiplot(pca_trigram_res1, choices = 1:2, groups = datasets, var.axes = FALSE) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_color_manual("Data set", values = colors_short) +
+  theme(legend.position = "none")
 
-<!-- pca_trigram_res1[["x"]] %>% -->
-<!--   as.data.frame() %>% -->
-<!--   mutate(dataset = datasets) %>% -->
-<!--   ggplot(aes(x = PC1, y = PC2, color = dataset)) + -->
-<!--   geom_point(alpha = 0.5) + -->
-<!--   scale_color_manual("Data set", values = colors_short) + -->
-<!--   theme_bw() -->
+pca_trigram_res1[["x"]] %>%
+  as.data.frame() %>%
+  mutate(dataset = datasets) %>%
+  ggplot(aes(x = PC1, y = PC2, color = dataset)) + 
+  geom_point(alpha = 0.5) +
+  scale_color_manual("Data set", values = colors_short) +
+  theme_bw()
 
-<!-- pca_trigram_res1[["x"]] %>% -->
-<!--   as.data.frame() %>% -->
-<!--   mutate(dataset = datasets, -->
-<!--          name = unlist(sapply(names(datasets_list_reduced), function(i) names(datasets_list_reduced[[i]]), USE.NAMES = FALSE))) %>% -->
-<!--   plot_ly(x = ~PC1, y = ~PC2, color = ~dataset, colors = colors_short, text = ~name, hoverinfo = "text") -->
+pca_trigram_res1[["x"]] %>%
+  as.data.frame() %>%
+  mutate(dataset = datasets,
+         name = unlist(sapply(names(datasets_list_reduced), function(i) names(datasets_list_reduced[[i]]), USE.NAMES = FALSE))) %>%
+  plot_ly(x = ~PC1, y = ~PC2, color = ~dataset, colors = colors_short, text = ~name, hoverinfo = "text")
 
-<!-- pca_trigram_res1[["x"]] %>% -->
-<!--   as.data.frame() %>% -->
-<!--   mutate(dataset = datasets) %>% -->
-<!--   ggplot(aes(x = PC1, y = PC2, color = dataset)) + -->
-<!--   geom_point(alpha = 0.5) + -->
-<!--   facet_wrap(~dataset) + -->
-<!--   scale_color_manual("Data set", values = colors_short) + -->
-<!--   theme_bw() + -->
-<!--   theme(legend.position = "none") -->
-<!-- ``` -->
+pca_trigram_res1[["x"]] %>%
+  as.data.frame() %>%
+  mutate(dataset = datasets) %>%
+  ggplot(aes(x = PC1, y = PC2, color = dataset)) + 
+  geom_point(alpha = 0.5) +
+  facet_wrap(~dataset) + 
+  scale_color_manual("Data set", values = colors_short) + 
+  theme_bw() +
+  theme(legend.position = "none")
+``` 
 
 <!-- ### t-SNE -->
 
@@ -636,7 +636,7 @@ umap_res1[["layout"]] %>%
 ## Clustering of experimental datasets
 
 ```{r}
-datasets_list_exp <- list("Amyloids" = datasets_list_cdhit[["Amyloids combined"]],
+datasets_list_exp <- list("Amyloids" = datasets_list_reduced[["Amyloids"]],
                           "cTP-mTP" = datasets_list_cdhit[["cTP-mTP experimentally verified presequence"]],
                           "cTP" = datasets_list_cdhit[["cTP experimentally verified presequence"]],
                           "mTP" = datasets_list_cdhit[["mTP experimentally verified presequence"]],
@@ -644,7 +644,7 @@ datasets_list_exp <- list("Amyloids" = datasets_list_cdhit[["Amyloids combined"]
                           "AMP" = datasets_list_cdhit[["DBAASP AMP"]],
                           "TM alpha" = datasets_list_cdhit[["TM regions experimentally verified - alpha"]],
                           "TM beta" = datasets_list_cdhit[["TM regions experimentally verified - beta"]])
-datasets <- unlist(sapply(names(datasets_list_exp), function(i) rep(i, length(datasets_list_exp[[i]])), USE.NAMES = FALSE))
+datasets_exp <- unlist(sapply(names(datasets_list_exp), function(i) rep(i, length(datasets_list_exp[[i]])), USE.NAMES = FALSE))
 ```
 
 ### Amino acid composition of peptides
@@ -901,17 +901,15 @@ trigrams_exp <- lapply(names(datasets_list_exp), function(i) {
 trigrams_exp[is.na(trigrams_exp)] <- 0
 ```
 
-### PCA
+#### PCA
 ```{r}
 pca_trigram_res <- prcomp(trigrams_exp[vapply(trigrams_exp, function(x) length(unique(x)) > 1, logical(1L))],
                            center = TRUE, scale = TRUE)
-
 ggbiplot(pca_trigram_res, choices = 1:2, groups = datasets_exp, var.axes = FALSE) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual("Data set", values = colors_short) +
   theme(legend.position = "none")
-
 pca_trigram_res[["x"]] %>%
   as.data.frame() %>%
   mutate(dataset = datasets_exp) %>%
@@ -919,13 +917,11 @@ pca_trigram_res[["x"]] %>%
   geom_point(alpha = 0.5) +
   scale_color_manual("Data set", values = colors_short) +
   theme_bw()
-
 pca_trigram_res[["x"]] %>%
   as.data.frame() %>%
   mutate(dataset = datasets_exp,
          name = unlist(sapply(names(datasets_list_exp), function(i) names(datasets_list_exp[[i]]), USE.NAMES = FALSE))) %>%
   plot_ly(x = ~PC1, y = ~PC2, color = ~dataset, colors = colors_short, text = ~name, hoverinfo = "text")
-
 pca_trigram_res[["x"]] %>%
   as.data.frame() %>%
   mutate(dataset = datasets_exp) %>%
@@ -937,19 +933,8 @@ pca_trigram_res[["x"]] %>%
   theme(legend.position = "none")
 ```
 
-### t-SNE
 
-Perplexity = 30
-```{r}
-tsne_trigrams_res <- tsne(trigrams_exp, k = 2, perplexity = 30, max_iter = 1000)
-mutate(as.data.frame(tsne_trigrams_res1), dataset = datasets_exp) %>%
-  ggplot(aes(x = V1, y = V2, color = dataset)) +
-  geom_point(size = 2) +
-  scale_color_manual("Data set", values = colors_short) +
-  theme_bw()
-```
-
-### UMAP
+#### UMAP
 
 Neighbors = 30, spread = 1, min_dist = 0.5
 ```{r}

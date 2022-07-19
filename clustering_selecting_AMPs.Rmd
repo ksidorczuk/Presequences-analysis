@@ -1,0 +1,195 @@
+---
+title: "Extraction of AMPs from selected clusterings"
+author: "Katarzyna Sidorczuk"
+date: "19/07/2022"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.width = 14, fig.height = 10, warning = FALSE, message = FALSE, cache = TRUE, cache.lazy = FALSE)
+
+library(dplyr)
+library(biogram)
+library(seqR)
+library(ggbiplot)
+library(ggrepel)
+library(cluster)
+library(factoextra)
+library(tsne)
+library(umap)
+library(DT)
+library(tidyr)
+library(ggplot2)
+library(ggdendro)
+library(grid)
+library(gridExtra)
+library(targets)
+library(plotly)
+library(scales)
+
+set.seed(73607254)
+
+my_DT <- function(x, ...)
+  datatable(x, ..., escape = FALSE, extensions = 'Buttons', filter = "top", rownames = FALSE,
+            style = "bootstrap")
+
+options(DT.options = list(dom = "Brtip",
+                          buttons = c("copy", "csv", "excel", "print"),
+                          pageLength = 50
+))
+
+add_group <- function(df) {
+  mutate(df,
+         group = case_when(dataset %in% c("Amyloids combined", "AmyPro regions", "CPAD peptides") ~ "Amyloids",
+                           dataset %in% c("cTP experimentally verified location", "cTP experimentally verified presequence") ~ "cTP",
+                           dataset %in% c("cTP-mTP experimentally verified location", "cTP-mTP experimentally verified presequence") ~ "cTP-mTP",
+                           dataset %in% c("mTP experimentally verified location", "mTP experimentally verified presequence") ~ "mTP",
+                           dataset == "SP experimentally verified presequence" ~ "SP",
+                           dataset %in% c("DBAASP AMP", "DBAASP AMP max 100 aa") ~ "AMP",
+                           dataset %in% c("TM regions experimentally verified - alpha", "TM regions experimentally verified - beta") ~ "Transmembrane")) 
+}
+
+source("functions/extract_features.R")
+source("functions/aa_comp_functions.R")
+
+colors <- c("AmyPro regions" = "#e44496", "CPAD peptides" = "#8d44e4", 
+            "cTP experimentally verified location" = "#528313", "cTP-mTP experimentally verified location" = "#837713", 
+            "cTP-mTP experimentally verified presequence" ="#e4d345", "cTP experimentally verified presequence" = "#9de444", 
+            "DBAASP AMP" = "#831313", "DBAASP AMP max 100 aa" = "#e44444", "mTP experimentally verified location" = "#834813", 
+            "mTP experimentally verified presequence" = "#e49144", "SP experimentally verified presequence" = "#45e495", 
+            "TM regions experimentally verified - alpha" = "#44aee4", "TM regions experimentally verified - beta" = "#4451e4")
+
+colors_short <- c("Amyloids" = "#bb45e4", "cTP-mTP" ="#e4d345", "cTP" = "#9de444", 
+                  "AMP" = "#e44444", "mTP" = "#e49144", "SP" = "#45e495", 
+                  "TM alpha" = "#44aee4", "TM beta" = "#4451e4")
+
+prop_list <- c("BIGC670101", "CHAM820101", "CHOP780201", "CHOP780202", "CHOP780203",
+               "FAUJ880103", "KLEP840101", "KYTJ820101", "ZIMJ680103")
+
+tar_load(c(datasets_list, datasets_list_cdhit))
+
+datasets_list_reduced <- list("Amyloids" = datasets_list_cdhit[["Amyloids combined"]],
+                              "cTP-mTP" = c(datasets_list_cdhit[["cTP-mTP experimentally verified location"]], datasets_list_cdhit[["cTP-mTP experimentally verified presequence"]])[which(!duplicated( c(datasets_list_cdhit[["cTP-mTP experimentally verified location"]], datasets_list_cdhit[["cTP-mTP experimentally verified presequence"]])))],
+                              "cTP" = c(datasets_list_cdhit[["cTP experimentally verified location"]], datasets_list_cdhit[["cTP experimentally verified presequence"]])[which(!duplicated( c(datasets_list_cdhit[["cTP experimentally verified location"]], datasets_list_cdhit[["cTP experimentally verified presequence"]])))],
+                              "mTP" = c(datasets_list_cdhit[["mTP experimentally verified location"]], datasets_list_cdhit[["mTP experimentally verified presequence"]])[which(!duplicated( c(datasets_list_cdhit[["mTP experimentally verified location"]], datasets_list_cdhit[["mTP experimentally verified presequence"]])))],
+                              "SP" = datasets_list_cdhit[["SP experimentally verified presequence"]],
+                              "AMP" = datasets_list_cdhit[["DBAASP AMP"]],
+                              "TM alpha" = datasets_list_cdhit[["TM regions experimentally verified - alpha"]],
+                              "TM beta" = datasets_list_cdhit[["TM regions experimentally verified - beta"]])
+
+datasets_list <- datasets_list[which(names(datasets_list) != "Amyloids combined")]
+datasets_list_cdhit <- datasets_list_cdhit[which(names(datasets_list_cdhit) != "Amyloids combined")]
+datasets <- unlist(sapply(names(datasets_list_reduced), function(i) rep(i, length(datasets_list_reduced[[i]])), USE.NAMES = FALSE))
+datasets_cdhit <- unlist(sapply(names(datasets_list_cdhit), function(i) rep(i, length(datasets_list_cdhit[[i]])), USE.NAMES = FALSE))
+```
+
+
+## Amino acid composition of peptides in grouped datasets
+
+```{r}
+aa_comp_peptides1 <- calculate_aa_comp_peptides(datasets_list_reduced)
+
+aa_comp_peptides1_clust_data <- aa_comp_peptides1 %>%
+  pivot_wider(names_from = `Amino acid`, values_from = `Frequency`) %>%
+  select(-c(dataset, prot))
+```
+
+### t-SNE
+
+Perplexity = 30
+```{r}
+tsne_aa_res1 <- tsne(aa_comp_peptides1_clust_data, k = 2, perplexity = 30, max_iter = 1000)
+```
+```{r}
+mutate(as.data.frame(tsne_aa_res1), dataset = datasets) %>%
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors_short) +
+  theme_bw() +
+  annotate("rect", xmin = 20, xmax = 80, ymin = -45 ymax = 20, color = "black")
+
+selected_amp <- filter(tsne_aa_res1, V1 >= 20 & V1 <= 80 & V2 >= -45 & V2 <= 20, dataset == "AMP")
+knitr::kable(selected_amp)
+```
+
+### UMAP
+
+Neighbors = 50, spread = 2, min_dist = 0.5
+```{r}
+umap_config <- umap.defaults
+umap_config[["random_state"]] <- 73607254
+umap_config[["spread"]] <- 2
+umap_config[["min_dist"]] <- 0.5
+umap_config[["n_neighbors"]] <- 50
+
+umap_res1 <- umap(aa_comp_peptides1_clust_data, config = umap_config)
+```
+```{r}
+umap_res1[["layout"]] %>%
+  as.data.frame() %>%
+  mutate(dataset = datasets) %>%
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors_short) +
+  theme_bw() +
+  annotate("rect", xmin = -7, xmax = -2, ymin = -8 ymax = 1.25, color = "black")
+
+selected_amp <- filter(tsne_aa_res1, V1 >= -7 & V1 <= -2 & V2 >= -8 & V2 <= 1.25, dataset == "AMP")
+knitr::kable(selected_amp)
+```
+
+
+## Physicochemical properties
+
+```{r}
+props <- lapply(seq_along(datasets_list_reduced), function(i) {
+  as.data.frame(calculate_properties(datasets_list_reduced[[i]], prop_list))
+}) %>% do.call(rbind, .)
+```
+
+### t-SNE
+
+Perplexity = 30
+```{r}
+tsne_props_res1 <- tsne(props, k = 2, perplexity = 30, max_iter = 1000)
+```
+```{r}
+mutate(as.data.frame(tsne_props_res1), dataset = datasets) %>%
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point(size = 2) +
+  scale_color_manual("Data set", values = colors_short) +
+  theme_bw() +
+  annotate("rect", xmin = 40, xmax = 85, ymin = -35 ymax = 40, color = "black")
+
+selected_amp <- filter(tsne_aa_res1, V1 >= 40 & V1 <= 85 & V2 >= -35 & V2 <= 40, dataset == "AMP")
+knitr::kable(selected_amp)
+```
+
+### UMAP
+
+Neighbors = 50, spread = 1, min_dist = 0.5
+```{r}
+umap_config <- umap.defaults
+umap_config[["random_state"]] <- 73607254
+umap_config[["spread"]] <- 1
+umap_config[["min_dist"]] <- 0.5
+umap_config[["n_neighbors"]] <- 50
+
+umap_res1 <- umap(props, config = umap_config)
+```
+```{r}
+umap_res1[["layout"]] %>%
+  as.data.frame() %>%
+  mutate(dataset = datasets) %>%
+  ggplot(aes(x = V1, y = V2, color = dataset)) +
+  geom_point() +
+  scale_color_manual("Data set", values = colors_short) +
+  theme_bw()+
+  annotate("rect", xmin = -4.5, xmax = -1.75, ymin = -5 ymax = -2, color = "black")
+
+selected_amp <- filter(tsne_aa_res1, V1 >= -4.5 & V1 <= -1.75 & V2 >= -5 & V2 <= -2, dataset == "AMP")
+knitr::kable(selected_amp)
+```
+
