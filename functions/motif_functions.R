@@ -294,7 +294,7 @@ select_fcbf_informative_motifs <- function(binary_ngrams, dataset1_name, dataset
   x[sapply(x, is.numeric)] <- lapply(x[sapply(x, is.numeric)], 
                                      as.factor)
   fcbf_res <- tryCatch({
-    fcbf(x, as.factor(tar), samples_in_rows = TRUE, thresh = min_su)
+    fcbf(x, as.factor(tar), samples_in_rows = TRUE, minimum_su = min_su)
   },
   error = function(e) NULL)
   if(!is.null(fcbf_res)) {

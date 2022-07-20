@@ -116,6 +116,11 @@ mutate(as.data.frame(tsne_aa_res1), dataset = datasets) %>%
 selected_amp <- aa_comp_peptides1_names[which((as.data.frame(tsne_aa_res1)[["V1"]] >= 20 & as.data.frame(tsne_aa_res1)[["V1"]] <= 80 & as.data.frame(tsne_aa_res1)[["V2"]] >= -45 & 
                                                  as.data.frame(tsne_aa_res1)[["V2"]] <= 20 & aa_comp_peptides1_clust[["dataset"]] == "AMP"))]
 knitr::kable(selected_amp)
+
+amps <- datasets_list_reduced[["AMP"]][selected_amp]
+write_fasta(amps, "Selected_AMPs_aa_comp_tsne.fa")
+write_fasta(amps[which(lengths(amps) <= 50)], "Selected_AMPs_aa_comp_tsne_pep2d.fa")
+write_fasta(amps[which(lengths(amps) >= 20)], "Selected_AMPs_aa_comp_tsne_jpred.fa")
 ```
 
 ### UMAP
@@ -141,8 +146,14 @@ umap_res1[["layout"]] %>%
   annotate("rect", xmin = -7, xmax = -2, ymin = -8, ymax = 1.25, color = "black", alpha = 0)
 
 x <- as.data.frame(umap_res1[["layout"]])
-selected_amp <- aa_comp_peptides1_names[which(x[["V1"]] >= -7 & x[["V1"]] <= -2 & x[["V2"]] >= -8 & x[["V2"]] <= 1.25 & aa_comp_peptides1_names == "AMP")]
+selected_amp <- aa_comp_peptides1_names[which(x[["V1"]] >= -7 & x[["V1"]] <= -2 & x[["V2"]] >= -8 & x[["V2"]] <= 1.25 & aa_comp_peptides1_clust[["dataset"]] == "AMP")]
+
 knitr::kable(selected_amp)
+
+amps <- datasets_list_reduced[["AMP"]][selected_amp]
+write_fasta(amps, "Selected_AMPs_aa_comp_umap.fa")
+write_fasta(amps[which(lengths(amps) <= 50)], "Selected_AMPs_aa_comp_pep2d.fa")
+write_fasta(amps[which(lengths(amps) >= 20)], "Selected_AMPs_aa_comp_jpred.fa")
 ```
 
 
@@ -171,9 +182,18 @@ mutate(as.data.frame(tsne_props_res1), dataset = datasets) %>%
   theme_bw() +
   annotate("rect", xmin = 40, xmax = 85, ymin = -35, ymax = 40, color = "black", alpha = 0)
 
+props_datasets <- lapply(seq_along(datasets_list_reduced), function(i) {
+  rep(names(datasets_list_reduced)[i], length(datasets_list_reduced[[i]]))
+}) %>% unlist(recursive = FALSE)
+
 selected_amp <- props_names[which(as.data.frame(tsne_aa_res1)[["V1"]] >= 40 & as.data.frame(tsne_aa_res1)[["V1"]] <= 85 & as.data.frame(tsne_aa_res1)[["V2"]] >= -35 & 
-                                    as.data.frame(tsne_aa_res1)[["V2"]] <= 40 & props_names == "AMP")]
+                                    as.data.frame(tsne_aa_res1)[["V2"]] <= 40 & props_datasets == "AMP")]
 knitr::kable(selected_amp)
+
+amps <- datasets_list_reduced[["AMP"]][selected_amp]
+write_fasta(amps, "Selected_AMPs_props_tsne.fa")
+write_fasta(amps[which(lengths(amps) <= 50)], "Selected_AMPs_props_tsne_pep2d.fa")
+write_fasta(amps[which(lengths(amps) >= 20)], "Selected_AMPs_props_tsne_jpred.fa")
 ```
 
 ### UMAP
@@ -199,7 +219,13 @@ umap_res1[["layout"]] %>%
   annotate("rect", xmin = -4.5, xmax = -1.75, ymin = -5, ymax = -2, color = "black", alpha = 0)
 
 x <- as.data.frame(umap_res1[["layout"]])
-selected_amp <- props_names[which(x[["V1"]] >= -4.5 & x[["V1"]] <= -1.75 & x[["V2"]] >= -5 & x[["V2"]] <= -2 & props_names == "AMP")]
+selected_amp <- props_names[which(x[["V1"]] >= -4.5 & x[["V1"]] <= -1.75 & x[["V2"]] >= -5 & x[["V2"]] <= -2 & props_datasets == "AMP")]
+
 knitr::kable(selected_amp)
+
+amps <- datasets_list_reduced[["AMP"]][selected_amp]
+write_fasta(amps, "Selected_AMPs_props_umap.fa")
+write_fasta(amps[which(lengths(amps) <= 50)], "Selected_AMPs_props_umap_pep2d.fa")
+write_fasta(amps[which(lengths(amps) >= 20)], "Selected_AMPs_props_umap_jpred.fa")
 ```
 
