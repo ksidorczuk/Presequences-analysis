@@ -91,9 +91,12 @@ datasets_cdhit <- unlist(sapply(names(datasets_list_cdhit), function(i) rep(i, l
 ```{r}
 aa_comp_peptides1 <- calculate_aa_comp_peptides(datasets_list_reduced)
 
-aa_comp_peptides1_clust_data <- aa_comp_peptides1 %>%
-  pivot_wider(names_from = `Amino acid`, values_from = `Frequency`) %>%
+aa_comp_peptides1_clust <- aa_comp_peptides1 %>%
+  pivot_wider(names_from = `Amino acid`, values_from = `Frequency`, values_fill = 0) 
+
+aa_comp_peptides1_clust_data <- aa_comp_peptides1_clust %>%
   select(-c(dataset, prot))
+aa_comp_peptides1_names <- aa_comp_peptides1_clust[["prot"]]
 ```
 
 ### t-SNE
@@ -108,9 +111,10 @@ mutate(as.data.frame(tsne_aa_res1), dataset = datasets) %>%
   geom_point(size = 2) +
   scale_color_manual("Data set", values = colors_short) +
   theme_bw() +
-  annotate("rect", xmin = 20, xmax = 80, ymin = -45 ymax = 20, color = "black")
+  annotate("rect", xmin = 20, xmax = 80, ymin = -45, ymax = 20, color = "black", alpha = 0)
 
-selected_amp <- filter(tsne_aa_res1, V1 >= 20 & V1 <= 80 & V2 >= -45 & V2 <= 20, dataset == "AMP")
+selected_amp <- aa_comp_peptides1_names[which((as.data.frame(tsne_aa_res1)[["V1"]] >= 20 & as.data.frame(tsne_aa_res1)[["V1"]] <= 80 & as.data.frame(tsne_aa_res1)[["V2"]] >= -45 & 
+                                                 as.data.frame(tsne_aa_res1)[["V2"]] <= 20 & aa_comp_peptides1_clust[["dataset"]] == "AMP"))]
 knitr::kable(selected_amp)
 ```
 
@@ -134,9 +138,10 @@ umap_res1[["layout"]] %>%
   geom_point() +
   scale_color_manual("Data set", values = colors_short) +
   theme_bw() +
-  annotate("rect", xmin = -7, xmax = -2, ymin = -8 ymax = 1.25, color = "black")
+  annotate("rect", xmin = -7, xmax = -2, ymin = -8, ymax = 1.25, color = "black", alpha = 0)
 
-selected_amp <- filter(tsne_aa_res1, V1 >= -7 & V1 <= -2 & V2 >= -8 & V2 <= 1.25, dataset == "AMP")
+x <- as.data.frame(umap_res1[["layout"]])
+selected_amp <- aa_comp_peptides1_names[which(x[["V1"]] >= -7 & x[["V1"]] <= -2 & x[["V2"]] >= -8 & x[["V2"]] <= 1.25 & aa_comp_peptides1_names == "AMP")]
 knitr::kable(selected_amp)
 ```
 
@@ -147,6 +152,9 @@ knitr::kable(selected_amp)
 props <- lapply(seq_along(datasets_list_reduced), function(i) {
   as.data.frame(calculate_properties(datasets_list_reduced[[i]], prop_list))
 }) %>% do.call(rbind, .)
+props_names <- lapply(seq_along(datasets_list_reduced), function(i) {
+  names(datasets_list_reduced[[i]])
+}) %>% unlist(recursive = FALSE)
 ```
 
 ### t-SNE
@@ -161,9 +169,10 @@ mutate(as.data.frame(tsne_props_res1), dataset = datasets) %>%
   geom_point(size = 2) +
   scale_color_manual("Data set", values = colors_short) +
   theme_bw() +
-  annotate("rect", xmin = 40, xmax = 85, ymin = -35 ymax = 40, color = "black")
+  annotate("rect", xmin = 40, xmax = 85, ymin = -35, ymax = 40, color = "black", alpha = 0)
 
-selected_amp <- filter(tsne_aa_res1, V1 >= 40 & V1 <= 85 & V2 >= -35 & V2 <= 40, dataset == "AMP")
+selected_amp <- props_names[which(as.data.frame(tsne_aa_res1)[["V1"]] >= 40 & as.data.frame(tsne_aa_res1)[["V1"]] <= 85 & as.data.frame(tsne_aa_res1)[["V2"]] >= -35 & 
+                                    as.data.frame(tsne_aa_res1)[["V2"]] <= 40 & props_names == "AMP")]
 knitr::kable(selected_amp)
 ```
 
@@ -187,9 +196,10 @@ umap_res1[["layout"]] %>%
   geom_point() +
   scale_color_manual("Data set", values = colors_short) +
   theme_bw()+
-  annotate("rect", xmin = -4.5, xmax = -1.75, ymin = -5 ymax = -2, color = "black")
+  annotate("rect", xmin = -4.5, xmax = -1.75, ymin = -5, ymax = -2, color = "black", alpha = 0)
 
-selected_amp <- filter(tsne_aa_res1, V1 >= -4.5 & V1 <= -1.75 & V2 >= -5 & V2 <= -2, dataset == "AMP")
+x <- as.data.frame(umap_res1[["layout"]])
+selected_amp <- props_names[which(x[["V1"]] >= -4.5 & x[["V1"]] <= -1.75 & x[["V2"]] >= -5 & x[["V2"]] <= -2 & props_names == "AMP")]
 knitr::kable(selected_amp)
 ```
 
