@@ -12,7 +12,7 @@ params:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, fig.width = 14, fig.height = 10, warning = FALSE, message = FALSE, cache = TRUE)
+knitr::opts_chunk$set(echo = FALSE, fig.width = 14, fig.height = 10, warning = FALSE, message = FALSE)
 
 library(targets)
 library(dplyr)
@@ -253,15 +253,21 @@ presequence_datasets_list <- datasets_list[c("cTP-mTP experimentally verified pr
                                              "SP experimentally verified presequence")]
 
 if(length(frequent_for_all) > 0) {
-  found_motifs <- locate_motifs(presequence_datasets_list, frequent_for_all)
+  found_motifs_cTPmTP <- locate_motifs(presequence_datasets_list[["cTP-mTP experimentally verified presequence"]], frequent_for_all)
   plot_motif_position_density(presequence_datasets_list, "cTP-mTP experimentally verified presequence",
-                              found_motifs, density_col = colors2[["cTP-mTP experimentally verified presequence"]])
+                              found_motifs_cTPmTP, density_col = colors2[["cTP-mTP experimentally verified presequence"]])
+  
+  found_motifs_cTP <- locate_motifs(presequence_datasets_list[["cTP experimentally verified presequence"]], frequent_for_all)
   plot_motif_position_density(presequence_datasets_list, "cTP experimentally verified presequence",
-                              found_motifs, density_col = colors2[["cTP experimentally verified presequence"]])
+                              found_motifs_cTP, density_col = colors2[["cTP experimentally verified presequence"]])
+  
+  found_motifs_mTP <- locate_motifs(presequence_datasets_list[["mTP experimentally verified presequence"]], frequent_for_all)
   plot_motif_position_density(presequence_datasets_list, "mTP experimentally verified presequence",
-                              found_motifs, density_col = colors2[["mTP experimentally verified presequence"]])
+                              found_motifs_mTP, density_col = colors2[["mTP experimentally verified presequence"]])
+  
+  found_motifs_SP <- locate_motifs(presequence_datasets_list[["SP experimentally verified presequence"]], frequent_for_all)
   plot_motif_position_density(presequence_datasets_list, "SP experimentally verified presequence",
-                              found_motifs, density_col = colors2[["SP experimentally verified presequence"]])
+                              found_motifs_SP, density_col = colors2[["SP experimentally verified presequence"]])
 }
 
 ```
@@ -286,32 +292,32 @@ most_frequent_SP_25 <- get_dataset_most_frequent_motifs(trigram_plot_dat_presequ
                                                         n_motifs = 50)
 
 plot_motif_position_density(presequence_datasets_list, "cTP-mTP experimentally verified presequence",
-                            locate_motifs(presequence_datasets_list, most_frequent_cTPmTP_25),
+                            locate_motifs(presequence_datasets_list[["cTP-mTP experimentally verified presequence"]], most_frequent_cTPmTP_25),
                             density_col = colors2[["cTP-mTP experimentally verified presequence"]])
 plot_motif_position_density(presequence_datasets_list, "cTP experimentally verified presequence",
-                            locate_motifs(presequence_datasets_list, most_frequent_cTP_25),
+                            locate_motifs(presequence_datasets_list[["cTP experimentally verified presequence"]], most_frequent_cTP_25),
                             density_col = colors2[["cTP experimentally verified presequence"]])
 plot_motif_position_density(presequence_datasets_list, "mTP experimentally verified presequence",
-                            locate_motifs(presequence_datasets_list, most_frequent_mTP_25),
+                            locate_motifs(presequence_datasets_list[["mTP experimentally verified presequence"]], most_frequent_mTP_25),
                             density_col = colors2[["mTP experimentally verified presequence"]])
 plot_motif_position_density(presequence_datasets_list, "SP experimentally verified presequence",
-                            locate_motifs(presequence_datasets_list, most_frequent_SP_25),
+                            locate_motifs(presequence_datasets_list[["SP experimentally verified presequence"]], most_frequent_SP_25),
                             density_col = colors2[["SP experimentally verified presequence"]])
 ```
 
 ### Motif positions within scaled sequences
 ```{r}
 plot_motif_positions_scaled(presequence_datasets_list, "cTP-mTP experimentally verified presequence",
-                            locate_motifs(presequence_datasets_list, most_frequent_cTPmTP_25),
+                            locate_motifs(presequence_datasets_list[["cTP-mTP experimentally verified presequence"]], most_frequent_cTPmTP_25),
                             type = "violin", density_col = colors2[["cTP-mTP experimentally verified presequence"]])
 plot_motif_positions_scaled(presequence_datasets_list, "cTP experimentally verified presequence",
-                            locate_motifs(presequence_datasets_list, most_frequent_cTP_25),
+                            locate_motifs(presequence_datasets_list[["cTP experimentally verified presequence"]], most_frequent_cTP_25),
                             type = "violin", density_col = colors2[["cTP experimentally verified presequence"]])
 plot_motif_positions_scaled(presequence_datasets_list, "mTP experimentally verified presequence",
-                            locate_motifs(presequence_datasets_list, most_frequent_mTP_25),
+                            locate_motifs(presequence_datasets_list[["mTP experimentally verified presequence"]], most_frequent_mTP_25),
                             type = "violin", density_col = colors2[["mTP experimentally verified presequence"]])
 plot_motif_positions_scaled(presequence_datasets_list, "SP experimentally verified presequence",
-                            locate_motifs(presequence_datasets_list, most_frequent_SP_25),
+                            locate_motifs(presequence_datasets_list[["SP experimentally verified presequence"]], most_frequent_SP_25),
                             type = "violin", density_col = colors2[["SP experimentally verified presequence"]])
 ```
 
@@ -520,15 +526,25 @@ amp_datasets_list <- datasets_list[c("cTP-mTP experimentally verified presequenc
 
 
 if(length(frequent_for_all) > 0) {
-  found_motifs <- locate_motifs(amp_datasets_list, frequent_for_all)
+  found_motifs_cTPmTP <- locate_motifs(amp_datasets_list[["cTP-mTP experimentally verified presequence"]], frequent_for_all)
   plot_motif_position_density(amp_datasets_list, "cTP-mTP experimentally verified presequence",
-                              found_motifs, density_col = colors2[["cTP-mTP experimentally verified presequence"]])
+                              found_motifs_cTPmTP, density_col = colors3[["cTP-mTP experimentally verified presequence"]])
+  
+  found_motifs_cTP <- locate_motifs(amp_datasets_list[["cTP experimentally verified presequence"]], frequent_for_all)
   plot_motif_position_density(amp_datasets_list, "cTP experimentally verified presequence",
-                              found_motifs, density_col = colors2[["cTP experimentally verified presequence"]])
+                              found_motifs_cTP, density_col = colors3[["cTP experimentally verified presequence"]])
+  
+  found_motifs_mTP <- locate_motifs(amp_datasets_list[["mTP experimentally verified presequence"]], frequent_for_all)
   plot_motif_position_density(amp_datasets_list, "mTP experimentally verified presequence",
-                              found_motifs, density_col = colors2[["mTP experimentally verified presequence"]])
+                              found_motifs, density_col = colors3[["mTP experimentally verified presequence"]])
+  
+  found_motifs_SP <- locate_motifs(amp_datasets_list[["SP experimentally verified presequence"]], frequent_for_all)
   plot_motif_position_density(amp_datasets_list, "SP experimentally verified presequence",
-                              found_motifs, density_col = colors2[["SP experimentally verified presequence"]])
+                              found_motifs, density_col = colors3[["SP experimentally verified presequence"]])
+  
+  found_motifs_AMP <- locate_motifs(amp_datasets_list[["DBAASP AMP max 100 aa"]], frequent_for_all)
+  plot_motif_position_density(amp_datasets_list, "DBAASP AMP max 100 aa",
+                              found_motifs, density_col = colors3[["DBAASP AMP max 100 aa"]])
 }
 
 ```
@@ -541,14 +557,14 @@ most_frequent_AMP_25 <- get_dataset_most_frequent_motifs(trigram_plot_dat_amp,
                                                          n_motifs = 50)
 
 plot_motif_position_density(amp_datasets_list, "DBAASP AMP max 100 aa",
-                            locate_motifs(amp_datasets_list, most_frequent_AMP_25),
+                            locate_motifs(amp_datasets_list[["DBAASP AMP max 100 aa"]], most_frequent_AMP_25),
                             density_col = colors3[["DBAASP AMP max 100 aa"]])
 ```
 
 ### Motif positions within scaled sequences
 ```{r}
 plot_motif_positions_scaled(amp_datasets_list, "DBAASP AMP max 100 aa",
-                            locate_motifs(amp_datasets_list, most_frequent_AMP_25),
+                            locate_motifs(amp_datasets_list[["DBAASP AMP max 100 aa"]], most_frequent_AMP_25),
                             type = "violin", density_col = colors3[["DBAASP AMP max 100 aa"]])
 ```
 
@@ -641,16 +657,6 @@ AMP vs. SP
 x <- select_fcbf_informative_motifs(binary_trigrams,
                                     "DBAASP AMP max 100 aa",
                                     "SP experimentally verified presequence")
-print(paste0("Number of informative motifs: ", nrow(x)))
-my_DT(x)
-```
-
-AMP vs. cTP & mTP & cTP-mTP & SP
-```{r}
-x <- select_fcbf_informative_motifs(binary_trigrams,
-                                    "DBAASP AMP max 100 aa",
-                                    c("cTP experimentally verified presequence", "mTP experimentally verified presequence",
-                                      "SP experimentally verified presequence", "cTP-mTP experimentally verified presequence"))
 print(paste0("Number of informative motifs: ", nrow(x)))
 my_DT(x)
 ```

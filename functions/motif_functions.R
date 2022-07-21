@@ -32,27 +32,25 @@ calculate_ngram_freq <- function(datasets, k, kmer_gaps, alphabet = NULL) {
 #' 
 #' Identifies motif start and end positions within sequences.
 #' 
-#' @param datasets a named list of sequence datasets 
+#' @param dataset a list of sequences 
 #' @param motifs a vector of motifs to find (written as
 #' regular expressions)
 #' 
 #' @return a data frame with the following columns: start/end 
 #' positions of a motif, dataset name, sequence name and motif
-locate_motifs <- function(datasets, motifs, alphabet = NULL) {
+locate_motifs <- function(dataset, motifs, alphabet = NULL) {
   pblapply(motifs, cl = 4, function(ith_motif) {
-    lapply(names(datasets), function(ith_set) {
-      if(is.null(alphabet)) {
-        ds <- datasets[[ith_set]]
-      } else {
-        ds <- sapply(datasets[[ith_set]], function(i) degenerate(i, alphabet))
-      }
-      lapply(names(ds), function(ith_seq) {
-        str_locate_all(paste0(ds[[ith_seq]], collapse = ""), ith_motif) %>%
-          as.data.frame() %>%
-          mutate(dataset = ith_set,
-                 seq = ith_seq,
-                 motif = ith_motif)
-      }) %>% bind_rows()
+    if(is.null(alphabet)) {
+      ds <- unlist(unname(dataset), recursive = FALSE)
+    } else {
+      ds <- sapply(unlist(unname(dataset), recursive = FALSE), function(i) degenerate(i, alphabet))
+    }
+    lapply(names(ds), function(ith_seq) {
+      str_locate_all(paste0(ds[[ith_seq]], collapse = ""), ith_motif) %>%
+        as.data.frame() %>%
+        mutate(dataset = ith_set,
+               seq = ith_seq,
+               motif = ith_motif)
     }) %>% bind_rows()
   }) %>% bind_rows()
 }
@@ -195,7 +193,7 @@ plot_motif_position_density <- function(dataset_list, dataset_name, found_motifs
   lens <- data.frame(seq = names(dataset_list[[dataset_name]]),
                      len = lengths(dataset_list[[dataset_name]]))
   
-  lens_dat <- left_join(filter(found_motifs, dataset == dataset_name), lens, by = "seq")
+  lens_dat <- left_join(found_motifs, lens, by = "seq")
   
   plot_dat <- pblapply(1:nrow(lens_dat), cl = 4, function(i) {
     data.frame(dataset = lens_dat[["dataset"]][i],
