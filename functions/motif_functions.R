@@ -48,7 +48,7 @@ locate_motifs <- function(dataset, motifs, alphabet = NULL) {
     lapply(names(ds), function(ith_seq) {
       str_locate_all(paste0(ds[[ith_seq]], collapse = ""), ith_motif) %>%
         as.data.frame() %>%
-        mutate(dataset = ith_set,
+        mutate(dataset = names(dataset),
                seq = ith_seq,
                motif = ith_motif)
     }) %>% bind_rows()
