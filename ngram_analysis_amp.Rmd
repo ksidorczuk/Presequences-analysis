@@ -447,7 +447,8 @@ motif_counts_datasets3 <- trigram_plot_dat_amp %>%
   pivot_wider(motif, names_from = dataset, values_from = frequency) %>% 
   mutate(n_datasets = apply(select(., -motif), 1, function(r) sum(r!=0)))
 
-filter(motif_counts_datasets3, n_datasets == 5) %>% 
+if(nrow(filter(motif_counts_datasets3, n_datasets == 5)) > 0) {
+  filter(motif_counts_datasets3, n_datasets == 5) %>% 
   select(-n_datasets) %>% 
   pivot_longer(2:5, names_to = "dataset", values_to = "frequency") %>% 
   ggplot(aes(x = dataset, y = frequency, fill = dataset)) +
@@ -462,6 +463,7 @@ filter(motif_counts_datasets3, n_datasets == 5) %>%
 filter(motif_counts_datasets3, n_datasets == 5) %>% 
   select(-n_datasets) %>% 
   my_DT()
+}
 ```
 
 ### Motifs unique for specific classes
@@ -541,11 +543,11 @@ if(length(frequent_for_all) > 0) {
   
   found_motifs_mTP <- locate_motifs(amp_datasets_list["mTP experimentally verified presequence"], frequent_for_all)
   plot_motif_position_density(amp_datasets_list, "mTP experimentally verified presequence",
-                              found_motifs, density_col = colors3[["mTP experimentally verified presequence"]])
+                              found_motifs_mTP, density_col = colors3[["mTP experimentally verified presequence"]])
   
   found_motifs_SP <- locate_motifs(amp_datasets_list["SP experimentally verified presequence"], frequent_for_all)
   plot_motif_position_density(amp_datasets_list, "SP experimentally verified presequence",
-                              found_motifs, density_col = colors3[["SP experimentally verified presequence"]])
+                              found_motifs_SP, density_col = colors3[["SP experimentally verified presequence"]])
   
 }
 
