@@ -39,7 +39,7 @@ calculate_ngram_freq <- function(datasets, k, kmer_gaps, alphabet = NULL) {
 #' @return a data frame with the following columns: start/end 
 #' positions of a motif, dataset name, sequence name and motif
 locate_motifs <- function(dataset, motifs, alphabet = NULL) {
-  pblapply(motifs, cl = 4, function(ith_motif) {
+  pblapply(motifs, cl = 2, function(ith_motif) {
     if(is.null(alphabet)) {
       ds <- unlist(unname(dataset), recursive = FALSE)
     } else {
@@ -146,7 +146,7 @@ plot_motif_positions <- function(dataset_list, dataset_name, found_motifs) {
   
   lens_dat <- left_join(filter(found_motifs, dataset == dataset_name), lens, by = "seq")
   
-  plot_dat <- pblapply(1:nrow(lens_dat), cl = 4, function(i) {
+  plot_dat <- pblapply(1:nrow(lens_dat), cl = 2, function(i) {
     data.frame(dataset = lens_dat[["dataset"]][i],
                seq_name = lens_dat[["seq"]][i],
                motif_pos = lens_dat[["start"]][i]:lens_dat[["end"]][i],
@@ -190,24 +190,22 @@ plot_motif_positions <- function(dataset_list, dataset_name, found_motifs) {
 #' @return a density plot of sequence and motif positions, faceted
 #' by motifs
 plot_motif_position_density <- function(dataset_list, dataset_name, found_motifs, density_col) {
-  lens <- data.frame(seq = names(dataset_list[[dataset_name]]),
-                     len = lengths(dataset_list[[dataset_name]]))
+  lens_dat <- data.frame(seq = names(dataset_list[[dataset_name]]),
+                     len = lengths(dataset_list[[dataset_name]])) %>% 
+    left_join(found_motifs, ., by = "seq")
   
-  lens_dat <- left_join(found_motifs, lens, by = "seq")
-  
-  plot_dat <- pblapply(1:nrow(lens_dat), cl = 4, function(i) {
+  n_ngrams_plot_dat <- pblapply(1:nrow(lens_dat), cl = 2, function(i) {
     data.frame(dataset = lens_dat[["dataset"]][i],
                seq_name = lens_dat[["seq"]][i],
                motif_pos = lens_dat[["start"]][i]:lens_dat[["end"]][i],
                len = lens_dat[["len"]][i],
                motif = lens_dat[["motif"]][[i]])
-  }) %>% bind_rows()
-  
-  n_ngrams_plot_dat <- plot_dat %>% 
+  }) %>% 
+    bind_rows() %>% 
     group_by(dataset, seq_name, len, motif, motif_pos) %>% 
     summarise(n = n()) 
   
-  pblapply(1:nrow(lens_dat), cl = 4, function(i) {
+  pblapply(1:nrow(lens_dat), cl = 1, function(i) {
     data.frame(dataset = lens_dat[["dataset"]][i],
                seq_name = lens_dat[["seq"]][i],
                pos = 1:lens_dat[["len"]][i])
@@ -227,10 +225,9 @@ plot_motif_position_density <- function(dataset_list, dataset_name, found_motifs
 
 
 plot_motif_positions_scaled <- function(dataset_list, dataset_name, found_motifs, type = "point", density_col = "white") {
-  lens <- data.frame(seq = names(dataset_list[[dataset_name]]),
-                     len = lengths(dataset_list[[dataset_name]]))
-  
-  lens_dat <- left_join(filter(found_motifs, dataset == dataset_name), lens, by = "seq") %>% 
+  lens_dat <- data.frame(seq = names(dataset_list[[dataset_name]]),
+                     len = lengths(dataset_list[[dataset_name]])) %>% 
+    left_join(filter(found_motifs, dataset == dataset_name), ., by = "seq") %>% 
     mutate(start = start*100/len) 
   
   if(type == "point") {
