@@ -29,46 +29,46 @@ enc8 <- list("1" = c("S", "T"),
              "9" = c("R", "H", "K"))
 
 # encoding enc10
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_bigrams_gap0.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_bigrams_gap0.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 2, gaps = 0))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_bigrams_gap1.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_bigrams_gap1.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 2, gaps = 1))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_bigrams_gap2.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_bigrams_gap2.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 2, gaps = 2))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_bigrams_gap3.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_bigrams_gap3.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 2, gaps = 3))
 
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap00.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap00.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(0, 0))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap01.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap01.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(0, 1))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap10.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap10.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(1, 0))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap11.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap11.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(1, 1))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap02.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap02.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(0, 2))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap20.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap20.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(2, 0))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap12.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap12.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(1, 2))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap21.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap21.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(2, 1))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap22.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap22.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(2, 2))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap03.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap03.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(0, 3))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap30.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap30.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(3, 0))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap13.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap13.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(1, 3))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap31.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap31.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(3, 1))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap23.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap23.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(2, 3))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap32.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap32.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(3, 2))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap33.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc10_trigrams_gap33.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc10, k = 3, gaps = list(c(3, 3))))
 
 render("ngram_analysis_encoding.Rmd", output_file = "enc10_tetragrams_gap000.html", output_dir = "motif-analysis-reports-enc/",
@@ -161,46 +161,46 @@ render("ngram_analysis_encoding.Rmd", output_file = "enc10_pentagrams_gap1111.ht
 
 
 # encoding enc8
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_bigrams_gap0.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_bigrams_gap0.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 2, gaps = 0))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_bigrams_gap1.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_bigrams_gap1.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 2, gaps = 1))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_bigrams_gap2.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_bigrams_gap2.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 2, gaps = 2))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_bigrams_gap3.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_bigrams_gap3.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 2, gaps = 3))
 
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap00.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap00.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(0, 0))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap01.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap01.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(0, 1))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap10.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap10.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(1, 0))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap11.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap11.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(1, 1))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap02.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap02.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(0, 2))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap20.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap20.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(2, 0))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap12.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap12.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(1, 2))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap21.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap21.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(2, 1))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap22.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap22.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(2, 2))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap03.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap03.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(0, 3))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap30.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap30.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(3, 0))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap13.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap13.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(1, 3))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap31.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap31.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(3, 1))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap23.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap23.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(2, 3))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap32.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap32.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(3, 2))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap33.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc8_trigrams_gap33.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc8, k = 3, gaps = list(c(3, 3))))
 
 render("ngram_analysis_encoding.Rmd", output_file = "enc8_tetragrams_gap000.html", output_dir = "motif-analysis-reports-enc/",
@@ -293,46 +293,46 @@ render("ngram_analysis_encoding.Rmd", output_file = "enc8_pentagrams_gap1111.htm
 
 
 # encoding enc7
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_bigrams_gap0.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_bigrams_gap0.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 2, gaps = 0))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_bigrams_gap1.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_bigrams_gap1.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 2, gaps = 1))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_bigrams_gap2.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_bigrams_gap2.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 2, gaps = 2))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_bigrams_gap3.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_bigrams_gap3.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 2, gaps = 3))
 
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap00.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap00.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(0, 0))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap01.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap01.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(0, 1))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap10.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap10.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(1, 0))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap11.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap11.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(1, 1))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap02.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap02.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(0, 2))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap20.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap20.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(2, 0))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap12.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap12.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(1, 2))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap21.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap21.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(2, 1))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap22.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap22.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(2, 2))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap03.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap03.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(0, 3))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap30.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap30.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(3, 0))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap13.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap13.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(1, 3))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap31.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap31.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(3, 1))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap23.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap23.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(2, 3))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap32.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap32.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(3, 2))))
-render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap33.html", output_path = "motif-analysis-reports-enc/",
+render("ngram_analysis_encoding.Rmd", output_file = "enc7_trigrams_gap33.html", output_dir = "motif-analysis-reports-enc/",
        params = list("encoding" = enc7, k = 3, gaps = list(c(3, 3))))
 
 render("ngram_analysis_encoding.Rmd", output_file = "enc7_tetragrams_gap000.html", output_dir = "motif-analysis-reports-enc/",
