@@ -304,8 +304,12 @@ x <- select_fcbf_informative_motifs(binary_trigrams,
                                     "DBAASP AMP max 100 aa",
                                     "cTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(x)))
-mutate(x, motif = gsub("X", "", motif)) %>% 
+if(!is.null(x)) {
+  if(nrow(x) > 1) {
+      mutate(x, motif = gsub("X", "", motif)) %>% 
   my_DT()
+  }
+}
 ```
 AMP vs. cTP & mTP
 ```{r eval = params[["fcbf_amp"]]}
@@ -313,8 +317,12 @@ x <- select_fcbf_informative_motifs(binary_trigrams,
                                     "DBAASP AMP max 100 aa",
                                     c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
 print(paste0("Number of informative motifs: ", nrow(x)))
-mutate(x, motif = gsub("X", "", motif)) %>% 
+if(!is.null(x)) {
+  if(nrow(x) > 1) {
+      mutate(x, motif = gsub("X", "", motif)) %>% 
   my_DT()
+  }
+}
 ```
 
 AMP vs. cTP-mTP & cTP & mTP
@@ -323,8 +331,12 @@ x <- select_fcbf_informative_motifs(binary_trigrams,
                                     "DBAASP AMP max 100 aa",
                                     c("cTP experimentally verified presequence", "cTP-mTP experimentally verified presequence", "mTP experimentally verified presequence"))
 print(paste0("Number of informative motifs: ", nrow(x)))
-mutate(x, motif = gsub("X", "", motif)) %>% 
+if(!is.null(x)) {
+  if(nrow(x) > 1) {
+      mutate(x, motif = gsub("X", "", motif)) %>% 
   my_DT()
+  }
+}
 ```
 
 AMP vs. SP
@@ -333,6 +345,10 @@ x <- select_fcbf_informative_motifs(binary_trigrams,
                                     "DBAASP AMP max 100 aa",
                                     "SP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(x)))
-mutate(x, motif = gsub("X", "", motif)) %>% 
+if(!is.null(x)) {
+  if(nrow(x) > 1) {
+      mutate(x, motif = gsub("X", "", motif)) %>% 
   my_DT()
+  }
+}
 ```

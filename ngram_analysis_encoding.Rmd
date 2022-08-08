@@ -373,8 +373,12 @@ y <- select_fcbf_informative_motifs(binary_trigrams,
                                     "cTP experimentally verified presequence",
                                     "mTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(y)))
-mutate(y, motif = gsub("X", "", motif)) %>% 
+if(!is.null(y)) {
+  if(nrow(y) > 1) {
+      mutate(y, motif = gsub("X", "", motif)) %>% 
   my_DT()
+  }
+}
 ```
 
 cTP-mTP vs. cTP & mTP
@@ -383,8 +387,12 @@ y <- select_fcbf_informative_motifs(binary_trigrams,
                                     "cTP-mTP experimentally verified presequence",
                                     c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
 print(paste0("Number of informative motifs: ", nrow(y)))
-mutate(y, motif = gsub("X", "", motif)) %>% 
+if(!is.null(y)) {
+  if(nrow(y) > 1) {
+      mutate(y, motif = gsub("X", "", motif)) %>% 
   my_DT()
+  }
+}
 ```
 
 cTP vs. cTP-mTP
@@ -393,8 +401,12 @@ y <- select_fcbf_informative_motifs(binary_trigrams,
                                     "cTP experimentally verified presequence",
                                     "cTP-mTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(y)))
-mutate(y, motif = gsub("X", "", motif)) %>% 
+if(!is.null(y)) {
+  if(nrow(y) > 1) {
+      mutate(y, motif = gsub("X", "", motif)) %>% 
   my_DT()
+  }
+}
 ```
 
 mTP vs. cTP-mTP
@@ -403,8 +415,12 @@ y <- select_fcbf_informative_motifs(binary_trigrams,
                                     "mTP experimentally verified presequence",
                                     "cTP-mTP experimentally verified presequence")
 print(paste0("Number of informative motifs: ", nrow(y)))
-mutate(y, motif = gsub("X", "", motif)) %>% 
+if(!is.null(y)) {
+  if(nrow(y) > 1) {
+      mutate(y, motif = gsub("X", "", motif)) %>% 
   my_DT()
+  }
+}
 ```
 
 SP vs. cTP & mTP
@@ -413,6 +429,10 @@ y <- select_fcbf_informative_motifs(binary_trigrams,
                                     "SP experimentally verified presequence",
                                     c("cTP experimentally verified presequence", "mTP experimentally verified presequence"))
 print(paste0("Number of informative motifs: ", nrow(y)))
-mutate(y, motif = gsub("X", "", motif)) %>% 
+if(!is.null(y)) {
+  if(nrow(y) > 1) {
+      mutate(y, motif = gsub("X", "", motif)) %>% 
   my_DT()
+  }
+}
 ```
