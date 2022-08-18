@@ -1,0 +1,132 @@
+---
+title: "Taxonomic representation"
+author: "Katarzyna Sidorczuk"
+date: "18/08/2022"
+output: 
+  html_document:
+  toc: true
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.width = 14, fig.height = 10, warning = FALSE, message = FALSE, cache = TRUE, cache.lazy = FALSE)
+
+library(dplyr)
+library(targets)
+library(readxl)
+library(ggplot2)
+library(patchwork)
+library(DT)
+
+tar_load(c(datasets_list, datasets_list_cdhit))
+dat <- read_xlsx("/media/kasia/Data/Dropbox/Presequences/Presequence_uniprot_entries_proper.xlsx")
+
+datasets_list_tax <- datasets_list[c("cTP experimentally verified location", "cTP-mTP experimentally verified location", 
+                                     "cTP-mTP experimentally verified presequence", "cTP experimentally verified presequence", 
+                                     "mTP experimentally verified location", "mTP experimentally verified presequence",
+                                     "SP experimentally verified presequence")]
+
+datasets_list_cdhit_tax <- datasets_list[c("cTP experimentally verified location", "cTP-mTP experimentally verified location", 
+                                           "cTP-mTP experimentally verified presequence", "cTP experimentally verified presequence", 
+                                           "mTP experimentally verified location", "mTP experimentally verified presequence",
+                                           "SP experimentally verified presequence")]
+
+my_DT <- function(x, ...)
+  datatable(x, ..., escape = FALSE, extensions = 'Buttons', filter = "top", rownames = FALSE,
+            style = "bootstrap")
+
+options(DT.options = list(dom = "Brtip",
+                          buttons = c("copy", "csv", "excel", "print"),
+                          pageLength = 50
+))
+```
+
+
+```{r}
+proteins_organisms <- dat %>% 
+  group_by(superkingdom, kingdom, phylum, class, Organism) %>% 
+  summarise(n = n())
+
+organisms <- dat %>% 
+  group_by(superkingdom, kingdom, phylum, class) %>% 
+  summarise(n = length(unique(Organism)))
+
+proteins <- dat %>% 
+  group_by(superkingdom, kingdom, phylum, class) %>% 
+  summarise(n = n())
+```
+
+
+## Numbers of organisms
+
+```{r}
+my_DT(organisms)
+```
+
+## Numbers of proteins
+
+```{r}
+my_DT(proteins)
+```
+
+
+```{r results = "asis"}
+for (ith_set in names(datasets_list_tax)) {
+  cat(paste0("\n\n## ", ith_set, "\n\n"))
+  cat(paste0("\n\n### By kingdom\n\n"))
+  x <- filter(dat, Entry %in% names(datasets_list_tax[[ith_set]]))
+  plot(group_by(x, superkingdom, kingdom) %>% 
+    summarise(n = n()) %>% 
+    ggplot(aes(x = kingdom, y = n)) +
+    geom_col() +
+    geom_text(aes(label = n), hjust = -0.25, size = 3) +
+    facet_wrap(~superkingdom, scales = "free_y", ncol = 1) +
+    coord_flip() +
+    theme_bw() +
+    theme(legend.position = "none") +
+    ylab('Number of sequences') +
+    ggtitle(ith_set))
+  
+  cat(paste0("\n\n### By phylum\n\n"))
+  plot(group_by(x, superkingdom, kingdom, phylum) %>% 
+    mutate(kingdom = paste0("Kingdom: ", kingdom)) %>% 
+    summarise(n = n()) %>% 
+    ggplot(aes(x = phylum, y = n)) +
+    geom_col() +
+    geom_text(aes(label = n), hjust = -0.05, size = 3) +
+    facet_wrap(superkingdom~kingdom, scales = "free_y", ncol = 2) +
+    coord_flip() +
+    theme_bw() +
+    theme(legend.position = "none") +
+    ylab('Number of sequences'))
+  
+  plot(group_by(x, superkingdom, kingdom, phylum) %>% 
+    mutate(kingdom = paste0("Kingdom: ", kingdom)) %>% 
+    summarise(n = n()) %>% 
+    ggplot(aes(x = phylum, y = n)) +
+    geom_col() +
+    geom_text(aes(label = n), hjust = -0.05, size = 3) +
+    facet_wrap(superkingdom~kingdom, scales = "free", ncol = 2) +
+    coord_flip() +
+    theme_bw() +
+    theme(legend.position = "none") +
+    ylab('Number of sequences')) 
+  
+  cat(paste0("\n\n### By class\n\n"))
+  lapply(unique(x[["superkingdom"]]), function(ith_kingdom) {
+    plot(filter(x, superkingdom == ith_kingdom) %>% 
+    group_by(kingdom, phylum, class) %>% 
+    mutate(kingdom = paste0("Kingdom: ", kingdom),
+           phylum = paste0("Phylum: ", phylum)) %>% 
+    summarise(n = n()) %>% 
+    ggplot(aes(x = class, y = n, fill = kingdom)) +
+    geom_col() +
+    geom_text(aes(label = n), hjust = -0.05, size = 3) +
+    facet_wrap(kingdom~phylum, scales = "free_y", ncol = 3) +
+    coord_flip() +
+    theme_bw() +
+    theme(legend.position = "none") +
+    ylab('Number of sequences') +
+    ggtitle(ith_kingdom))
+  })
+}
+```
