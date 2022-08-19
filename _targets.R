@@ -445,6 +445,10 @@ list(
     presequence_entries,
     write.csv(filter_presequence_entries(datasets_list, annotations_all),
               paste0(data_path, "Presequence_uniprot_entries.csv"), row.names = FALSE)
+  ),
+  tar_target(
+    taxonomic_representation,
+    read_xlsx(paste0(data_path, "Presequence_uniprot_entries_proper.xlsx"))
   )
 )
 

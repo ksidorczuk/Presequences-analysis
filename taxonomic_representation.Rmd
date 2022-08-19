@@ -17,8 +17,8 @@ library(ggplot2)
 library(patchwork)
 library(DT)
 
-tar_load(c(datasets_list, datasets_list_cdhit))
-dat <- read_xlsx("/media/kasia/Data/Dropbox/Presequences/Presequence_uniprot_entries_proper.xlsx")
+tar_load(c(datasets_list, datasets_list_cdhit, taxonomic_representation))
+
 
 datasets_list_tax <- datasets_list[c("cTP experimentally verified location", "cTP-mTP experimentally verified location", 
                                      "cTP-mTP experimentally verified presequence", "cTP experimentally verified presequence", 
