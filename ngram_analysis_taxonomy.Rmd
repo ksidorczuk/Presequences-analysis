@@ -43,33 +43,15 @@ my_DT <- function(df) {
                            scrollY = "400px", paging = FALSE), rownames = FALSE)
 }
 
-colors <- c("cTP-mTP experimentally verified presequence" ="#e4d345", 
-            "cTP experimentally verified presequence" = "#9de444", "DBAASP AMP max 100 aa" = "#e44444", 
-            "mTP experimentally verified presequence" = "#e49144", "SP experimentally verified presequence" = "#45e495", 
-            "TM regions experimentally verified - alpha" = "#44aee4", "TM regions experimentally verified - beta" = "#4451e4",
-            "AmyPro regions" = "#e44496", "CPAD peptides" = "#8d44e4")
+colors <- c("cTP experimentally verified presequence" = "#9de444", "#e4d345", "#528313", "#837713",
+            "mTP experimentally verified presequence" = "#e49144", "#834813", "SP experimentally verified presequence" = "#45e495", 
+            "#13834b", "#44aee4", "#4451e4", "#e44444", "#831313", "#e44496", "#bb45e4", "#8d44e4", "#83134c", "#661383", "#461383")
 
 filtered_datasets_list <- datasets_list[c("cTP experimentally verified presequence", 
                                           "mTP experimentally verified presequence", 
                                           "SP experimentally verified presequence")]
 
 filtered_datasets <- unlist(sapply(names(filtered_datasets_list), function(i) rep(i, length(filtered_datasets_list[[i]])), USE.NAMES = FALSE))
-
-# cTP 
-# by kingdom
-# by phylum
-# by phylum only viridiplantae
-# 
-# mTP
-# by kingdom
-# by phylum >=5 sequences
-# by class >=5 sequences
-# 
-# SP 
-# by superkingdom
-# by phylum >=5 sequences
-# by class >=5 sequences
-# by phylum >=10 sequences
 
 ```
 
