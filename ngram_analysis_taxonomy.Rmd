@@ -15,7 +15,7 @@ params:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, fig.width = 14, fig.height = 10, warning = FALSE, message = FALSE)#, cache = TRUE, cache.lazy = FALSE)
+knitr::opts_chunk$set(echo = FALSE, fig.width = 14, fig.height = 10, warning = FALSE, message = FALSE, cache = TRUE, cache.lazy = FALSE)
 
 library(targets)
 library(dplyr)
@@ -40,12 +40,17 @@ tar_load(c(datasets_list, taxonomic_representation))
 my_DT <- function(df) {
   datatable(df, extensions = 'FixedColumns', filter = "top", style = "bootstrap",
             options = list(dom = 't', scrollX = TRUE, scrollCollapse = TRUE,
-                           scrollY = "400px", paging = FALSE), rownames = FALSE)
+                           scrollY = "400px", paging = FALSE), rownames = FALSE) %>% 
+    formatRound(2:ncol(df), 4) 
 }
 
 colors <- c("cTP experimentally verified presequence" = "#9de444", "#e4d345", "#528313", "#837713",
             "mTP experimentally verified presequence" = "#e49144", "#834813", "SP experimentally verified presequence" = "#45e495", 
             "#13834b", "#44aee4", "#4451e4", "#e44444", "#831313", "#e44496", "#bb45e4", "#8d44e4", "#83134c", "#661383", "#461383")
+colors2 <- c("#c4e7d4", "#c4dacf", "#bfcdd5", "#b9c0da", "#b1b4cc", "#a9a7bd", "#a19aaf", "#9d94a8", "#998da0", "#63585e",
+             "#270722", "#402030", "#59393d", "#72524b", "#8a6b58", "#ecce8e", "#dbcf96", "#cfcb9f", "#c2c6a7", "#d6d8c3",
+             "#333333", "#4d4f5d", "#666a86", "#727e99", "#7e91ac", "#8aa5bf", "#95b8d1", "#bfcbc3", "#d4d4bc", "#e8ddb5",
+             "#efd0ca", "#c1bcac", "#979b8d", "#7a8872", "#5c7457")
 
 filtered_datasets_list <- datasets_list[c("cTP experimentally verified presequence", 
                                           "mTP experimentally verified presequence", 
@@ -779,30 +784,6 @@ for(i in names(SP_phylum)) {
 
 ```
 
-### Position density of the 50 most frequent motifs for each phylum
-```{r results = 'asis'}
-for(i in names(SP_phylum)) {
-  most_frequent <- get_dataset_most_frequent_motifs(trigram_plot_dat_presequences,
-                                                    i,
-                                                    n_motifs = 50)
-  plot(plot_motif_position_density(SP_phylum, i,
-                                   locate_motifs(SP_phylum[i], most_frequent),
-                                   density_col = colors[["SP experimentally verified presequence"]]))
-}
-
-```
-
-### Motif positions within scaled sequences
-```{r results = 'asis'}
-for(i in names(SP_phylum)) {
-  most_frequent <- get_dataset_most_frequent_motifs(trigram_plot_dat_presequences,
-                                                    i,
-                                                    n_motifs = 50)
-  plot(plot_motif_positions_scaled(SP_phylum, i,
-                                   locate_motifs(SP_phylum[i], most_frequent),
-                                   type = "violin", density_col = colors[["SP experimentally verified presequence"]]))
-}
-```
 
 ## By phylum (with at least 10 sequences)
 ```{r}
@@ -896,7 +877,7 @@ for(i in names(SP_phylum)) {
 ```
 
 
-## By class (with at least 5 sequences)
+## By class (with at least 20 sequences)
 ```{r}
 SP_class <- lapply(unique(df[["class"]]), function(i) {
   ds[which(names(ds) %in% filter(df, class == i)[["Entry"]])]
@@ -907,7 +888,7 @@ lengths(SP_class) %>%
   setNames("Number of sequences") %>%
   knitr::kable()
 
-SP_class <- SP_class[which(lengths(SP_class) >= 5)]
+SP_class <- SP_class[which(lengths(SP_class) >= 20)]
 trigram_freqs <- calculate_ngram_freq(SP_class, params[["k"]], params[["gaps"]], params[["encoding"]])
 trigram_plot_dat_presequences <- get_motif_plot_dat(trigram_freqs)
 n_d <- length(names(SP_class))
@@ -961,7 +942,7 @@ for(i in names(SP_class)) {
                                                     n_motifs = 100)
   plot(plot_most_frequent_motifs(trigram_plot_dat_presequences,
                                  most_frequent,
-                                 unname(colors),
+                                 colors2,
                                  paste0("100 most frequent motifs of ", i)))
   
   print(filter(trigram_plot_dat_presequences, motif %in% most_frequent) %>%
