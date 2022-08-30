@@ -153,7 +153,7 @@ for(i in names(cTP_kingdom)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_position_density(cTP_kingdom, i,
-                                   locate_motifs(cTP_kingdom[i], most_frequent),
+                                   locate_motifs(cTP_kingdom[i], most_frequent, params[["encoding"]]),
                                    density_col = colors[["cTP experimentally verified presequence"]]))
 }
 ```
@@ -165,7 +165,7 @@ for(i in names(cTP_kingdom)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_positions_scaled(cTP_kingdom, i,
-                                   locate_motifs(cTP_kingdom[i], most_frequent),
+                                   locate_motifs(cTP_kingdom[i], most_frequent, params[["encoding"]]),
                                    type = "violin", density_col = colors[["cTP experimentally verified presequence"]]))
 }
 ```
@@ -254,7 +254,7 @@ for(i in names(cTP_phylum)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_position_density(cTP_phylum, i,
-                                   locate_motifs(cTP_phylum[i], most_frequent),
+                                   locate_motifs(cTP_phylum[i], most_frequent, params[["encoding"]]),
                                    density_col = colors[["cTP experimentally verified presequence"]]))
 }
 
@@ -267,7 +267,7 @@ for(i in names(cTP_phylum)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_positions_scaled(cTP_phylum, i,
-                                   locate_motifs(cTP_phylum[i], most_frequent),
+                                   locate_motifs(cTP_phylum[i], most_frequent, params[["encoding"]]),
                                    type = "violin", density_col = colors[["cTP experimentally verified presequence"]]))
 }
 ```
@@ -370,7 +370,7 @@ for(i in names(mTP_kingdom)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_position_density(mTP_kingdom, i,
-                                   locate_motifs(mTP_kingdom[i], most_frequent),
+                                   locate_motifs(mTP_kingdom[i], most_frequent, params[["encoding"]]),
                                    density_col = colors[["mTP experimentally verified presequence"]]))
 }
 ```
@@ -382,7 +382,7 @@ for(i in names(mTP_kingdom)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_positions_scaled(mTP_kingdom, i,
-                                   locate_motifs(mTP_kingdom[i], most_frequent),
+                                   locate_motifs(mTP_kingdom[i], most_frequent, params[["encoding"]]),
                                    type = "violin", density_col = colors[["mTP experimentally verified presequence"]]))
 }
 ```
@@ -471,7 +471,7 @@ for(i in names(mTP_phylum)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_position_density(mTP_phylum, i,
-                                   locate_motifs(mTP_phylum[i], most_frequent),
+                                   locate_motifs(mTP_phylum[i], most_frequent, params[["encoding"]]),
                                    density_col = colors[["mTP experimentally verified presequence"]]))
 }
 
@@ -484,7 +484,7 @@ for(i in names(mTP_phylum)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_positions_scaled(mTP_phylum, i,
-                                   locate_motifs(mTP_phylum[i], most_frequent),
+                                   locate_motifs(mTP_phylum[i], most_frequent, params[["encoding"]]),
                                    type = "violin", density_col = colors[["mTP experimentally verified presequence"]]))
 }
 ```
@@ -573,7 +573,7 @@ for(i in names(mTP_class)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_position_density(mTP_class, i,
-                                   locate_motifs(mTP_class[i], most_frequent),
+                                   locate_motifs(mTP_class[i], most_frequent, params[["encoding"]]),
                                    density_col = colors[["mTP experimentally verified presequence"]]))
 }
 
@@ -586,7 +586,7 @@ for(i in names(mTP_class)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_positions_scaled(mTP_class, i,
-                                   locate_motifs(mTP_class[i], most_frequent),
+                                   locate_motifs(mTP_class[i], most_frequent, params[["encoding"]]),
                                    type = "violin", density_col = colors[["mTP experimentally verified presequence"]]))
 }
 ```
@@ -690,7 +690,7 @@ for(i in names(SP_superkingdom)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_position_density(SP_superkingdom, i,
-                                   locate_motifs(SP_superkingdom[i], most_frequent),
+                                   locate_motifs(SP_superkingdom[i], most_frequent, params[["encoding"]]),
                                    density_col = colors[["SP experimentally verified presequence"]]))
 }
 ```
@@ -702,7 +702,7 @@ for(i in names(SP_superkingdom)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_positions_scaled(SP_superkingdom, i,
-                                   locate_motifs(SP_superkingdom[i], most_frequent),
+                                   locate_motifs(SP_superkingdom[i], most_frequent, params[["encoding"]]),
                                    type = "violin", density_col = colors[["SP experimentally verified presequence"]]))
 }
 ```
@@ -859,7 +859,7 @@ for(i in names(SP_phylum)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_position_density(SP_phylum, i,
-                                   locate_motifs(SP_phylum[i], most_frequent),
+                                   locate_motifs(SP_phylum[i], most_frequent, params[["encoding"]]),
                                    density_col = colors[["SP experimentally verified presequence"]]))
 }
 ```
@@ -871,7 +871,7 @@ for(i in names(SP_phylum)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_positions_scaled(SP_phylum, i,
-                                   locate_motifs(SP_phylum[i], most_frequent),
+                                   locate_motifs(SP_phylum[i], most_frequent, params[["encoding"]]),
                                    type = "violin", density_col = colors[["SP experimentally verified presequence"]]))
 }
 ```
@@ -959,7 +959,7 @@ for(i in names(SP_class)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_position_density(SP_class, i,
-                                   locate_motifs(SP_class[i], most_frequent),
+                                   locate_motifs(SP_class[i], most_frequent, params[["encoding"]]),
                                    density_col = colors[["SP experimentally verified presequence"]]))
 }
 
@@ -972,7 +972,7 @@ for(i in names(SP_class)) {
                                                     i,
                                                     n_motifs = 50)
   plot(plot_motif_positions_scaled(SP_class, i,
-                                   locate_motifs(SP_class[i], most_frequent),
+                                   locate_motifs(SP_class[i], most_frequent, params[["encoding"]]),
                                    type = "violin", density_col = colors[["SP experimentally verified presequence"]]))
 }
 ```
