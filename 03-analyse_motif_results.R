@@ -4,6 +4,7 @@ library(readxl)
 library(ggrepel)
 library(ggbeeswarm)
 library(biogram)
+library(tidyr)
 
 data_path <- "/media/kasia/Data/Dropbox/Presequences/"
 
@@ -29,7 +30,7 @@ cutoffs <- df_freq %>%
 
 # Trigrams with gaps were collected with different cutoffs - set threshold to 0.15 for SP and 0.2 for cTP
 df_freq2 <- df_freq[(which(!(df_freq[["Type"]] == "Trigrams with gaps" & 
-  ((df_freq[["Dataset"]] == "cTP" & df_freq[["Frequency"]] < 0.2) | (df_freq[["Dataset"]] == "SP" & df_freq[["Frequency"]] < 0.15))))),]
+                               ((df_freq[["Dataset"]] == "cTP" & df_freq[["Frequency"]] < 0.2) | (df_freq[["Dataset"]] == "SP" & df_freq[["Frequency"]] < 0.15))))),]
 
 # x <- filter(df_freq2, Type == "Trigrams with gaps")
 
@@ -109,22 +110,22 @@ ggplot(df_freq_decoded, aes(x = Encoding, y = Frequency, color = Dataset)) +
 
 lapply(c("Pentagrams with gaps", "Tetragrams without gaps", 
          "Tetragrams with gaps", "Trigrams without gaps", "Trigrams with gaps"), function(ith_type) {
-  lapply(unique(df_freq_decoded[["Encoding"]]), function(ith_enc) {
-    x <- filter(df_freq_decoded, Type == ith_type, Encoding == ith_enc)
-    p <- lapply(unique(x[["Dataset"]]), function(i) {
-      filter(x, Dataset == i) %>% 
-        arrange(desc(Frequency)) %>% 
-        head(n = 15)
-    }) %>% bind_rows() %>% 
-      ggplot(aes(x = Frequency, y = reorder(Motif, Frequency))) +
-      geom_col() +
-      facet_wrap(~Dataset, scales = "free_y", nrow = 1) +
-      theme_bw() +
-      ggtitle(ith_type)
-    ggsave(paste0(data_path, "ngram_results/Most_frequent_15best_", gsub(" ", "_", ith_type), "_", ith_enc, ".png"), 
-           p, width = 10, height = 5)
-  })
-})
+           lapply(unique(df_freq_decoded[["Encoding"]]), function(ith_enc) {
+             x <- filter(df_freq_decoded, Type == ith_type, Encoding == ith_enc)
+             p <- lapply(unique(x[["Dataset"]]), function(i) {
+               filter(x, Dataset == i) %>% 
+                 arrange(desc(Frequency)) %>% 
+                 head(n = 15)
+             }) %>% bind_rows() %>% 
+               ggplot(aes(x = Frequency, y = reorder(Motif, Frequency))) +
+               geom_col() +
+               facet_wrap(~Dataset, scales = "free_y", nrow = 1) +
+               theme_bw() +
+               ggtitle(ith_type)
+             ggsave(paste0(data_path, "ngram_results/Most_frequent_15best_", gsub(" ", "_", ith_type), "_", ith_enc, ".png"), 
+                    p, width = 10, height = 5)
+           })
+         })
 
 
 
@@ -156,4 +157,94 @@ lapply(unique(df_freq_tax[["Type"]]), function(ith_type) {
              p, width = 6, height = 2+nrow(y)*0.15, limitsize = FALSE)
     })
   })
+})
+
+lapply(unique(df_freq_tax[["Type"]]), function(ith_type) {
+  lapply(unique(df_freq_tax[["Dataset"]]), function(ith_set) {
+    x <- filter(df_freq_tax, Dataset == ith_set, Type == ith_type) %>% 
+      select(-Diff) %>% 
+      pivot_longer(c("Freq1", "Freq2", "Freq3", "Freq4"), names_to = "Group", values_to = "Frequency") %>% 
+      filter(!is.na(Frequency))
+    
+    if(ith_set == "cTP") {
+      y <- mutate(x, Group = case_when(Group == "Freq1" & `Frequent in` %in% c("Viridiplantae", "Unknown") ~ "Viridiplantae",
+                                       Group == "Freq2" & `Frequent in` %in% c("Viridiplantae", "Unknown") ~ "Unknown",
+                                       Group == "Freq1" & `Frequent in` %in% c("Streptophyta", "Chlorophyta") ~ "Streptophyta",
+                                       Group == "Freq2" & `Frequent in` %in% c("Streptophyta", "Chlorophyta") ~ "Chlorophyta")) 
+    } else if(ith_set == "mTP") {
+      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Viridiplantae",
+                                       Group == "Freq2" ~ "Metazoa",
+                                       Group == "Freq3" ~ "Fungi",
+                                       Group == "Freq4" ~ "Unknown")) 
+    } else if(ith_set == "SP") {
+      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Eukaryota",
+                                       Group == "Freq2" ~ "Bacteria",
+                                       Group == "Freq3" ~ "Archaea",
+                                       Group == "Freq4" ~ "Viruses")) 
+    } 
+    p <- ggplot(y, aes(y = Motif, x = Frequency, fill = Group)) +
+      geom_col(position = position_dodge()) +
+      facet_wrap(~`Frequent in`, scales = "free", nrow = 1) +
+      theme_bw(base_size = 6) +
+      ggtitle(paste0(ith_type, ", ", ith_set))
+    ggsave(paste0(data_path, "ngram_results/Taxonomy_all_", gsub(" ", "_", ith_type), "_", ith_set, ".png"),
+           p, width = 10, height = 2+nrow(y)*0.02, limitsize = FALSE)
+  })
+})
+
+
+
+
+###--- Common motifs, taxonomy ---###
+df_common_tax <- read_xlsx(paste0(data_path, "Motifs_results.xlsx"), sheet = "Taxonomy common") %>% 
+  mutate(Motif = sapply(.[["Motif"]], function(i) gsub(".", " _ ", i, fixed = TRUE))) 
+
+lapply(unique(df_common_tax[["Dataset"]]), function(ith_set) {
+  x <- filter(df_common_tax, Dataset == ith_set) %>% 
+    pivot_longer(c("Freq1", "Freq2", "Freq3", "Freq4"), names_to = "Group", values_to = "Frequency") %>% 
+    filter(!is.na(Frequency))
+  
+  if(ith_set == "cTP") {
+    y <- mutate(x, Group = case_when(Group == "Freq1" & Groups == "Viridiplantae, NA" ~ "Viridiplantae",
+                                     Group == "Freq2" & Groups == "Viridiplantae, NA" ~ "Unknown",
+                                     Group == "Freq1" & Groups == "Streptophyta, Chlorophyta" ~ "Streptophyta",
+                                     Group == "Freq2" & Groups == "Streptophyta, Chlorophyta" ~ "Chlorophyta")) 
+  } else if(ith_set == "mTP") {
+    y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Viridiplantae",
+                                     Group == "Freq2" ~ "Metazoa",
+                                     Group == "Freq3" ~ "Fungi",
+                                     Group == "Freq4" ~ "Unknown")) 
+  } else if(ith_set == "SP") {
+    y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Eukaryota",
+                                     Group == "Freq2" ~ "Bacteria",
+                                     Group == "Freq3" ~ "Archaea",
+                                     Group == "Freq4" ~ "Viruses")) 
+  } 
+  p <- ggplot(y, aes(x = Frequency, y = Motif, fill = Group)) +
+    geom_col(position = position_dodge()) +
+    facet_wrap(~Groups, scales = "free", nrow = 1) +
+    theme_bw() +
+    ggtitle(ith_set)
+  ggsave(paste0(data_path, "ngram_results/Taxonomy_common_", ith_set, ".png"),
+         p, width = 4*length(unique(y[["Groups"]])), height = 4+nrow(y)*0.02, limitsize = FALSE)
+})
+
+
+
+
+###--- Differentiating motifs---###
+df_diff <- read_xlsx(paste0(data_path, "Motifs_results.xlsx"), sheet = "Differences") %>% 
+  mutate(Motif = sapply(.[["Motif"]], function(i) gsub(".", " _ ", i, fixed = TRUE))) 
+
+lapply(unique(df_diff[["Type"]]), function(ith_type) {
+  x <- filter(df_diff, Type == ith_type) %>% 
+    select(-c("FreqDiff", "quipt_pval", "Cutoff")) %>% 
+    pivot_longer(c(Freq1, Freq2), names_to = "Set", values_to = "Frequency")
+  p <- ggplot(x, aes(y = Motif, x = Frequency, fill = Set)) +
+    geom_col(position = position_dodge()) +
+    facet_wrap(~Comparison, scales = "free", nrow = 1) +
+    theme_bw() +
+    ggtitle(ith_type)
+  ggsave(paste0(data_path, "ngram_results/Differences_", ith_type, ".png"),
+         p, width = 4*length(unique(x[["Comparison"]])), height = 4+nrow(x)*0.02, limitsize = FALSE)
 })
