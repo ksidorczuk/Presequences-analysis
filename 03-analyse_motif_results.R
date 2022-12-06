@@ -366,7 +366,7 @@ lapply(unique(df_common_tax[["Dataset"]]), function(ith_set) {
 
 
 
-###--- Differentiating motifs---###
+###--- Differentiating motifs ---###
 df_diff <- read_xlsx(paste0(data_path, "Motifs_results.xlsx"), sheet = "Differences") %>% 
   mutate(Motif = sapply(.[["Motif"]], function(i) gsub(".", " _ ", i, fixed = TRUE))) %>% 
   filter(!(Type == "Tetragrams with gaps" & FreqDiff < 0.075 & Comparison == "AMP/cTP")) %>% 
@@ -386,3 +386,63 @@ lapply(unique(df_diff[["Type"]]), function(ith_type) {
   ggsave(paste0(data_path, "ngram_results/Differences_", ith_type, ".png"),
          p, width = 4*length(unique(x[["Comparison"]])), height = 4+nrow(x)*0.02, limitsize = FALSE)
 })
+
+
+
+###--- Taxonomic groups distribution ---###
+library(targets)
+tax_dat <- read_xlsx(paste0(data_path, "Presequence_uniprot_entries_proper.xlsx"))
+tar_load(datasets_list)
+
+tax_plot_dat <- tax_dat %>% 
+  mutate(Dataset = case_when(Entry %in% names(datasets_list[["cTP experimentally verified presequence"]]) ~ "cTP",
+                             Entry %in% names(datasets_list[["mTP experimentally verified presequence"]]) ~ "mTP",
+                             Entry %in% names(datasets_list[["SP experimentally verified presequence"]]) ~ "SP")) %>% 
+  filter(!is.na(Dataset))
+
+tax_seq_numbers <- tax_plot_dat %>% 
+  group_by(Dataset, superkingdom, kingdom, phylum, class) %>% 
+  summarise(count = n()) 
+
+p_ctp <- tax_plot_dat %>% 
+  filter(Dataset == "cTP") %>% 
+  group_by(Dataset, phylum) %>%
+  summarise(`Number of sequences` = n()) %>% 
+  ggplot(aes(y = reorder(phylum, `Number of sequences`, decreasing = TRUE), x = `Number of sequences`, fill = Dataset)) +
+  geom_col() +
+  theme_bw(base_size = 8) +
+  geom_text(aes(label = `Number of sequences`), hjust = -0.25, size = 2) +
+  scale_fill_manual(values = c("cTP" = "#9de444")) +
+  theme(legend.position = "none") +
+  ylab("Phylum") +
+  ggtitle("Number of cTP sequences in each phylum")
+ggsave(paste0(data_path, "ngram_results/taxonomy_numbers_of_sequences/cTP_phylum.png"), p_ctp, width = 6, height = 4)
+
+p_mtp <- tax_plot_dat %>% 
+  filter(Dataset == "mTP") %>% 
+  group_by(Dataset, kingdom) %>%
+  summarise(`Number of sequences` = n()) %>% 
+  ggplot(aes(y = reorder(kingdom, `Number of sequences`, decreasing = TRUE), x = `Number of sequences`, fill = Dataset)) +
+  geom_col() +
+  theme_bw(base_size = 8) +
+  geom_text(aes(label = `Number of sequences`), hjust = -0.25, size = 2) +
+  scale_fill_manual(values = c("mTP" = "#e49144")) +
+  theme(legend.position = "none") +
+  ylab("Kingdom") +
+  ggtitle("Number of mTP sequences in each kingdom")
+ggsave(paste0(data_path, "ngram_results/taxonomy_numbers_of_sequences/mTP_kingdom.png"), p_mtp, width = 6, height = 4)
+
+p_sp <- tax_plot_dat %>% 
+  filter(Dataset == "SP") %>% 
+  group_by(Dataset, superkingdom) %>%
+  summarise(`Number of sequences` = n()) %>% 
+  ggplot(aes(y = reorder(superkingdom, `Number of sequences`, decreasing = TRUE), x = `Number of sequences`, fill = Dataset)) +
+  geom_col() +
+  theme_bw(base_size = 8) +
+  geom_text(aes(label = `Number of sequences`), hjust = -0.25, size = 2) +
+  scale_fill_manual(values = c("SP" = "#45e495")) +
+  theme(legend.position = "none") +
+  ylab("Superkingdom") +
+  ggtitle("Number of SP sequences in each superkingdom")
+ggsave(paste0(data_path, "ngram_results/taxonomy_numbers_of_sequences/SP_superkingdom.png"), p_sp, width = 6, height = 4)
+
