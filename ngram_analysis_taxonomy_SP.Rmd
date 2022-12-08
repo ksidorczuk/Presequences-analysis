@@ -311,7 +311,7 @@ for(i in names(SP_class)) {
                                                     n_motifs = 100)
   plot(plot_most_frequent_motifs(trigram_plot_dat_presequences,
                                  most_frequent,
-                                 colors2,
+                                 unname(colors),
                                  paste0("100 most frequent motifs of ", i)))
   
   print(filter(trigram_plot_dat_presequences, motif %in% most_frequent) %>%
