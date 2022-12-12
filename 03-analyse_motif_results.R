@@ -19,6 +19,18 @@ decode_motifs <- function(split_motif, encoding) {
   }
 }
 
+color_encodings <- function(x) {
+  x %>% 
+    mutate(Motif = gsub("[AVIL]", "<span style='color:#4a219c'>[AVIL]</span>", Motif, fixed = TRUE)) %>% 
+    mutate(Motif = gsub("[VIL]", "<span style='color:#4a219c'>[VIL]</span>", Motif, fixed = TRUE)) %>% 
+    mutate(Motif = gsub("[CGP]", "<span style='color:#9c9021'>[CGP]</span>", Motif, fixed = TRUE)) %>% 
+    mutate(Motif = gsub("[STNQ]", "<span style='color:#21739c'>[STNQ]</span>", Motif, fixed = TRUE)) %>% 
+    mutate(Motif = gsub("[TNQ]", "<span style='color:#21739c'>[TNQ]</span>", Motif, fixed = TRUE)) %>% 
+    mutate(Motif = gsub("[ST]", "<span style='color:#21739c'>[ST]</span>", Motif, fixed = TRUE)) %>% 
+    mutate(Motif = gsub("[FYW]", "<span style='color:#8e219c'>[FYW]</span>", Motif, fixed = TRUE)) %>% 
+    mutate(Motif = gsub("[RHK]", "<span style='color:#9c2175'>[RHK]</span>", Motif, fixed = TRUE))
+}
+
 dataset_colors <- c("cTP" = "#9de444", "mTP" = "#e49144", "SP" = "#45e495", "AMP" = "#e44444")
 
 ###--- Most frequent motifs, full alphabet ---###
@@ -85,7 +97,7 @@ lapply(unique(df_freq2[["Type"]]), function(ith_type) {
 
 
 ###--- Most frequent motifs, reduced alphabets ---###
-df_freq_enc <- read_xlsx(paste0(data_path, "Motifs_results.xlsx"), sheet = "Most frequent enc") %>% 
+df_freq_enc <- read_xlsx(paste0(data_path, "Motifs_results2.xlsx"), sheet = "Most frequent enc") %>% 
   mutate(Motif = sapply(.[["Motif"]], function(i) gsub(".", " _ ", i, fixed = TRUE)))
 
 df_freq_decoded <- lapply(unique(df_freq_enc[["Encoding"]]), function(ith_enc) {
@@ -108,7 +120,7 @@ df_freq_decoded2 <- df_freq_decoded[(which(!(df_freq_decoded[["Type"]] == "Penta
                                                df_freq_decoded[["Encoding"]] %in% c("enc7", "enc8") & df_freq_decoded[["Frequency"]] < 0.3))),]
 # Change pentagrams with gaps thresholds for cTP enc7 to 0.45
 df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Pentagrams with gaps" & df_freq_decoded2[["Dataset"]] == "cTP" & 
-                                               df_freq_decoded2[["Encoding"]] == "enc7" & df_freq_decoded2[["Frequency"]] < 0.45))),]
+                                                df_freq_decoded2[["Encoding"]] == "enc7" & df_freq_decoded2[["Frequency"]] < 0.45))),]
 # Change tetragrams with gaps thresholds for mTP enc8 to 0.3
 df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Tetragrams with gaps" & df_freq_decoded2[["Dataset"]] == "mTP" & 
                                                 df_freq_decoded2[["Encoding"]] == "enc8" & df_freq_decoded2[["Frequency"]] < 0.3))),]
@@ -117,7 +129,7 @@ df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Tet
                                                 df_freq_decoded2[["Encoding"]] == "enc7" & df_freq_decoded2[["Frequency"]] < 0.45))),]
 # Change tetragrams with gaps thresholds for SP enc10 to 0.2
 df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Tetragrams with gaps" & df_freq_decoded2[["Dataset"]] == "SP" & 
-                                               df_freq_decoded2[["Encoding"]] == "enc10" & df_freq_decoded2[["Frequency"]] < 0.2))),]
+                                                df_freq_decoded2[["Encoding"]] == "enc10" & df_freq_decoded2[["Frequency"]] < 0.2))),]
 # Change trigrams with gaps thresholds for cTP enc7 to 0.75
 df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Trigrams with gaps" & df_freq_decoded2[["Dataset"]] == "cTP" & 
                                                 df_freq_decoded2[["Encoding"]] == "enc7" & df_freq_decoded2[["Frequency"]] < 0.75))),]
@@ -140,21 +152,23 @@ df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Tri
 
 
 lapply(unique(df_freq_decoded2[["Type"]]), function(ith_type) {
-           lapply(unique(df_freq_decoded2[["Encoding"]]), function(ith_enc) {
-             x <- filter(df_freq_decoded2, Type == ith_type, Encoding == ith_enc)
-             p <- ggplot(x, aes(x = Frequency, y = reorder_within(Motif, Frequency, Dataset), fill = Dataset)) +
-               geom_col() +
-               facet_wrap(~Dataset, scales = "free_y", nrow = 1) +
-               theme_bw(base_size = 8) +
-               ggtitle(paste0(ith_type, " (encoding: ", ith_enc, ")")) +
-               scale_fill_manual("Dataset", values = dataset_colors) +
-               ylab("Motif") +
-               scale_y_reordered() +
-               theme(legend.position = "none")
-             ggsave(paste0(data_path, "ngram_results/Most_frequent_encoded_", gsub(" ", "_", ith_type), "_", ith_enc, ".png"),
-                    p, width = 5*length(unique(x[["Dataset"]])), height = 3+nrow(x)*0.1)
-           })
-         })
+  lapply(unique(df_freq_decoded2[["Encoding"]]), function(ith_enc) {
+    x <- filter(df_freq_decoded2, Type == ith_type, Encoding == ith_enc) %>% 
+      color_encodings()
+    p <- ggplot(x, aes(x = Frequency, y = reorder_within(Motif, Frequency, Dataset), fill = Dataset)) +
+      geom_col() +
+      facet_wrap(~Dataset, scales = "free_y", nrow = 1) +
+      theme_bw(base_size = 8) +
+      ggtitle(paste0(ith_type, " (encoding: ", ith_enc, ")")) +
+      scale_fill_manual("Dataset", values = dataset_colors) +
+      ylab("Motif") +
+      scale_y_reordered() +
+      theme(legend.position = "none",
+            axis.text.y = element_markdown())
+    ggsave(paste0(data_path, "ngram_results/Most_frequent_encoded_", gsub(" ", "_", ith_type), "_", ith_enc, ".png"),
+           p, width = 5*length(unique(x[["Dataset"]])), height = 3+nrow(x)*0.1)
+  })
+})
 
 
 
@@ -162,14 +176,18 @@ lapply(unique(df_freq_decoded2[["Type"]]), function(ith_type) {
 df_freq_tax <- read_xlsx(paste0(data_path, "Motifs_results.xlsx"), sheet = "Taxonomy frequent")[,1:10] %>% 
   mutate(Motif = sapply(.[["Motif"]], function(i) gsub(".", " _ ", i, fixed = TRUE))) %>% 
   mutate(`Frequent in` = ifelse(`Frequent in` == "NA", "Unknown", `Frequent in`)) %>% 
-  filter(`Frequent in` != "Unknown")
+  filter(`Frequent in` != "Unknown") %>% 
+  mutate(Dataset = case_when(Dataset == "SP" & `Frequent in` %in% c("Viridiplantae", "Metazoa", "Fungi") ~ "SP (kingdom)",
+                             Dataset == "SP" & `Frequent in` %in% c("Arthropoda", "Chordata") ~ "SP (phylum)",
+                             Dataset == "SP" & `Frequent in` %in% c("Arachnida", "Insecta", "Lepidosauria", "Mammalia") ~ "SP (class)",
+                             TRUE ~ Dataset))
 
 # Change bigrams with gaps thresholds for SP Archaea to 0.5
 df_freq_tax2 <- df_freq_tax[(which(!(df_freq_tax[["Type"]] == "Bigrams with gaps" & df_freq_tax[["Dataset"]] == "SP" & 
                                        df_freq_tax[["Frequent in"]] == "Archaea" & df_freq_tax[["Freq3"]] < 0.5))),]
 # Change pentagrams with gaps thresholds for cTP Chlorophyta to 0.15
 df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "cTP" & 
-                                       df_freq_tax2[["Frequent in"]] == "Chlorophyta" & df_freq_tax2[["Freq2"]] < 0.15))),]
+                                        df_freq_tax2[["Frequent in"]] == "Chlorophyta" & df_freq_tax2[["Freq2"]] < 0.15))),]
 # Change pentagrams with gaps thresholds for cTP Streptophyta to 0.05
 df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "cTP" & 
                                         df_freq_tax2[["Frequent in"]] == "Streptophyta" & df_freq_tax2[["Freq1"]] < 0.05))),]
@@ -241,7 +259,57 @@ df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with g
 # Change trigrams with gaps thresholds for SP Viruses to 0.25
 df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP" & 
                                         df_freq_tax2[["Frequent in"]] == "Viruses" & df_freq_tax2[["Freq4"]] < 0.25))),]
-
+# Change pentagrams with gaps thresholds for SP Arachnida to 0.07
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Arachnida" & df_freq_tax2[["Freq1"]] < 0.07))),]
+# Change pentagrams with gaps thresholds for SP Fungi to 0.03
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Fungi" & df_freq_tax2[["Freq3"]] < 0.03))),]
+# Change tetragrams with gaps thresholds for SP Arachnida to 0.1
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Arachnida" & df_freq_tax2[["Freq1"]] < 0.1))),]
+# Change tetragrams with gaps thresholds for SP Insecta to 0.055
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Insecta" & df_freq_tax2[["Freq2"]] < 0.055))),]
+# Change tetragrams with gaps thresholds for SP Lepidosauria to 0.2
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Lepidosauria" & df_freq_tax2[["Freq3"]] < 0.2))),]
+# Change tetragrams with gaps thresholds for SP Mammalia to 0.2
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Mammalia" & df_freq_tax2[["Freq4"]] < 0.2))),]
+# Change tetragrams with gaps thresholds for SP Fungi to 0.06
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Fungi" & df_freq_tax2[["Freq3"]] < 0.06))),]
+# Change tetragrams with gaps thresholds for SP Metazoa to 0.125
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Metazoa" & df_freq_tax2[["Freq2"]] < 0.125))),]
+# Change tetragrams with gaps thresholds for SP Viridiplantae to 0.0625
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Viridiplantae" & df_freq_tax2[["Freq1"]] < 0.0625))),]
+# Change tetragrams with gaps thresholds for SP Chordata to 0.1
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (phylum)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Chordata" & df_freq_tax2[["Freq2"]] < 0.1))),]
+# Change trigrams with gaps thresholds for SP Arachnida to 0.2
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Arachnida" & df_freq_tax2[["Freq1"]] < 0.2))),]
+# Change trigrams with gaps thresholds for SP Lepidosauria to 0.3
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Lepidosauria" & df_freq_tax2[["Freq3"]] < 0.3))),]
+# Change tetragrams with gaps thresholds for SP Mammalia to 0.25
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Mammalia" & df_freq_tax2[["Freq4"]] < 0.25))),]
+# Change trigrams with gaps thresholds for SP Fungi to 0.2
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Fungi" & df_freq_tax2[["Freq3"]] < 0.2))),]
+# Change trigrams with gaps thresholds for SP Metazoa to 0.25
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Metazoa" & df_freq_tax2[["Freq2"]] < 0.25))),]
+# Change trigrams with gaps thresholds for SP Viridiplantae to 0.175
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Viridiplantae" & df_freq_tax2[["Freq1"]] < 0.175))),]
+# Change trigrams with gaps thresholds for SP Chordata to 0.2
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (phylum)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Chordata" & df_freq_tax2[["Freq2"]] < 0.2))),]
 
 
 lapply(unique(df_freq_tax2[["Type"]]), function(ith_type) {
@@ -267,13 +335,25 @@ lapply(unique(df_freq_tax2[["Type"]]), function(ith_type) {
                                        Group == "Freq2" ~ "Bacteria",
                                        Group == "Freq3" ~ "Archaea",
                                        Group == "Freq4" ~ "Viruses")) 
-    } 
+    } else if(ith_set == "SP (kingdom)") {
+      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Viridiplantae",
+                                       Group == "Freq2" ~ "Metazoa",
+                                       Group == "Freq3" ~ "Fungi")) 
+    } else if(ith_set == "SP (phylum)") {
+      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Arthropoda",
+                                       Group == "Freq2" ~ "Chordata")) 
+    } else if(ith_set == "SP (class)") {
+      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Arachnida",
+                                       Group == "Freq2" ~ "Insecta",
+                                       Group == "Freq3" ~ "Lepidosauria",
+                                       Group == "Freq4" ~ "Mammalia")) 
+    }
     p <- ggplot(y, aes(y = Motif, x = Frequency, fill = Group)) +
       geom_col(position = position_dodge()) +
       facet_wrap(~`Frequent in`, scales = "free", nrow = 1) +
       theme_bw(base_size = 6) +
       ggtitle(paste0(ith_type, ", ", ith_set))
-    ggsave(paste0(data_path, "ngram_results/Taxonomy_all_", gsub(" ", "_", ith_type), "_", ith_set, ".png"),
+    ggsave(paste0(data_path, "ngram_results/Taxonomy_all_", gsub(" ", "_", ith_type), "_", gsub(" ", "_", ith_set), ".png"),
            p, width = 10, height = 2+nrow(y)*0.02, limitsize = FALSE)
   })
 })
@@ -302,7 +382,19 @@ lapply(unique(df_freq_tax2[["Type"]]), function(ith_type) {
                                        Group == "Freq2" ~ "Bacteria",
                                        Group == "Freq3" ~ "Archaea",
                                        Group == "Freq4" ~ "Viruses")) 
-    } 
+    } else if(ith_set == "SP (kingdom)") {
+      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Viridiplantae",
+                                       Group == "Freq2" ~ "Metazoa",
+                                       Group == "Freq3" ~ "Fungi")) 
+    } else if(ith_set == "SP (phylum)") {
+      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Arthropoda",
+                                       Group == "Freq2" ~ "Chordata")) 
+    } else if(ith_set == "SP (class)") {
+      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Arachnida",
+                                       Group == "Freq2" ~ "Insecta",
+                                       Group == "Freq3" ~ "Lepidosauria",
+                                       Group == "Freq4" ~ "Mammalia")) 
+    }
     p <- filter(y, Group == `Frequent in`) %>% 
       ggplot(aes(y = reorder_within(Motif, Frequency, Group), x = Frequency, fill = Group)) +
       geom_col(position = position_dodge()) +
@@ -311,7 +403,7 @@ lapply(unique(df_freq_tax2[["Type"]]), function(ith_type) {
       facet_wrap(~`Frequent in`, scales = "free", nrow = 1) +
       theme_bw(base_size = 6) +
       ggtitle(paste0(ith_type, ", ", ith_set))
-    ggsave(paste0(data_path, "ngram_results/Taxonomy_by_group_", gsub(" ", "_", ith_type), "_", ith_set, ".png"),
+    ggsave(paste0(data_path, "ngram_results/Taxonomy_by_group_", gsub(" ", "_", ith_type), "_", gsub(" ", "_", ith_set), ".png"),
            p, width = 10, height = 2+nrow(y)*0.02, limitsize = FALSE)
   })
 })
@@ -446,3 +538,20 @@ p_sp <- tax_plot_dat %>%
   ggtitle("Number of SP sequences in each superkingdom")
 ggsave(paste0(data_path, "ngram_results/taxonomy_numbers_of_sequences/SP_superkingdom.png"), p_sp, width = 6, height = 4)
 
+
+
+
+
+library(ggtext)
+library(glue)
+
+
+  ggplot(aes(x = Frequency, y = reorder_within(Motif, Frequency, Dataset), fill = Dataset)) +
+  geom_col() +
+  facet_wrap(~Dataset, scales = "free_y", nrow = 1) +
+  theme_bw(base_size = 8) +
+  scale_fill_manual("Dataset", values = dataset_colors) +
+  ylab("Motif") +
+  scale_y_reordered() +
+  theme(legend.position = "none",
+        )
