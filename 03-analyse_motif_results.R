@@ -6,6 +6,7 @@ library(ggbeeswarm)
 library(biogram)
 library(tidyr)
 library(tidytext)
+library(ggtext)
 
 data_path <- "/media/kasia/Data/Dropbox/Presequences/"
 
@@ -311,6 +312,7 @@ df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with g
 df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (phylum)" & 
                                         df_freq_tax2[["Frequent in"]] == "Chordata" & df_freq_tax2[["Freq2"]] < 0.2))),]
 
+saveRDS(df_freq_tax2, "df_freq_tax2.rds")
 
 lapply(unique(df_freq_tax2[["Type"]]), function(ith_type) {
   lapply(unique(df_freq_tax2[["Dataset"]]), function(ith_set) {
@@ -531,7 +533,7 @@ p_sp <- tax_plot_dat %>%
   ggplot(aes(y = reorder(superkingdom, `Number of sequences`, decreasing = TRUE), x = `Number of sequences`, fill = Dataset)) +
   geom_col() +
   theme_bw(base_size = 8) +
-  geom_text(aes(label = `Number of sequences`), hjust = -0.25, size = 2) +
+  geom_text(aes(label = `Number of sequences`), hjust = -0.25, size = 2) 
   scale_fill_manual(values = c("SP" = "#45e495")) +
   theme(legend.position = "none") +
   ylab("Superkingdom") +
@@ -539,19 +541,3 @@ p_sp <- tax_plot_dat %>%
 ggsave(paste0(data_path, "ngram_results/taxonomy_numbers_of_sequences/SP_superkingdom.png"), p_sp, width = 6, height = 4)
 
 
-
-
-
-library(ggtext)
-library(glue)
-
-
-  ggplot(aes(x = Frequency, y = reorder_within(Motif, Frequency, Dataset), fill = Dataset)) +
-  geom_col() +
-  facet_wrap(~Dataset, scales = "free_y", nrow = 1) +
-  theme_bw(base_size = 8) +
-  scale_fill_manual("Dataset", values = dataset_colors) +
-  ylab("Motif") +
-  scale_y_reordered() +
-  theme(legend.position = "none",
-        )
