@@ -34,11 +34,11 @@ color_encodings <- function(x) {
 
 dataset_colors <- c("cTP" = "#9de444", "mTP" = "#e49144", "SP" = "#45e495", "AMP" = "#e44444")
 
-taxonomy_colors <- c("Viridiplantae" = "#9de444", "Chlorophyta" = "#9de444", "Streptophyta" = "#528313",
-                     "Unknown" = "grey70", "Metazoa" = "#e49144", "Fungi" = "#8d44e4",
-                     "Archaea" = "#4451e4", "Bacteria" = "#e4d345", "Eukaryota" = "#e49144", "Viruses" = "#8d44e4",
-                     "Arachnida" = "#8d44e4", "Insecta" = "#4451e4", "Lepidosauria" = "#528313", "Mammalia" = "#e49144",
-                     "Arthropoda" = "#e4d345", "Chordata" = "#e49144")
+taxonomy_colors <- c("Viridiplantae" = "#ABE188", "Chlorophyta" = "#BFEDB2", "Streptophyta" = "#AAD190",
+                     "Unknown" = "grey70", "Metazoa" = "#F7EF99", "Fungi" = "#F1BB87",
+                     "Archaea" = "#A4CCED", "Bacteria" = "#99D6E8", "Eukaryota" = "#9990D6", "Viruses" = "#93E4E6",
+                     "Arachnida" = "#ECD0A2", "Insecta" = "#E9B99A", "Lepidosauria" = "#C1D68F", "Mammalia" = "#E6A293",
+                     "Arthropoda" = "#EDD4B2", "Chordata" = "#D0A98F")
 # c("AmyPro regions" = "#e44496", "CPAD peptides" = "#8d44e4", 
 #   "cTP experimentally verified location" = "#528313", "cTP-mTP experimentally verified location" = "#837713", 
 #   "cTP-mTP experimentally verified presequence" ="#e4d345", "cTP experimentally verified presequence" = "#9de444", 
@@ -419,7 +419,8 @@ lapply(unique(df_freq_tax2[["Type"]]), function(ith_type) {
       ylab("Motif") +
       facet_wrap(~`Frequent in`, scales = "free", nrow = 1) +
       theme_bw(base_size = 6) +
-      ggtitle(paste0(ith_type, ", ", ith_set))
+      ggtitle(paste0(ith_type, ", ", ith_set)) +
+      scale_fill_manual("Taxonomic group", values = taxonomy_colors[names(taxonomy_colors) %in% unique(y[["Group"]])])
     ggsave(paste0(data_path, "ngram_results/Taxonomy_by_group_", gsub(" ", "_", ith_type), "_", gsub(" ", "_", ith_set), ".png"),
            p, width = 10, height = 2+nrow(y)*0.02, limitsize = FALSE)
   })
@@ -467,7 +468,8 @@ lapply(unique(df_common_tax[["Dataset"]]), function(ith_set) {
     geom_col(position = position_dodge()) +
     facet_wrap(~Groups, scales = "free", nrow = 1) +
     theme_bw() +
-    ggtitle(ith_set)
+    ggtitle(ith_set) +
+    scale_fill_manual("Taxonomic group", values = taxonomy_colors[names(taxonomy_colors) %in% unique(y[["Group"]])])
   ggsave(paste0(data_path, "ngram_results/Taxonomy_common_", ith_set, ".png"),
          p, width = 4*length(unique(y[["Groups"]])), height = 4+nrow(y)*0.02, limitsize = FALSE)
 })

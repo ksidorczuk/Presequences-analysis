@@ -147,7 +147,8 @@ lapply(unique(plot_dat[["Dataset"]]), function(ith_set) {
     theme_bw(base_size = 5) +
     coord_fixed(ratio = 1) +
     theme(axis.text.x = element_text(angle = 90),
-          legend.position = "bottom")
+          legend.position = "bottom") +
+    scale_fill_manual("Is significant?", values = c("TRUE" = "#71A358", "FALSE" = "#FAEFDF"))
   ggsave(paste0(data_path, "ngram_results/Statistical_analysis_", gsub(" ", "_", ith_set), ".png"),
          p, width = 6+nrow(filter(plot_dat, Dataset == ith_set))/70, height = 4, limitsize = FALSE)
 })
