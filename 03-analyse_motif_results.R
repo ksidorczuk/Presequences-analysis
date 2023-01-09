@@ -34,6 +34,20 @@ color_encodings <- function(x) {
 
 dataset_colors <- c("cTP" = "#9de444", "mTP" = "#e49144", "SP" = "#45e495", "AMP" = "#e44444")
 
+taxonomy_colors <- c("Viridiplantae" = "#9de444", "Chlorophyta" = "#9de444", "Streptophyta" = "#528313",
+                     "Unknown" = "grey70", "Metazoa" = "#e49144", "Fungi" = "#8d44e4",
+                     "Archaea" = "#4451e4", "Bacteria" = "#e4d345", "Eukaryota" = "#e49144", "Viruses" = "#8d44e4",
+                     "Arachnida" = "#8d44e4", "Insecta" = "#4451e4", "Lepidosauria" = "#528313", "Mammalia" = "#e49144",
+                     "Arthropoda" = "#e4d345", "Chordata" = "#e49144")
+# c("AmyPro regions" = "#e44496", "CPAD peptides" = "#8d44e4", 
+#   "cTP experimentally verified location" = "#528313", "cTP-mTP experimentally verified location" = "#837713", 
+#   "cTP-mTP experimentally verified presequence" ="#e4d345", "cTP experimentally verified presequence" = "#9de444", 
+#   "DBAASP AMP" = "#831313", "DBAASP AMP max 100 aa" = "#e44444", "mTP experimentally verified location" = "#834813", 
+#   "mTP experimentally verified presequence" = "#e49144", "SP experimentally verified presequence" = "#45e495", 
+#   "TM regions experimentally verified - alpha" = "#44aee4", "TM regions experimentally verified - beta" = "#4451e4")
+
+
+
 ###--- Most frequent motifs, full alphabet ---###
 df_freq <- read_xlsx(paste0(data_path, "Motifs_results.xlsx"), sheet = "Most frequent") %>% 
   mutate(Motif = sapply(.[["Motif"]], function(i) gsub(".", " _ ", i, fixed = TRUE)))
@@ -312,7 +326,7 @@ df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with g
 df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (phylum)" & 
                                         df_freq_tax2[["Frequent in"]] == "Chordata" & df_freq_tax2[["Freq2"]] < 0.2))),]
 
-saveRDS(df_freq_tax2, "df_freq_tax2.rds")
+saveRDS(df_freq_tax2, "./data/df_freq_tax2.rds", compress = "xz")
 
 lapply(unique(df_freq_tax2[["Type"]]), function(ith_type) {
   lapply(unique(df_freq_tax2[["Dataset"]]), function(ith_set) {
@@ -354,7 +368,8 @@ lapply(unique(df_freq_tax2[["Type"]]), function(ith_type) {
       geom_col(position = position_dodge()) +
       facet_wrap(~`Frequent in`, scales = "free", nrow = 1) +
       theme_bw(base_size = 6) +
-      ggtitle(paste0(ith_type, ", ", ith_set))
+      ggtitle(paste0(ith_type, ", ", ith_set)) +
+      scale_fill_manual("Taxonomic group", values = taxonomy_colors[names(taxonomy_colors) %in% unique(y[["Group"]])])
     ggsave(paste0(data_path, "ngram_results/Taxonomy_all_", gsub(" ", "_", ith_type), "_", gsub(" ", "_", ith_set), ".png"),
            p, width = 10, height = 2+nrow(y)*0.02, limitsize = FALSE)
   })
@@ -497,6 +512,8 @@ tax_plot_dat <- tax_dat %>%
 tax_seq_numbers <- tax_plot_dat %>% 
   group_by(Dataset, superkingdom, kingdom, phylum, class) %>% 
   summarise(count = n()) 
+
+write.csv(tax_plot_dat, "./data/tax_plot_dat.csv", row.names = FALSE)
 
 p_ctp <- tax_plot_dat %>% 
   filter(Dataset == "cTP") %>% 
