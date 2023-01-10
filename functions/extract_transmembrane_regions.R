@@ -1,3 +1,18 @@
+#' Extract transmembrane regions
+#' 
+#' This function extracts transmembrane regions from sequences based on UniProt
+#' annotations. It considers only regions with properly annotated start and end
+#' positions, as well as helical or beta stranded structure. 
+#' 
+#' @param sequences a list of sequences
+#' @param annotation_df a data frame of UniProt annotations
+#' @param remove_nonstandard a logical indicating if regions containing
+#' nonstandard amino acids should be removed
+#' @return a list of two lists containing extracted transmembrane regions:
+#' \itemize{
+#'   \item{alpha}{Transmembrane regions with alpha helical structure}
+#'   \item{beta}{Transmembrane regions with beta stranded structure}
+#' }
 extract_transmembrane_regions <- function(sequences, annotation_df, remove_nonstandard = TRUE) {
   
   names(sequences) <- sapply(names(sequences), function(i) strsplit(i, "|", fixed = TRUE)[[1]][2])
@@ -41,7 +56,21 @@ extract_transmembrane_regions <- function(sequences, annotation_df, remove_nonst
        "beta" = tms_b)
 }
 
-
+#' Extract intramembrane regions
+#' 
+#' This function extracts intramembrane regions from sequences based on UniProt
+#' annotations. It considers only regions with properly annotated start and end
+#' positions, as well as helical or pore-forming structure. 
+#' 
+#' @param sequences a list of sequences
+#' @param annotation_df a data frame of UniProt annotations
+#' @param remove_nonstandard a logical indicating if regions containing
+#' nonstandard amino acids should be removed
+#' @return a list of two lists containing extracted intramembrane regions:
+#' \itemize{
+#'   \item{helical}{Intramembrane regions with alpha helical structure}
+#'   \item{pore-forming}{Intramembrane regions with pore-forming structure}
+#' }
 extract_intramembrane_regions <- function(sequences, annotation_df, remove_nonstandard = TRUE) {
   
   names(sequences) <- sapply(names(sequences), function(i) strsplit(i, "|", fixed = TRUE)[[1]][2])

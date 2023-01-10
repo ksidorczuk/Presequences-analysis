@@ -1,3 +1,11 @@
+#' Filter sequences with nonstandard amino acids
+#' 
+#' Analyzes a dataset of sequences and filters out those
+#' containing amino acids other than standard.
+#' 
+#' @param sequences a list of amino acid sequences
+#' @return a list of amino acid sequences containing only
+#' standard amino acids
 filter_nonstandard_aa <- function(sequences) {
   standard <- toupper(biogram:::return_elements(seq_type = "prot"))
   is_standard <- vapply(sequences, function(seq) all(seq %in% standard), c(FALSE))
@@ -5,6 +13,18 @@ filter_nonstandard_aa <- function(sequences) {
 }
 
 
+#' Extract transit peptides
+#' 
+#' This function extracts transit peptides from sequences based on UniProt
+#' annotations. It considers only the transit peptides with properly annotated
+#' start and end positions and not truncated.
+#' 
+#' @param sequences a list of sequences
+#' @param annotation_df a data frame of UniProt annotations
+#' @param remove_nonstandard a logical indicating if transit peptides containing
+#' nonstandard amino acids should be removed
+#' @return a list of extracted transit peptides with names corresponding to their
+#' original sequences.
 extract_transit_peptides <- function(sequences, annotation_df, remove_nonstandard = TRUE) {
   
  names(sequences) <- sapply(names(sequences), function(i) strsplit(i, "|", fixed = TRUE)[[1]][2])
@@ -32,7 +52,18 @@ extract_transit_peptides <- function(sequences, annotation_df, remove_nonstandar
 }
 
 
-
+#' Extract signal peptides
+#' 
+#' This function extracts signal peptides from sequences based on UniProt
+#' annotations. It considers only the signal peptides with properly annotated
+#' start and end positions and not truncated.
+#' 
+#' @param sequences a list of sequences
+#' @param annotation_df a data frame of UniProt annotations
+#' @param remove_nonstandard a logical indicating if signal peptides containing
+#' nonstandard amino acids should be removed
+#' @return a list of extracted signal peptides with names corresponding to their
+#' original sequences.
 extract_signal_peptides <- function(sequences, annotation_df, remove_nonstandard = TRUE) {
   
   names(sequences) <- sapply(names(sequences), function(i) strsplit(i, "|", fixed = TRUE)[[1]][2])

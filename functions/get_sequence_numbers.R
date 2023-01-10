@@ -1,3 +1,20 @@
+#' Summarise transit peptide information
+#' 
+#' This function summarizes information about sequences with transit peptides.
+#' Based on the names of lists of sequences and their annotations from UniProt 
+#' it analyzes these lists and returns information about number of annotated
+#' transit peptides, transit peptides containing nonstandard amino acids, 
+#' shorter than 10 and the number of sequences to use in further analyses
+#' (only standard amino acids, length >= 10).
+#' 
+#' @param seq_dataset_vec vector of names of sequence datasets in a form
+#' of a list 
+#' @param annotations a data frame of annotations from UniProt
+#' @return a data frame with five columns describing: dataset name,
+#' number of sequences containing transit peptides, number of transit
+#' peptides with nonstandard amino acids, number of transit peptides
+#' shorter than 10, number of transit peptides suitable for further
+#' analyses. Each row corresponds to one dataset.
 summarise_TP_info <- function(seq_dataset_vec, annotations) {
   lapply(seq_dataset_vec, function(i) {
     tps <- extract_transit_peptides(sequences = get(i),
@@ -14,6 +31,23 @@ summarise_TP_info <- function(seq_dataset_vec, annotations) {
   }) %>% bind_rows()
 }
 
+#' Summarise signal peptide information
+#' 
+#' This function summarizes information about sequences with signal peptides.
+#' Based on the names of lists of sequences and their annotations from UniProt 
+#' it analyzes these lists and returns information about number of annotated
+#' signal peptides, signal peptides containing nonstandard amino acids, 
+#' shorter than 10 and the number of sequences to use in further analyses
+#' (only standard amino acids, length >= 10).
+#' 
+#' @param seq_dataset_vec vector of names of sequence datasets in a form
+#' of a list 
+#' @param annotations a data frame of annotations from UniProt
+#' @return a data frame with five columns describing: dataset name,
+#' number of sequences containing signal peptides, number of signal
+#' peptides with nonstandard amino acids, number of signal peptides
+#' shorter than 10, number of signal peptides suitable for further
+#' analyses. Each row corresponds to one dataset.
 summarise_SP_info <- function(seq_dataset_vec, annotations) {
   lapply(seq_dataset_vec, function(i) {
     sps <- extract_signal_peptides(sequences = get(i),
@@ -30,6 +64,24 @@ summarise_SP_info <- function(seq_dataset_vec, annotations) {
   }) %>% bind_rows()
 }
 
+#' Summarise transmembrane domain information
+#' 
+#' This function summarizes information about sequences with transmembrane domains.
+#' Based on the names of lists of sequences and their annotations from UniProt 
+#' it analyzes these lists and returns information about number of annotated
+#' transmembrane regions with alpha helical or beta sheet structure, how many
+#' of them contain nonstandard amino acids, are shorter than 10 and how many
+#' are suitable for further analyses (only standard amino acids, length >= 10).
+#' 
+#' @param seq_dataset_vec vector of names of sequence datasets in a form
+#' of a list 
+#' @param annotations a data frame of annotations from UniProt
+#' @return a data frame with five columns describing: dataset name,
+#' number of sequences containing helical transmembrane domains,
+#' containing beta transmembrane domains, helical containing nonstandard
+#' amino acids, beta containing nonstandard amino acids, helical shorter than 10,
+#' beta shorter than 10, helical suitable for analyses and beta suitable for
+#' analyses. Each row corresponds to one dataset.
 summarise_TM_info <- function(seq_dataset_vec, annotations) {
   lapply(seq_dataset_vec, function(i) {
     tms <- extract_transmembrane_regions(sequences = get(i),
@@ -51,6 +103,19 @@ summarise_TM_info <- function(seq_dataset_vec, annotations) {
   }) %>% bind_rows()
 }
 
+#' Summarise amyloid domain information
+#' 
+#' This function summarizes information about amyloid datasets.
+#' Based on the named list of sequence datasets it analyzes them and returns 
+#' information about number of sequences, sequences with nonstandard amino acids,
+#' shorter than 10 and suitable for further analyses (only standard amino acids, 
+#' length >= 10).
+#' 
+#' @param dataset_list named list of sequence datasets, where each dataset
+#' is a sequence list
+#' @return a data frame with five columns describing: dataset name,
+#' number of sequences, containing nonstandard amino acids, shorter than 10
+#' and suitable for analyses. Each row corresponds to one dataset.
 summarise_amyloid_info <- function(dataset_list) {
   lapply(names(dataset_list), function(ith_set) {
     data.frame(
@@ -63,6 +128,18 @@ summarise_amyloid_info <- function(dataset_list) {
   }) %>% bind_rows()
 }
 
+#' Summarise AMP information
+#' 
+#' This function summarizes information about AMP dataset.
+#' Based on the sequence datasets it analyzes it and returns information 
+#' about number of sequences, sequences with nonstandard amino acids,
+#' shorter than 10 and suitable for further analyses (only standard amino acids, 
+#' length >= 10).
+#' 
+#' @param amp_all sequence dataset in a form of a list
+#' @return a data frame with six columns describing: dataset name,
+#' number of sequences, containing nonstandard amino acids, shorter 
+#' than 10, longer than 10 and suitable for analyses.
 summarise_amp_info <- function(amp_all) {
   data.frame(
     dataset = "AMP",

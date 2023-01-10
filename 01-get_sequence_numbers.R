@@ -3,6 +3,7 @@ library(dplyr)
 library(biogram)
 
 tar_load(list.files("_targets/objects"))
+source("functions/extract_presequences.R")
 source("functions/get_sequence_numbers.R")
 
 TP_summ <- summarise_TP_info(c("cTP_loc_tp.exp_seqs", "cTP_loc.exp_tp_seqs", "cTP.mTP_loc_exp.tp_seqs", 

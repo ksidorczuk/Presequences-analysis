@@ -1,9 +1,24 @@
+#' Read AmyPro data
+#' 
+#' This function reads in the raw dataset from AmyPro database and transforms
+#' it into a data frame.
+#' 
+#' @param amypro_txt_file path to the raw txt file downloaded from the AmyPro
+#' database
+#' @return a data frame with AmyPro sequences and annotations
 read_amypro_dat <- function(amypro_txt_file) {
   read.table(amypro_txt_file, sep = "\t", fill = TRUE, row.names = NULL) %>% 
     setNames(colnames(.)[2:14]) %>% 
     .[,1:13]
 }
 
+#' Extract AmyPro regions
+#' 
+#' This function extracts amyloidogenic regions from proteins from AmyPro database.
+#' 
+#' @param amypro_dat a data frame with AmyPro data
+#' @return a list of amyloidogenic regions with names corresponding to the 
+#' original protein from which it was extracted.
 get_amypro_regions <- function(amypro_dat) {
   lapply(1:nrow(amypro_dat), function(i) {
     if(amypro_dat[["regions"]][i] != "-") {
@@ -14,6 +29,11 @@ get_amypro_regions <- function(amypro_dat) {
   }) %>% unlist(recursive = FALSE)
 }
 
+#' Extract CPAD peptides
+#' 
+#' This function extracts peptides classified as amyloids from the CPAD database.
+#' @param cpad_dat a data frame of data downloaded from the CPAD database
+#' @return a list of amyloid peptides with names corresponding to CPAD entry names.
 get_cpad_peptides <- function(cpad_dat) {
   amyloids <- cpad_dat %>% 
     filter(Classification == "Amyloid")
