@@ -59,12 +59,14 @@ filtered_datasets <- unlist(sapply(names(filtered_datasets_list), function(i) re
 len_df <- data.frame(dataset = names(filtered_datasets_list),
                      size = lengths(filtered_datasets_list))
 
-trigram_counts <- calculate_ngram_counts(filtered_datasets_list, params[["k"]], params[["gaps"]])
-trigram_plot_dat <- trigram_counts %>% 
+trigram_plot_dat <- lapply(1:length(params[["k"]]), function(i) {
+  calculate_ngram_counts(filtered_datasets_list, params[["k"]][i], params[["gaps"]][i]) %>% 
   pivot_longer(setdiff(colnames(.), "dataset"), names_to = "Motif", values_to = "Count") %>% 
   filter(Count > 1) %>% 
   group_by(dataset, Count, Motif) %>% 
   summarise(n_seq = n()) 
+}) %>% bind_rows()
+
 ```
 
 
