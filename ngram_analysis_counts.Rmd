@@ -1,0 +1,136 @@
+---
+title: "Presequences + AMP motif count analysis"
+author: "Katarzyna Sidorczuk"
+date: "02/06/2022"
+output: 
+  html_document:
+  toc: true
+params:
+  k: 2
+  gaps: 0
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.width = 10, fig.height = 10, warning = FALSE, message = FALSE, cache = TRUE, cache.lazy = FALSE)
+
+library(targets)
+library(dplyr)
+library(ggplot2)
+library(seqR)
+library(tidyr)
+library(pbapply)
+library(stringr)
+library(ggnewscale)
+library(biogram)
+library(FCBF)
+library(DT)
+library(ggVennDiagram)
+library(ggdendro)
+library(grid)
+library(gridExtra)
+library(tidytext)
+library(ggtext)
+
+
+source("./functions/extract_features.R")
+source("./functions/motif_functions.R")
+tar_load(datasets_list)
+
+my_DT <- function(df) {
+  datatable(df, extensions = 'FixedColumns', filter = "top", style = "bootstrap",
+            options = list(dom = 't', scrollX = TRUE, scrollCollapse = TRUE,
+                           scrollY = "700px", paging = FALSE), rownames = FALSE)
+}
+
+
+colors3 <- c("cTP-mTP experimentally verified presequence" ="#e4d345", 
+             "cTP experimentally verified presequence" = "#9de444", 
+             "mTP experimentally verified presequence" = "#e49144", 
+             "SP experimentally verified presequence" = "#45e495", 
+             "DBAASP AMP max 100 aa" = "#e44444")
+
+
+filtered_datasets_list <- datasets_list[c("cTP-mTP experimentally verified presequence", 
+                                          "cTP experimentally verified presequence", "DBAASP AMP max 100 aa", 
+                                          "mTP experimentally verified presequence", "SP experimentally verified presequence")]
+
+filtered_datasets <- unlist(sapply(names(filtered_datasets_list), function(i) rep(i, length(filtered_datasets_list[[i]])), USE.NAMES = FALSE))
+len_df <- data.frame(dataset = names(filtered_datasets_list),
+                     size = lengths(filtered_datasets_list))
+
+trigram_counts <- calculate_ngram_counts(filtered_datasets_list, params[["k"]], params[["gaps"]])
+trigram_plot_dat <- trigram_counts %>% 
+  pivot_longer(setdiff(colnames(.), "dataset"), names_to = "Motif", values_to = "Count") %>% 
+  filter(Count > 1) %>% 
+  group_by(dataset, Count, Motif) %>% 
+  summarise(n_seq = n()) 
+```
+
+
+# Detailed analysis of presequences and AMP
+
+### Motifs occuring more than once in presequences
+```{r fig.height = 20}
+my_DT(trigram_plot_dat)
+```
+
+### Numbers of motifs occuring more than once
+
+```{r fig.height = 15, fig.width = 12}
+trigram_plot_dat %>% 
+  group_by(dataset, Count) %>% 
+  summarise(n_motifs = n()) %>% 
+  ggplot(aes(x = Count, y = n_motifs, fill = dataset)) +
+  geom_col() + 
+  facet_wrap(~dataset, scales = "free", ncol = 2) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  xlab("Number of occurences") +
+  ylab("Number of motifs") +
+  geom_text(aes(label = n_motifs, group = dataset), size = 3, vjust = -0.1) +
+  scale_fill_manual(values = colors3)
+```
+
+### Frequency of motifs occuring more than once
+```{r}
+x <- trigram_plot_dat %>% 
+  left_join(len_df) %>% 
+  mutate(frequency = n_seq/size) %>% 
+  select(-size)
+```
+```{r}
+my_DT(x) %>% 
+  formatRound("frequency", digits = 4)
+```
+
+### The most frequent motifs occuring more than once in specific classes
+```{r fig.height = 8}
+lapply(unique(x[["dataset"]]), function(ith_set) {
+  filter(x, dataset == ith_set) %>% 
+    #   mutate(Count = as.factor(Count)) %>% 
+    arrange(desc(frequency)) %>% 
+    filter(Motif %in% unique(.[["Motif"]])[1:20]) %>% 
+    ggplot(aes(x = frequency, y = reorder_within(Motif, frequency, dataset), fill = Count, group = Count)) +
+    geom_col(position = position_dodge()) +
+    theme_bw() +
+    ggtitle(ith_set) +
+    scale_y_reordered() +
+    xlab("Frequency") +
+    ylab("Motif") +
+    scale_fill_gradient(low = "#ECD0A2", high = "#9E3424")
+})
+```
+
+### The most numerous motifs
+```{r}
+htmltools::tagList(
+  lapply(unique(x[["dataset"]]), function(ith_set) {
+    filter(x, dataset == ith_set) %>% 
+      arrange(desc(Count)) %>% 
+      filter(Motif %in% unique(.[["Motif"]])[1:20]) %>% 
+      my_DT() %>% 
+  formatRound("frequency", digits = 4)
+  })
+)
+```

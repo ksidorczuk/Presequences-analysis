@@ -250,21 +250,20 @@ plot_motif_positions_scaled <- function(dataset_list, dataset_name, found_motifs
 }
 
 
-calculate_ngram_fractions <- function(datasets, k, kmer_gaps) {
-  fracs <- lapply(names(datasets), function(ith_dataset) {
+calculate_ngram_counts <- function(datasets, k, kmer_gaps) {
+  counts <- lapply(names(datasets), function(ith_dataset) {
     x <- count_multimers(datasets[[ith_dataset]],
                          k_vector = k,
                          kmer_gaps_list = kmer_gaps, 
                          kmer_alphabet = toupper(colnames(biogram::aaprop)),
-                         with_kmer_counts = TRUE) 
-    frac <- colSums(as.matrix(x/sum(x)))
-    frac %>%
-      t() %>% 
+                         with_kmer_counts = TRUE) %>% 
+      as.matrix()
+    x[, sapply(colnames(x), function(i) any(x[,i] > 2))] %>% 
       as.data.frame() %>% 
       mutate(dataset = ith_dataset)
   }) %>% bind_rows()
-  fracs[is.na(fracs)] <- 0
-  fracs
+  counts[is.na(counts)] <- 0
+  counts
 }
 
 select_quipt_informative_motifs <- function(binary_ngrams, dataset1_name, dataset2_name, pval = 0.05) {

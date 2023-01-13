@@ -95,17 +95,13 @@ test_res <- lapply(unique(motif_data[["Dataset"]]), function(ith_dataset) {
     } else if(tax_group == "class") {
       c("Mammalia", "Insecta", "Lepidosauria", "Arachnida")
     }
-    print(paste0(ith_dataset))
-    print(paste0(ith_frequent))
-    print(paste0(tax_group))
-    print(paste0(groups))
     combns <- combn(groups, 2, simplify = FALSE)
     lapply(1:length(combns), function(i) {
       y <- filter(x, get(tax_group) %in% combns[[i]])
       y <- cbind(select(y, c("Entry", "superkingdom", "kingdom", "phylum", "class")), 
                  select(y, !c("Entry", "superkingdom", "kingdom", "phylum", "class"))[, which(colSums(select(y, !c("Entry", "superkingdom", "kingdom", "phylum", "class"))) > 0)])
       lapply(colnames(y[which(!(colnames(y) %in% c("Entry", "superkingdom", "kingdom", "phylum", "class")))]), function(ith_motif) {
-        print(paste0("Dataset: ", ith_dataset, " --- Frequent in: ", ith_frequent, " --- Motif: ", ith_motif))
+       # print(paste0("Dataset: ", ith_dataset, " --- Frequent in: ", ith_frequent, " --- Motif: ", ith_motif))
         data.frame(
           Dataset = ith_dataset,
           # Frequent = ith_frequent,
@@ -113,14 +109,20 @@ test_res <- lapply(unique(motif_data[["Dataset"]]), function(ith_dataset) {
           Tax1 = combns[[i]][1],
           Tax2 = combns[[i]][2],
           pval = wilcox.test(filter(y, get(tax_group) == combns[[i]][1])[[ith_motif]],
-                             filter(y, get(tax_group) == combns[[i]][2])[[ith_motif]])[["p.value"]]
+                             filter(y, get(tax_group) == combns[[i]][2])[[ith_motif]])[["p.value"]],
+          pval_proptest = prop.test(x = c(sum(filter(y, get(tax_group) == combns[[i]][1])[[ith_motif]]),
+                                          sum(filter(y, get(tax_group) == combns[[i]][2])[[ith_motif]])),
+                                    n = c(length(filter(y, get(tax_group) == combns[[i]][1])[[ith_motif]]),
+                                          length(filter(y, get(tax_group) == combns[[i]][2])[[ith_motif]])))[["p.value"]]
         )
       }) %>% bind_rows() 
     }) %>% bind_rows()
   }) %>% bind_rows()
 }) %>% bind_rows() %>% 
-  unique()
-#4211
+  unique() %>% 
+  mutate(adjusted_pval = p.adjust(pval, method = "BH"),
+         adjusted_pval_proptest = p.adjust(pval_proptest, method = "BH"))
+
 test_res %>% 
   mutate(Comparison = paste0(Tax1, ' vs. ', Tax2),
          is_significant = ifelse(pval < 0.05, TRUE, FALSE)) %>% 
