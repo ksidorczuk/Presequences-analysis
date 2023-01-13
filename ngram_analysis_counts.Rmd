@@ -40,7 +40,7 @@ tar_load(datasets_list)
 my_DT <- function(df) {
   datatable(df, extensions = 'FixedColumns', filter = "top", style = "bootstrap",
             options = list(dom = 't', scrollX = TRUE, scrollCollapse = TRUE,
-                           scrollY = "700px", paging = FALSE), rownames = FALSE)
+                           scrollY = "500px", paging = FALSE), rownames = FALSE)
 }
 
 
@@ -61,10 +61,10 @@ len_df <- data.frame(dataset = names(filtered_datasets_list),
 
 trigram_plot_dat <- lapply(1:length(params[["k"]]), function(i) {
   calculate_ngram_counts(filtered_datasets_list, params[["k"]][i], params[["gaps"]][i]) %>% 
-  pivot_longer(setdiff(colnames(.), "dataset"), names_to = "Motif", values_to = "Count") %>% 
-  filter(Count > 1) %>% 
-  group_by(dataset, Count, Motif) %>% 
-  summarise(n_seq = n()) 
+    pivot_longer(setdiff(colnames(.), "dataset"), names_to = "Motif", values_to = "Count") %>% 
+    filter(Count > 1) %>% 
+    group_by(dataset, Count, Motif) %>% 
+    summarise(n_seq = n()) 
 }) %>% bind_rows()
 
 ```
@@ -128,11 +128,20 @@ lapply(unique(x[["dataset"]]), function(ith_set) {
 ```{r}
 htmltools::tagList(
   lapply(unique(x[["dataset"]]), function(ith_set) {
-    filter(x, dataset == ith_set) %>% 
-      arrange(desc(Count)) %>% 
-      filter(Motif %in% unique(.[["Motif"]])[1:20]) %>% 
-      my_DT() %>% 
-  formatRound("frequency", digits = 4)
+    htmltools::tags$div(
+      filter(x, dataset == ith_set) %>% 
+        arrange(desc(Count)) %>% 
+        filter(Motif %in% unique(.[["Motif"]])[1:20]) %>% 
+        my_DT() %>% 
+        formatRound("frequency", digits = 4),
+    htmltools::tags$br(),
+    htmltools::tags$br(),
+    htmltools::tags$br(),
+    htmltools::tags$br(),
+    htmltools::tags$br(),
+    htmltools::tags$br(),
+    htmltools::tags$br()
+    )
   })
 )
 ```
