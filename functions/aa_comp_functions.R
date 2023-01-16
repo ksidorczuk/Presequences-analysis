@@ -1,3 +1,8 @@
+#' Get heatmap of amino acid composition of datasets
+#' 
+#' This function uses a data frame of amino acid composition to plot
+#' a heatmap with a dendrogram.
+#' @param aa_comp_all amino acid composition of whole datasets
 get_aa_comp_heatmap <- function(aa_comp_all) {
   aa_comp_heatmap_dat <- aa_comp_all %>% 
     pivot_wider(names_from = "aa", values_from = "Freq", values_fill = 0) 
@@ -47,6 +52,16 @@ get_aa_comp_heatmap <- function(aa_comp_all) {
 }
 
 
+#' Test differences in amino acid composition
+#' 
+#' This function performs Mann-Whitney test to compare amino acid composition
+#' of peptides from different datasets.
+#' @param aa_comp_peptides amino acid composition of peptides from each dataset
+#' obtained using \code{\link{calculate_aa_comp_peptides}}
+#' @param combns a list of dataset pairs that will be used for testing
+#' @return a data frame containing names of the compared datasets, amino acid, 
+#' p-value adjusted for multiple comparisons and information if the difference
+#' is statistically significant (p < 0.05).
 get_statistical_analysis_aa_comp <- function(aa_comp_peptides, combns) {
 
   lapply(seq_along(combns), function(ith_combn) {

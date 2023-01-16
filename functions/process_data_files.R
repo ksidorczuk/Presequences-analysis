@@ -31,7 +31,7 @@ get_amypro_regions <- function(amypro_dat) {
 
 #' Extract CPAD peptides
 #' 
-#' This function extracts peptides classified as amyloids from the CPAD database.
+#' This function extracts peptides classified as amyloids in the CPAD database.
 #' @param cpad_dat a data frame of data downloaded from the CPAD database
 #' @return a list of amyloid peptides with names corresponding to CPAD entry names.
 get_cpad_peptides <- function(cpad_dat) {
@@ -42,13 +42,25 @@ get_cpad_peptides <- function(cpad_dat) {
     lapply(., function(ith_pep) strsplit(ith_pep, "")[[1]])
 }
 
+#' Extract AMPs
+#' 
+#' This function extracts sequences of AMPs from the DBAASP dataset. 
+#' @param dbaasp_dat a data frame of data downloaded from the DBAASP database
+#' @return a list of AMP sequences with the names corresponding to
+#' DBAASP ids. 
 get_AMPs <- function(dbaasp_dat) {
   dbaasp_dat[["sequence"]] %>% 
     lapply(., function(ith_pep) strsplit(ith_pep, "")[[1]]) %>% 
     setNames(dbaasp_dat[["dbaasp_id"]])
 }
 
-
+#' Filter presequence entries
+#' 
+#' Filter UniProt annotations to select only entries corresponding
+#' to presequences in the datasets
+#' @param datasets_list list of named datasets
+#' @param annotations_all a data frame of all UniProt annotations
+#' @return a data frame of UniProt annotations concerning presequences
 filter_presequence_entries <- function(datasets_list, annotations_all) {
   presequences_acc <- datasets_list[c("cTP experimentally verified presequence", "mTP experimentally verified presequence",
                                       "cTP-mTP experimentally verified presequence", "SP experimentally verified presequence")] %>% 

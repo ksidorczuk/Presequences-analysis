@@ -36,7 +36,7 @@ dataset_colors <- c("cTP" = "#9de444", "mTP" = "#e49144", "SP" = "#45e495", "AMP
 
 taxonomy_colors <- c("Viridiplantae" = "#ABE188", "Chlorophyta" = "#BFEDB2", "Streptophyta" = "#AAD190",
                      "Unknown" = "grey70", "Metazoa" = "#F7EF99", "Fungi" = "#F1BB87",
-                     "Archaea" = "#A4CCED", "Bacteria" = "#99D6E8", "Eukaryota" = "#9990D6", "Viruses" = "#93E4E6",
+                     "Archaea" = "#61A385", "Bacteria" = "#DBA385", "Eukaryota" = "#98D2A4", "Viruses" = "#C66C5D",
                      "Arachnida" = "#ECD0A2", "Insecta" = "#E9B99A", "Lepidosauria" = "#C1D68F", "Mammalia" = "#E6A293",
                      "Arthropoda" = "#EDD4B2", "Chordata" = "#D0A98F")
 # c("AmyPro regions" = "#e44496", "CPAD peptides" = "#8d44e4", 

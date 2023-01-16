@@ -223,7 +223,20 @@ plot_motif_position_density <- function(dataset_list, dataset_name, found_motifs
     ggtitle(dataset_name)
 }
 
-
+#' Plot scaled motif position density
+#' 
+#' Plots density of sequence positions and motif positions
+#' within a given dataset using scaled peptide lengths.
+#' 
+#' @param dataset_list a named list of sequence datasets 
+#' @param dataset_name name of a dataset with sequences to plot
+#' @param found_motifs a data frame with motif positions, obtained
+#' @param type character indicating type of a plot. A scatter plot
+#' will be produced if \code{"point"} and violin plot otherwise.
+#' @param density_col color for the violin plots of motif density
+#' 
+#' @return a density plot of sequence and motif positions, faceted
+#' by motifs and with peptide lengths scaled to 100.
 plot_motif_positions_scaled <- function(dataset_list, dataset_name, found_motifs, type = "point", density_col = "white") {
   lens_dat <- data.frame(seq = names(dataset_list[[dataset_name]]),
                      len = lengths(dataset_list[[dataset_name]])) %>% 
@@ -249,7 +262,19 @@ plot_motif_positions_scaled <- function(dataset_list, dataset_name, found_motifs
   }
 }
 
-
+#' Calculate occurences of ngrams
+#' 
+#' This function calculates number of occurences of ngrams
+#' within sequences reporting only those that occur at least
+#' twice in any sequence.
+#' @param datasets a list of sequence datasets to analyse
+#' @param k ngram length
+#' @param kmer_gaps a vector of gaps in analysed ngram
+#' 
+#' @return a data frame with ngram counts for each peptide. 
+#' Columns correspond to ngrams that are found at least twice
+#' in any sequence, one column also describes a dataset of 
+#' a sequence.
 calculate_ngram_counts <- function(datasets, k, kmer_gaps) {
   counts <- lapply(names(datasets), function(ith_dataset) {
     x <- count_multimers(datasets[[ith_dataset]],
@@ -266,6 +291,21 @@ calculate_ngram_counts <- function(datasets, k, kmer_gaps) {
   counts
 }
 
+#' Select informative motifs with QuiPT
+#' 
+#' This function performs a quick permutation test
+#' as described in \link{biogram::test_features} providing
+#' most informative motifs for differentiation of two datasets.
+#' @param binary_ngrams a data frame of motif presence/absence
+#' with a column corresponding to dataset name
+#' @param dataset1_name name of the first dataset
+#' @param dataset2_name name of the second dataset
+#' @param pval p-value cutoff to filter results. Only results
+#' with p-value equal or lower to the given value will be reported.
+#' 
+#' @return a data frame with the following columns: motif, p-value 
+#' from QuiPT, frequency in the first dataset, frequency in the
+#' second dataset.
 select_quipt_informative_motifs <- function(binary_ngrams, dataset1_name, dataset2_name, pval = 0.05) {
   x <- binary_ngrams %>% 
     filter(dataset %in% c(dataset1_name,
@@ -278,6 +318,20 @@ select_quipt_informative_motifs <- function(binary_ngrams, dataset1_name, datase
     setNames(c("motif", "p-value", dataset1_name, paste0(dataset2_name, collapse = "/")))
 }
 
+#' Select informative motifs with FCBF
+#' 
+#' This function performs a fast correlation based filter
+#' as described in \link{FCBF::fcbf} providing most informative 
+#' motifs for differentiation of two datasets.
+#' @param binary_ngrams a data frame of motif presence/absence
+#' with a column corresponding to dataset name
+#' @param dataset1_name name of the first dataset
+#' @param dataset2_name name of the second dataset
+#' @param min_su minimum value of symmetrical uncertainty 
+#' used for result reporting
+#' 
+#' @return a data frame with the raw motif name in row names and
+#' following columns: index, symmetrical uncertainty, motif. 
 select_fcbf_informative_motifs <- function(binary_ngrams, dataset1_name, dataset2_name, min_su = 0.05) {
   x <- binary_ngrams %>% 
     filter(dataset %in% c(dataset1_name,
@@ -304,7 +358,18 @@ select_fcbf_informative_motifs <- function(binary_ngrams, dataset1_name, dataset
   }
 }
 
-
+#' Plot numbers of unique and common motifs in datasets
+#' 
+#' This function generates venn diagram with numbers of 
+#' motifs that are unique or common for analysed datasets.
+#' @param datasets a long data frame of motifs and their frequencies
+#' obtained by {\code{\link{get_motif_plot_dat}}} function. 
+#' @param colors a vector of colors for the plot
+#' @param amp a logical indicating if AMP dataset should be included, 
+#' otherwise the resulting plot will contain only cTP, mTP, cTP-mTP 
+#' and SP.
+#' @return a plot with venn diagram generated using
+#' \code{\link{ggVennDiagram::ggVennDiagram}} function.
 plot_motif_venn_diagram <- function(datasets, colors, amp = FALSE) {
   ds_list <- if(amp == TRUE) {
     list("cTP-mTP" = filter(datasets, 
@@ -333,7 +398,16 @@ plot_motif_venn_diagram <- function(datasets, colors, amp = FALSE) {
     scale_fill_continuous(low = "white", high = "tan1")
 }
 
-
+#' Test differences in motif composition
+#' 
+#' This function performs Mann-Whitney test to check if there
+#' are differences in distribution of motifs between datasets.
+#' Tests are performed for all combinations of datasets present
+#' in provided data.
+#' @param ngram_binary_matrix a data frame with binary motif
+#' presence/absence and dataset name
+#' @return a data frame with following columns: comparison specifying
+#' which datasets were compared, motif, p-value, adjusted p-value.
 do_statistical_analysis <- function(ngram_binary_matrix) {
   combns <- unique(ngram_binary_matrix[["dataset"]]) %>% 
     combn(., 2, simplify = FALSE)
@@ -356,7 +430,14 @@ do_statistical_analysis <- function(ngram_binary_matrix) {
   }) %>% bind_rows()
 }
 
-
+#' Plot clustered results of statistical analysis
+#' 
+#' This function clusters results of the statistical analysis
+#' performed with \code{\link{do_statistical_analysis}} and plots
+#' a heatmap with dendrograms.
+#' @param test_res results of the statistical testing obtained
+#' by \code{\link{do_statistical_analysis}} 
+#' @return a heatmap with dendrograms
 plot_clustered_statistical_analysis_res <- function(test_res) {
   test_res_plot_dat <- test_res %>% 
     select(-pval)  %>% 
