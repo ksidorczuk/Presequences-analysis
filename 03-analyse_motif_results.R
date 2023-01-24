@@ -514,6 +514,12 @@ tax_plot_dat <- tax_dat %>%
 tax_seq_numbers <- tax_plot_dat %>% 
   group_by(Dataset, superkingdom, kingdom, phylum, class) %>% 
   summarise(count = n()) 
+write.csv(tax_seq_numbers, "./data/tax_seq_numbers.csv", row.names = FALSE)
+
+tax_org_numbers <- tax_plot_dat %>% 
+  group_by(Dataset, superkingdom, kingdom, phylum, class) %>% 
+  summarise(count = length(unique(Organism)))
+write.csv(tax_org_numbers , "./data/tax_org_numbers.csv", row.names = FALSE)
 
 write.csv(tax_plot_dat, "./data/tax_plot_dat.csv", row.names = FALSE)
 
