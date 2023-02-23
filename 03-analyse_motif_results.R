@@ -7,6 +7,7 @@ library(biogram)
 library(tidyr)
 library(tidytext)
 library(ggtext)
+library(patchwork)
 
 data_path <- "/media/kasia/Data/Dropbox/Presequences/"
 
@@ -46,6 +47,9 @@ taxonomy_colors <- c("Viridiplantae" = "#ABE188", "Chlorophyta" = "#BFEDB2", "St
 #   "mTP experimentally verified presequence" = "#e49144", "SP experimentally verified presequence" = "#45e495", 
 #   "TM regions experimentally verified - alpha" = "#44aee4", "TM regions experimentally verified - beta" = "#4451e4")
 
+types <- c("Bigrams without gaps", "Bigrams with gaps", "Trigrams without gaps", 
+           "Trigrams with gaps", "Tetragrams without gaps", "Tetragrams with gaps", 
+           "Pentagrams without gaps", "Pentagrams with gaps")
 
 
 ###--- Most frequent motifs, full alphabet ---###
@@ -68,7 +72,7 @@ df_freq2 <- df_freq2[(which(!(df_freq2[["Type"]] == "Tetragrams with gaps" & df_
 # Tetragrams with gaps - change AMP threshold to 0.05
 df_freq2 <- df_freq2[(which(!(df_freq2[["Type"]] == "Tetragrams with gaps" & df_freq2[["Dataset"]] == "AMP" & df_freq2[["Frequency"]] < 0.05))),]
 
-lapply(unique(df_freq2[["Type"]]), function(ith_type) {
+most_frequent_barplots <- lapply(types, function(ith_type) {
   x <- filter(df_freq2, Type == ith_type)
   p <- ggplot(x, aes(x = Frequency, y = reorder_within(Motif, Frequency, Dataset), fill = Dataset)) +
     geom_col() +
@@ -81,7 +85,18 @@ lapply(unique(df_freq2[["Type"]]), function(ith_type) {
     ylab("Motif")
   ggsave(paste0(data_path, "ngram_results/Most_frequent_barplot_", gsub(" ", "_", ith_type), ".png"),
          p, width = 10, height = 5)
+  p
 })
+
+most_frequent_barplots_plot <- wrap_plots(most_frequent_barplots, ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
+  plot_layout(design = "
+              AAABBBB
+              CCCDDDD
+              EEEFFFF
+              GG#HHHH")
+ggsave(paste0(data_path, "ngram_results/Most_frequent_barplot_combined.eps"),
+       most_frequent_barplots_plot, width = 20, height = 18)
 
 p1 <- ggplot(df_freq2, aes(x = Type, y = Frequency, color = Dataset)) +
   geom_text(aes(label = Motif), position = position_quasirandom(), size = 3) +
@@ -106,6 +121,8 @@ lapply(unique(df_freq2[["Type"]]), function(ith_type) {
     scale_color_manual("Dataset", values = dataset_colors) +
     theme_bw()
   ggsave(paste0(data_path, "ngram_results/Most_frequent_motifs_", gsub(" ", "_", ith_type), ".png"), 
+         p, width = 7, height = 10)
+  ggsave(paste0(data_path, "ngram_results/Most_frequent_motifs_", gsub(" ", "_", ith_type), ".eps"), 
          p, width = 7, height = 10)
 })  
 
@@ -166,7 +183,7 @@ df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Tri
 
 
 
-lapply(unique(df_freq_decoded2[["Type"]]), function(ith_type) {
+enc_plots <- lapply(types[3:length(types)], function(ith_type) {
   lapply(unique(df_freq_decoded2[["Encoding"]]), function(ith_enc) {
     x <- filter(df_freq_decoded2, Type == ith_type, Encoding == ith_enc) %>% 
       color_encodings()
@@ -180,12 +197,128 @@ lapply(unique(df_freq_decoded2[["Type"]]), function(ith_type) {
       scale_y_reordered() +
       theme(legend.position = "none",
             axis.text.y = element_markdown())
-    ggsave(paste0(data_path, "ngram_results/Most_frequent_encoded_", gsub(" ", "_", ith_type), "_", ith_enc, ".png"),
-           p, width = 5*length(unique(x[["Dataset"]])), height = 3+nrow(x)*0.1)
+    #ggsave(paste0(data_path, "ngram_results/Most_frequent_encoded_", gsub(" ", "_", ith_type), "_", ith_enc, ".png"),
+    #       p, width = 5*length(unique(x[["Dataset"]])), height = 3+nrow(x)*0.1)
+    #ggsave(paste0(data_path, "ngram_results/Most_frequent_encoded_", gsub(" ", "_", ith_type), "_", ith_enc, ".eps"),
+    #       p, width = 5*length(unique(x[["Dataset"]])), height = 3+nrow(x)*0.1)
+    p
   })
 })
 
+enc7_plots <- sapply(enc_plots, function(i) i[1])
+enc8_plots <- sapply(enc_plots, function(i) i[2])
+enc10_plots <- sapply(enc_plots, function(i) i[3])
 
+enc7_plot <- wrap_plots(enc7_plots, ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F")) +
+  plot_layout(design = "
+              AAAABBBBBB
+              AAAABBBBBB
+              AAAABBBBBB
+              AAAABBBBBB
+              CCCCBBBBBB
+              CCCCBBBBBB
+              EEEEBBBBBB
+              EEEEDDDDDD
+              EEEEDDDDDD
+              #FF#DDDDDD
+              #FF#DDDDDD
+              #FF#DDDDDD
+              #FF#DDDDDD
+              #FF#DDDDDD
+              #FF#DDDDDD")
+enc7_without_gaps <- wrap_plots(c(enc7_plots[1], enc7_plots[3], enc7_plots[5]), ncol = 1) + 
+  plot_annotation(tag_levels = c("A", "B", "C")) +
+  plot_layout(design = "
+              AAAA
+              AAAA
+              AAAA
+              BBBB
+              CCC#
+              CCC#")
+enc7_with_gaps <- wrap_plots(c(enc7_plots[2], enc7_plots[4], enc7_plots[6]), ncol = 1) + 
+  plot_annotation(tag_levels = c("A", "B", "C")) +
+  plot_layout(design = "
+              AAAAA
+              AAAAA
+              AAAAA
+              AAAAA
+              AAAAA
+              BBBBB
+              BBBBB
+              BBBBB
+              BBBBB
+              BBBBB
+              C####
+              C####
+              C####")
+ggsave(paste0(data_path, "ngram_results/Most_frequent_enc7_combined.eps"),
+       enc7_plot, width = 20, height = 18)
+ggsave(paste0(data_path, "ngram_results/Most_frequent_enc7_nogaps_combined.eps"),
+       enc7_without_gaps, width = 8, height = 7)
+ggsave(paste0(data_path, "ngram_results/Most_frequent_enc7_gaps_combined.eps"),
+       enc7_with_gaps, width = 8, height = 12)
+
+enc8_without_gaps <- wrap_plots(c(enc8_plots[1], enc8_plots[3], enc8_plots[5]), ncol = 1) + 
+  plot_annotation(tag_levels = c("A", "B", "C")) +
+  plot_layout(design = "
+              AAAA
+              AAAA
+              AAAA
+              BBBB
+              BBBB
+              C###")
+enc8_with_gaps <- wrap_plots(c(enc8_plots[2], enc8_plots[4], enc8_plots[6]), ncol = 1) + 
+  plot_annotation(tag_levels = c("A", "B", "C")) +
+  plot_layout(design = "
+              AAAAA
+              AAAAA
+              AAAAA
+              BBBBB
+              BBBBB
+              BBBBB
+              BBBBB
+              BBBBB
+              CCC##
+              CCC##
+              CCC##
+              CCC##")
+ggsave(paste0(data_path, "ngram_results/Most_frequent_enc8_nogaps_combined.eps"),
+       enc8_without_gaps, width = 8, height = 7)
+ggsave(paste0(data_path, "ngram_results/Most_frequent_enc8_gaps_combined.eps"),
+       enc8_with_gaps, width = 8, height = 12)
+
+enc10_without_gaps <- wrap_plots(c(enc10_plots[1], enc10_plots[3], enc10_plots[5]), ncol = 1) + 
+  plot_annotation(tag_levels = c("A", "B", "C")) +
+  plot_layout(design = "
+              AAA
+              AAA
+              AAA
+              AAA
+              BB#
+              BB#
+              BB#
+              C##")
+enc10_with_gaps <- wrap_plots(c(enc10_plots[2], enc10_plots[4], enc10_plots[6]), ncol = 1) + 
+  plot_annotation(tag_levels = c("A", "B", "C")) +
+  plot_layout(design = "
+              AAAAA
+              AAAAA
+              AAAAA
+              BBBBB
+              BBBBB
+              BBBBB
+              BBBBB
+              BBBBB
+              BBBBB
+              CCC##
+              CCC##
+              CCC##
+              CCC##")
+ggsave(paste0(data_path, "ngram_results/Most_frequent_enc10_nogaps_combined.eps"),
+       enc10_without_gaps, width = 8, height = 7)
+ggsave(paste0(data_path, "ngram_results/Most_frequent_enc10_gaps_combined.eps"),
+       enc10_with_gaps, width = 8, height = 12)
 
 ###--- Most frequent motifs, taxonomy ---###
 df_freq_tax <- read_xlsx(paste0(data_path, "Motifs_results.xlsx"), sheet = "Taxonomy frequent")[,1:10] %>% 
@@ -326,10 +459,13 @@ df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with g
 df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (phylum)" & 
                                         df_freq_tax2[["Frequent in"]] == "Chordata" & df_freq_tax2[["Freq2"]] < 0.2))),]
 
+# Remove Vidiriplantae/NA from cTP
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Dataset"]] == "cTP" & df_freq_tax2[["Frequent in"]] == "Viridiplantae"))),]
+
 saveRDS(df_freq_tax2, "./data/df_freq_tax2.rds", compress = "xz")
 
-lapply(unique(df_freq_tax2[["Type"]]), function(ith_type) {
-  lapply(unique(df_freq_tax2[["Dataset"]]), function(ith_set) {
+tax_plots <- lapply(unique(df_freq_tax2[["Dataset"]]), function(ith_set) {
+  lapply(types, function(ith_type) {
     x <- filter(df_freq_tax2, Dataset == ith_set, Type == ith_type) %>% 
       select(-Diff) %>% 
       pivot_longer(c("Freq1", "Freq2", "Freq3", "Freq4"), names_to = "Group", values_to = "Frequency") %>% 
@@ -372,9 +508,65 @@ lapply(unique(df_freq_tax2[["Type"]]), function(ith_type) {
       scale_fill_manual("Taxonomic group", values = taxonomy_colors[names(taxonomy_colors) %in% unique(y[["Group"]])])
     ggsave(paste0(data_path, "ngram_results/Taxonomy_all_", gsub(" ", "_", ith_type), "_", gsub(" ", "_", ith_set), ".png"),
            p, width = 10, height = 2+nrow(y)*0.02, limitsize = FALSE)
+    ggsave(paste0(data_path, "ngram_results/Taxonomy_all_", gsub(" ", "_", ith_type), "_", gsub(" ", "_", ith_set), ".eps"),
+           p, width = 8, height = 2+nrow(y)*0.02, limitsize = FALSE)
+    p
   })
 })
 
+tax_ctp <- wrap_plots(tax_plots[[1]], ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
+  plot_layout(design = "
+              AABB
+              AABB
+              AABB
+              CCBB
+              CCBB
+              DDEE
+              DDEE
+              FFGG
+              FFGG
+              FFHH
+              FFHH", guides = 'collect') & theme(legend.position = "bottom")
+ggsave(paste0(data_path, "ngram_results/Taxonomy_all_cTP_combined.eps"),
+       tax_ctp, width = 8, height = 12)
+
+tax_mtp <- wrap_plots(tax_plots[[2]], ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
+  plot_layout(design = "
+              AABB
+              AABB
+              CCBB
+              DDBB
+              DDEE
+              DDEE
+              DDEE
+              FFGG
+              FFGG
+              FFHH
+              FFHH", guides = 'collect') & theme(legend.position = "bottom")
+ggsave(paste0(data_path, "ngram_results/Taxonomy_all_mTP_combined.eps"),
+       tax_mtp, width = 9, height = 12)
+
+tax_sp <- wrap_plots(tax_plots[[3]], ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
+  plot_layout(design = "
+              AABB
+              AABB
+              AABB
+              CCBB
+              CCDD
+              EEDD
+              EEDD
+              FFGG
+              FFGG
+              FFGG
+              FFGG
+              FFHH
+              FFHH
+              FFHH", guides = 'collect') & theme(legend.position = "bottom")
+ggsave(paste0(data_path, "ngram_results/Taxonomy_all_mTP_combined.eps"),
+       tax_mtp, width = 9, height = 12)
 
 lapply(unique(df_freq_tax2[["Type"]]), function(ith_type) {
   lapply(unique(df_freq_tax2[["Dataset"]]), function(ith_set) {
@@ -422,6 +614,8 @@ lapply(unique(df_freq_tax2[["Type"]]), function(ith_type) {
       ggtitle(paste0(ith_type, ", ", ith_set)) +
       scale_fill_manual("Taxonomic group", values = taxonomy_colors[names(taxonomy_colors) %in% unique(y[["Group"]])])
     ggsave(paste0(data_path, "ngram_results/Taxonomy_by_group_", gsub(" ", "_", ith_type), "_", gsub(" ", "_", ith_set), ".png"),
+           p, width = 10, height = 2+nrow(y)*0.02, limitsize = FALSE)
+    ggsave(paste0(data_path, "ngram_results/Taxonomy_by_group_", gsub(" ", "_", ith_type), "_", gsub(" ", "_", ith_set), ".eps"),
            p, width = 10, height = 2+nrow(y)*0.02, limitsize = FALSE)
   })
 })
@@ -471,6 +665,8 @@ lapply(unique(df_common_tax[["Dataset"]]), function(ith_set) {
     ggtitle(ith_set) +
     scale_fill_manual("Taxonomic group", values = taxonomy_colors[names(taxonomy_colors) %in% unique(y[["Group"]])])
   ggsave(paste0(data_path, "ngram_results/Taxonomy_common_", ith_set, ".png"),
+         p, width = 4*length(unique(y[["Groups"]])), height = 4+nrow(y)*0.02, limitsize = FALSE)
+  ggsave(paste0(data_path, "ngram_results/Taxonomy_common_", ith_set, ".eps"),
          p, width = 4*length(unique(y[["Groups"]])), height = 4+nrow(y)*0.02, limitsize = FALSE)
 })
 
@@ -558,7 +754,7 @@ p_sp <- tax_plot_dat %>%
   ggplot(aes(y = reorder(superkingdom, `Number of sequences`, decreasing = TRUE), x = `Number of sequences`, fill = Dataset)) +
   geom_col() +
   theme_bw(base_size = 8) +
-  geom_text(aes(label = `Number of sequences`), hjust = -0.25, size = 2) 
+  geom_text(aes(label = `Number of sequences`), hjust = -0.25, size = 2) +
   scale_fill_manual(values = c("SP" = "#45e495")) +
   theme(legend.position = "none") +
   ylab("Superkingdom") +
