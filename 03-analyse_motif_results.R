@@ -40,12 +40,6 @@ taxonomy_colors <- c("Viridiplantae" = "#ABE188", "Chlorophyta" = "#BFEDB2", "St
                      "Archaea" = "#61A385", "Bacteria" = "#DBA385", "Eukaryota" = "#98D2A4", "Viruses" = "#C66C5D",
                      "Arachnida" = "#ECD0A2", "Insecta" = "#E9B99A", "Lepidosauria" = "#C1D68F", "Mammalia" = "#E6A293",
                      "Arthropoda" = "#EDD4B2", "Chordata" = "#D0A98F")
-# c("AmyPro regions" = "#e44496", "CPAD peptides" = "#8d44e4", 
-#   "cTP experimentally verified location" = "#528313", "cTP-mTP experimentally verified location" = "#837713", 
-#   "cTP-mTP experimentally verified presequence" ="#e4d345", "cTP experimentally verified presequence" = "#9de444", 
-#   "DBAASP AMP" = "#831313", "DBAASP AMP max 100 aa" = "#e44444", "mTP experimentally verified location" = "#834813", 
-#   "mTP experimentally verified presequence" = "#e49144", "SP experimentally verified presequence" = "#45e495", 
-#   "TM regions experimentally verified - alpha" = "#44aee4", "TM regions experimentally verified - beta" = "#4451e4")
 
 types <- c("Bigrams without gaps", "Bigrams with gaps", "Trigrams without gaps", 
            "Trigrams with gaps", "Tetragrams without gaps", "Tetragrams with gaps", 
@@ -551,25 +545,78 @@ ggsave(paste0(data_path, "ngram_results/Taxonomy_all_mTP_combined.eps"),
 tax_sp <- wrap_plots(tax_plots[[3]], ncol = 2) + 
   plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
   plot_layout(design = "
+              AABBB
+              AABBB
+              AABBB
+              CCBBB
+              CCDDD
+              EEDDD
+              EEFFF
+              GGFFF
+              GGFFF
+              GGFFF
+              GGFFF
+              HHFFF
+              HHFFF
+              HHFFF", guides = 'collect') & theme(legend.position = "bottom")
+ggsave(paste0(data_path, "ngram_results/Taxonomy_all_SP_superkingdom_combined.eps"),
+       tax_sp, width = 12, height = 12)
+
+tax_sp_k <- wrap_plots(tax_plots[[4]], ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
+  plot_layout(design = "
               AABB
-              AABB
+              CCBB
+              CCBB
+              DDEE
+              DDEE
+              DDFF
+              GGFF
+              HHFF
+              HHFF
+              HHFF", guides = 'collect') & theme(legend.position = "bottom")
+ggsave(paste0(data_path, "ngram_results/Taxonomy_all_SP_kingdom_combined.eps"),
+       tax_sp_k, width = 10, height = 11)
+
+tax_sp_p <- wrap_plots(tax_plots[[5]], ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
+  plot_layout(design = "
               AABB
               CCBB
               CCDD
               EEDD
               EEDD
-              FFGG
-              FFGG
-              FFGG
-              FFGG
+              EEDD
+              FFG#
+              FFG#
+              FFG#
+              FFHH
               FFHH
               FFHH
               FFHH", guides = 'collect') & theme(legend.position = "bottom")
-ggsave(paste0(data_path, "ngram_results/Taxonomy_all_mTP_combined.eps"),
-       tax_mtp, width = 9, height = 12)
+ggsave(paste0(data_path, "ngram_results/Taxonomy_all_SP_phylum_combined.eps"),
+       tax_sp_p, width = 9, height = 12)
 
-lapply(unique(df_freq_tax2[["Type"]]), function(ith_type) {
-  lapply(unique(df_freq_tax2[["Dataset"]]), function(ith_set) {
+tax_sp_c <- wrap_plots(tax_plots[[6]], ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
+  plot_layout(design = "
+              AABB
+              AABB
+              CCDD
+              CCDD
+              EEDD
+              EEDD
+              EEGG
+              FFHH
+              FFHH
+              FFHH
+              FFHH", guides = 'collect') & theme(legend.position = "bottom")
+ggsave(paste0(data_path, "ngram_results/Taxonomy_all_SP_class_combined.eps"),
+       tax_sp_c, width = 12, height = 13)
+
+
+tax_group_plots <- lapply(unique(df_freq_tax2[["Dataset"]]), function(ith_set) {
+  lapply(types, function(ith_type) {
     x <- filter(df_freq_tax2, Dataset == ith_set, Type == ith_type) %>% 
       select(-Diff) %>% 
       pivot_longer(c("Freq1", "Freq2", "Freq3", "Freq4"), names_to = "Group", values_to = "Frequency") %>% 
@@ -617,10 +664,112 @@ lapply(unique(df_freq_tax2[["Type"]]), function(ith_type) {
            p, width = 10, height = 2+nrow(y)*0.02, limitsize = FALSE)
     ggsave(paste0(data_path, "ngram_results/Taxonomy_by_group_", gsub(" ", "_", ith_type), "_", gsub(" ", "_", ith_set), ".eps"),
            p, width = 10, height = 2+nrow(y)*0.02, limitsize = FALSE)
+    p
   })
 })
 
+tax_groups_ctp <- wrap_plots(tax_group_plots[[1]], ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
+  plot_layout(design = "
+              AABB
+              AABB
+              AABB
+              AABB
+              AABB
+              CCBB
+              CCBB
+              CCDD
+              EEDD
+              EEDD
+              EEDD
+              EEDD
+              FFGG
+              FFGG
+              FFGG
+              FFGG
+              FFHH
+              FFHH
+              FFHH", guides = 'collect') & theme(legend.position = "none")
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_cTP_combined.eps"),
+       tax_groups_ctp, width = 8, height = 12)
 
+tax_groups_mtp <- wrap_plots(tax_group_plots[[2]], ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
+  plot_layout(design = "
+              AABB
+              AABB
+              CCBB
+              DDBB
+              DDEE
+              DDEE
+              DDEE
+              FFGG
+              FFGG
+              FFHH
+              FFHH", guides = 'collect') & theme(legend.position = "none")
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_mTP_combined.eps"),
+       tax_groups_mtp, width = 10, height = 12)
+
+tax_groups_sp <- wrap_plots(tax_group_plots[[3]], ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
+  plot_layout(design = "
+              AABB
+              CCBB
+              DDEE
+              FFGG
+              FFGG
+              FFGG
+              FFHH
+              FFHH", guides = 'collect') & theme(legend.position = "none")
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_SP_superkingdom_combined.eps"),
+       tax_groups_sp, width = 12, height = 12)
+
+tax_groups_sp_k <- wrap_plots(tax_group_plots[[4]], ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
+  plot_layout(design = "
+              AABB
+              CCBB
+              DDEE
+              DDEE
+              FFGG
+              FFHH
+              FFHH
+              FFHH", guides = 'collect') & theme(legend.position = "none")
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_SP_kingdom_combined.eps"),
+       tax_groups_sp_k, width = 9, height = 11)
+
+tax_groups_sp_p <- wrap_plots(tax_group_plots[[5]], ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
+  plot_layout(design = "
+              AABB
+              CCBB
+              DDEE
+              DDEE
+              DDEE
+              DDFF
+              G#FF
+              G#FF
+              HHFF
+              HHFF", guides = 'collect') & theme(legend.position = "none")
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_SP_phylum_combined.eps"),
+       tax_groups_sp_p, width = 9, height = 14)
+
+tax_groups_sp_c <- wrap_plots(tax_group_plots[[6]], ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
+  plot_layout(design = "
+              AABB
+              CCBB
+              CCDD
+              EEDD
+              EEDD
+              FFGG
+              FFHH
+              FFHH
+              FFHH
+              FFHH
+              ", guides = 'collect') & theme(legend.position = "none")
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_SP_class_combined.eps"),
+       tax_groups_sp_c, width = 11, height = 13)
 
 
 ###--- Common motifs, taxonomy ---###
