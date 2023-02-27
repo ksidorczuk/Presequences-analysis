@@ -91,6 +91,8 @@ most_frequent_barplots_plot <- wrap_plots(most_frequent_barplots, ncol = 2) +
               GG#HHHH")
 ggsave(paste0(data_path, "ngram_results/Most_frequent_barplot_combined.eps"),
        most_frequent_barplots_plot, width = 20, height = 18)
+ggsave(paste0(data_path, "ngram_results/Most_frequent_barplot_combined.png"),
+       most_frequent_barplots_plot, width = 20, height = 18)
 
 p1 <- ggplot(df_freq2, aes(x = Type, y = Frequency, color = Dataset)) +
   geom_text(aes(label = Motif), position = position_quasirandom(), size = 3) +
@@ -252,6 +254,12 @@ ggsave(paste0(data_path, "ngram_results/Most_frequent_enc7_nogaps_combined.eps")
        enc7_without_gaps, width = 8, height = 7)
 ggsave(paste0(data_path, "ngram_results/Most_frequent_enc7_gaps_combined.eps"),
        enc7_with_gaps, width = 8, height = 12)
+ggsave(paste0(data_path, "ngram_results/Most_frequent_enc7_combined.png"),
+       enc7_plot, width = 20, height = 18)
+ggsave(paste0(data_path, "ngram_results/Most_frequent_enc7_nogaps_combined.png"),
+       enc7_without_gaps, width = 8, height = 7)
+ggsave(paste0(data_path, "ngram_results/Most_frequent_enc7_gaps_combined.png"),
+       enc7_with_gaps, width = 8, height = 12)
 
 enc8_without_gaps <- wrap_plots(c(enc8_plots[1], enc8_plots[3], enc8_plots[5]), ncol = 1) + 
   plot_annotation(tag_levels = c("A", "B", "C")) +
@@ -280,6 +288,10 @@ enc8_with_gaps <- wrap_plots(c(enc8_plots[2], enc8_plots[4], enc8_plots[6]), nco
 ggsave(paste0(data_path, "ngram_results/Most_frequent_enc8_nogaps_combined.eps"),
        enc8_without_gaps, width = 8, height = 7)
 ggsave(paste0(data_path, "ngram_results/Most_frequent_enc8_gaps_combined.eps"),
+       enc8_with_gaps, width = 8, height = 12)
+ggsave(paste0(data_path, "ngram_results/Most_frequent_enc8_nogaps_combined.png"),
+       enc8_without_gaps, width = 8, height = 7)
+ggsave(paste0(data_path, "ngram_results/Most_frequent_enc8_gaps_combined.png"),
        enc8_with_gaps, width = 8, height = 12)
 
 enc10_without_gaps <- wrap_plots(c(enc10_plots[1], enc10_plots[3], enc10_plots[5]), ncol = 1) + 
@@ -312,6 +324,10 @@ enc10_with_gaps <- wrap_plots(c(enc10_plots[2], enc10_plots[4], enc10_plots[6]),
 ggsave(paste0(data_path, "ngram_results/Most_frequent_enc10_nogaps_combined.eps"),
        enc10_without_gaps, width = 8, height = 7)
 ggsave(paste0(data_path, "ngram_results/Most_frequent_enc10_gaps_combined.eps"),
+       enc10_with_gaps, width = 8, height = 12)
+ggsave(paste0(data_path, "ngram_results/Most_frequent_enc10_nogaps_combined.png"),
+       enc10_without_gaps, width = 8, height = 7)
+ggsave(paste0(data_path, "ngram_results/Most_frequent_enc10_gaps_combined.png"),
        enc10_with_gaps, width = 8, height = 12)
 
 ###--- Most frequent motifs, taxonomy ---###
@@ -524,6 +540,8 @@ tax_ctp <- wrap_plots(tax_plots[[1]], ncol = 2) +
               FFHH", guides = 'collect') & theme(legend.position = "bottom")
 ggsave(paste0(data_path, "ngram_results/Taxonomy_all_cTP_combined.eps"),
        tax_ctp, width = 8, height = 12)
+ggsave(paste0(data_path, "ngram_results/Taxonomy_all_cTP_combined.png"),
+       tax_ctp, width = 8, height = 12)
 
 tax_mtp <- wrap_plots(tax_plots[[2]], ncol = 2) + 
   plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
@@ -540,6 +558,8 @@ tax_mtp <- wrap_plots(tax_plots[[2]], ncol = 2) +
               FFHH
               FFHH", guides = 'collect') & theme(legend.position = "bottom")
 ggsave(paste0(data_path, "ngram_results/Taxonomy_all_mTP_combined.eps"),
+       tax_mtp, width = 9, height = 12)
+ggsave(paste0(data_path, "ngram_results/Taxonomy_all_mTP_combined.png"),
        tax_mtp, width = 9, height = 12)
 
 tax_sp <- wrap_plots(tax_plots[[3]], ncol = 2) + 
@@ -561,6 +581,8 @@ tax_sp <- wrap_plots(tax_plots[[3]], ncol = 2) +
               HHFFF", guides = 'collect') & theme(legend.position = "bottom")
 ggsave(paste0(data_path, "ngram_results/Taxonomy_all_SP_superkingdom_combined.eps"),
        tax_sp, width = 12, height = 12)
+ggsave(paste0(data_path, "ngram_results/Taxonomy_all_SP_superkingdom_combined.png"),
+       tax_sp, width = 12, height = 12)
 
 tax_sp_k <- wrap_plots(tax_plots[[4]], ncol = 2) + 
   plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
@@ -576,6 +598,8 @@ tax_sp_k <- wrap_plots(tax_plots[[4]], ncol = 2) +
               HHFF
               HHFF", guides = 'collect') & theme(legend.position = "bottom")
 ggsave(paste0(data_path, "ngram_results/Taxonomy_all_SP_kingdom_combined.eps"),
+       tax_sp_k, width = 10, height = 11)
+ggsave(paste0(data_path, "ngram_results/Taxonomy_all_SP_kingdom_combined.png"),
        tax_sp_k, width = 10, height = 11)
 
 tax_sp_p <- wrap_plots(tax_plots[[5]], ncol = 2) + 
@@ -596,6 +620,8 @@ tax_sp_p <- wrap_plots(tax_plots[[5]], ncol = 2) +
               FFHH", guides = 'collect') & theme(legend.position = "bottom")
 ggsave(paste0(data_path, "ngram_results/Taxonomy_all_SP_phylum_combined.eps"),
        tax_sp_p, width = 9, height = 12)
+ggsave(paste0(data_path, "ngram_results/Taxonomy_all_SP_phylum_combined.png"),
+       tax_sp_p, width = 9, height = 12)
 
 tax_sp_c <- wrap_plots(tax_plots[[6]], ncol = 2) + 
   plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
@@ -613,7 +639,8 @@ tax_sp_c <- wrap_plots(tax_plots[[6]], ncol = 2) +
               FFHH", guides = 'collect') & theme(legend.position = "bottom")
 ggsave(paste0(data_path, "ngram_results/Taxonomy_all_SP_class_combined.eps"),
        tax_sp_c, width = 12, height = 13)
-
+ggsave(paste0(data_path, "ngram_results/Taxonomy_all_SP_class_combined.png"),
+       tax_sp_c, width = 12, height = 13)
 
 tax_group_plots <- lapply(unique(df_freq_tax2[["Dataset"]]), function(ith_set) {
   lapply(types, function(ith_type) {
@@ -692,6 +719,8 @@ tax_groups_ctp <- wrap_plots(tax_group_plots[[1]], ncol = 2) +
               FFHH", guides = 'collect') & theme(legend.position = "none")
 ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_cTP_combined.eps"),
        tax_groups_ctp, width = 8, height = 12)
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_cTP_combined.png"),
+       tax_groups_ctp, width = 8, height = 12)
 
 tax_groups_mtp <- wrap_plots(tax_group_plots[[2]], ncol = 2) + 
   plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
@@ -709,6 +738,8 @@ tax_groups_mtp <- wrap_plots(tax_group_plots[[2]], ncol = 2) +
               FFHH", guides = 'collect') & theme(legend.position = "none")
 ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_mTP_combined.eps"),
        tax_groups_mtp, width = 10, height = 12)
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_mTP_combined.png"),
+       tax_groups_mtp, width = 10, height = 12)
 
 tax_groups_sp <- wrap_plots(tax_group_plots[[3]], ncol = 2) + 
   plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
@@ -723,6 +754,8 @@ tax_groups_sp <- wrap_plots(tax_group_plots[[3]], ncol = 2) +
               FFHH", guides = 'collect') & theme(legend.position = "none")
 ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_SP_superkingdom_combined.eps"),
        tax_groups_sp, width = 12, height = 12)
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_SP_superkingdom_combined.png"),
+       tax_groups_sp, width = 12, height = 12)
 
 tax_groups_sp_k <- wrap_plots(tax_group_plots[[4]], ncol = 2) + 
   plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
@@ -736,6 +769,8 @@ tax_groups_sp_k <- wrap_plots(tax_group_plots[[4]], ncol = 2) +
               FFHH
               FFHH", guides = 'collect') & theme(legend.position = "none")
 ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_SP_kingdom_combined.eps"),
+       tax_groups_sp_k, width = 9, height = 11)
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_SP_kingdom_combined.png"),
        tax_groups_sp_k, width = 9, height = 11)
 
 tax_groups_sp_p <- wrap_plots(tax_group_plots[[5]], ncol = 2) + 
@@ -752,6 +787,8 @@ tax_groups_sp_p <- wrap_plots(tax_group_plots[[5]], ncol = 2) +
               HHFF
               HHFF", guides = 'collect') & theme(legend.position = "none")
 ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_SP_phylum_combined.eps"),
+       tax_groups_sp_p, width = 9, height = 14)
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_SP_phylum_combined.png"),
        tax_groups_sp_p, width = 9, height = 14)
 
 tax_groups_sp_c <- wrap_plots(tax_group_plots[[6]], ncol = 2) + 
@@ -770,6 +807,47 @@ tax_groups_sp_c <- wrap_plots(tax_group_plots[[6]], ncol = 2) +
               ", guides = 'collect') & theme(legend.position = "none")
 ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_SP_class_combined.eps"),
        tax_groups_sp_c, width = 11, height = 13)
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_SP_class_combined.png"),
+       tax_groups_sp_c, width = 11, height = 13)
+
+
+tax_groups_sp_all <- wrap_plots(c(tax_group_plots[[3]][4], tax_group_plots[[4]][4],
+                                  tax_group_plots[[5]][4], tax_group_plots[[6]][4]), ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D")) +
+  plot_layout(design = "
+              AAAABBB
+              AAAABBB
+              CCCDDDD
+              CCCDDDD
+              CCCDDDD
+              ") & theme(legend.position = "none",
+                         plot.margin = unit(c(0.6,0.6,0.6,0.6), "cm"))
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_SP_trigrams_gaps_combined.eps"),
+       tax_groups_sp_all, width = 12, height = 8)
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_SP_trigrams_gaps_combined.png"),
+       tax_groups_sp_all, width = 12, height = 8)
+
+tax_groups_all <- wrap_plots(c(tax_group_plots[[1]][4], tax_group_plots[[2]][4],
+                                  tax_group_plots[[4]][4]), ncol = 1) + 
+  plot_annotation(tag_levels = c("A", "B", "C")) +
+  plot_layout(design = "
+              A
+              A
+              B
+              B
+              B
+              B
+              B
+              C
+              C
+              C
+              C
+              ") & theme(legend.position = "none")
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_all_trigrams_gaps_combined.eps"),
+       tax_groups_all, width = 7, height = 10)
+ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_all_trigrams_gaps_combined.png"),
+       tax_groups_all, width = 7, height = 10)
+
 
 
 ###--- Common motifs, taxonomy ---###

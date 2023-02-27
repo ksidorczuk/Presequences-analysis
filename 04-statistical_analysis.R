@@ -136,11 +136,12 @@ test_res %>%
 plot_dat <- test_res %>% 
   mutate(Comparison = paste0(Tax1, ' vs. ', Tax2),
          is_significant = ifelse(pval < 0.05, TRUE, FALSE)) %>% 
-  select(c("Dataset", "Motif", "Comparison", "is_significant"))
+  select(c("Dataset", "Motif", "Comparison", "is_significant")) %>% 
+  filter(Comparison != "Viridiplantae vs. Unknown")
 
 plot_dat_wide <- pivot_wider(plot_dat, c(Dataset, Comparison), names_from = Motif, values_from = is_significant)
 
-lapply(unique(plot_dat[["Dataset"]]), function(ith_set) {
+stat_plots <- lapply(unique(plot_dat[["Dataset"]]), function(ith_set) {
   p <- plot_dat %>% 
     filter(Dataset == ith_set) %>% 
     ggplot(aes(y = Comparison, x = Motif, fill = is_significant)) +
@@ -153,6 +154,15 @@ lapply(unique(plot_dat[["Dataset"]]), function(ith_set) {
     scale_fill_manual("Is significant?", values = c("TRUE" = "#71A358", "FALSE" = "#FAEFDF"))
   ggsave(paste0(data_path, "ngram_results/Statistical_analysis_", gsub(" ", "_", ith_set), ".png"),
          p, width = 6+nrow(filter(plot_dat, Dataset == ith_set))/70, height = 4, limitsize = FALSE)
+  ggsave(paste0(data_path, "ngram_results/Statistical_analysis_", gsub(" ", "_", ith_set), ".eps"),
+         p, width = 6+nrow(filter(plot_dat, Dataset == ith_set))/70, height = 4, limitsize = FALSE)
+  p 
 })
 
-
+stats_combined <- wrap_plots(stat_plots, ncol = 1) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F")) +
+  plot_layout(guides = 'collect') & theme(legend.position = "bottom")
+ggsave(paste0(data_path, "ngram_results/Statistical_analysis_combined.png"),
+       stats_combined, width = 18, height = 8)
+ggsave(paste0(data_path, "ngram_results/Statistical_analysis_combined.eps"),
+       stats_combined, width = 18, height = 8)
