@@ -1,3 +1,8 @@
+# This script runs statistical analysis of differences in motif
+# frequencies between taxonomic groups. It uses datasets generated
+# in a targets pipeline and a data frame with frequencies for taxonomic
+# groups generated using 04-analyse_motif_results.R and plots the results.
+
 library(dplyr)
 library(biogram)
 library(seqR)

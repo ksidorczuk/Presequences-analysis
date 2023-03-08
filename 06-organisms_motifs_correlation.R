@@ -1,10 +1,14 @@
+# This script was used to determine if there is a correlation
+# between number of frequently occurring motifs and the number
+# of organisms in given taxonomic group. It requires data files
+# generated in 04-analyse_motif_results.R
+
 library(dplyr)
 library(ggplot2)
 
 data_path <- "/media/kasia/Data/Dropbox/Presequences/"
 
 df_freq_tax2 <- readRDS("./data/df_freq_tax2.rds")
-
 
 tax_data <- read.csv("./data/tax_plot_dat.csv")
 

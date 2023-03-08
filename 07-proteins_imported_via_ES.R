@@ -1,3 +1,6 @@
+# This scripts contain code used for analyses of proteins
+# imported via endomembrane system.
+
 library(biogram)
 library(dplyr)
 library(ggplot2)

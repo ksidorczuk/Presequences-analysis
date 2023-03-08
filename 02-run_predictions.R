@@ -1,3 +1,5 @@
+# This script uses datasets obtained in a targets pipeline 
+# and runs prediction of their antimicrobial properties
 library(dplyr)
 library(biogram)
 library(targets)

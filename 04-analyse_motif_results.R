@@ -1,3 +1,7 @@
+# This script generates analysis results and plots based on the file
+# with summarised motif results. It filters manually summarised data
+# and generates all plots. 
+
 library(dplyr)
 library(ggplot2)
 library(readxl)

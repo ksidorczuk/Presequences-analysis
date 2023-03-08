@@ -1,3 +1,10 @@
+#' Count the longest stretch of AMP mers
+#' 
+#' Calculates the length of the longest stretch of
+#' consecutive mers predicted as possessing antimicrobial
+#' properties
+#' @param x a numeric vector of prediction values
+#' @return length of the longest stretch of mers predicted as AMPs
 count_longest <- function(x) {
   splitted_x <- strsplit(x = paste0(as.numeric(x > 0.5), collapse = ""),
                          split = "0")[[1]]
@@ -8,6 +15,13 @@ count_longest <- function(x) {
     }
 }
 
+#' Calculate AmpGram statistics
+#' 
+#' Calculates statistics from mer predictions required 
+#' for the second layer of the AmpGram model. 
+#' @param mer_preds AmpGram predictions for mets
+#' @return a data frame of statistics calculated for
+#' each analysed peptide
 calculate_statistics <- function(mer_preds) {
   group_by(mer_preds, source_peptide) %>% 
     summarise(fraction_true = mean(pred > 0.5),
@@ -26,6 +40,17 @@ calculate_statistics <- function(mer_preds) {
               frac_0.8_1 = sum(pred > 0.8 & pred <= 1)/length(pred)) 
 }
 
+#' Predict AMPs using AmpGram
+#' 
+#' This function predicts antimicrobial properties of peptides
+#' listed in a FASTA-formatted file and saves the results to specified
+#' output directory and file. It runs on chunks of the sequence file
+#' analysing up to 20,000 sequences at once to allow analysis of very 
+#' large datasets step by step. All results are then combined. 
+#' @param sequence_file name of a file containing sequences in a FASTA
+#' format to analyse
+#' @param output_path path of the output directory
+#' @param output_name name of the output file
 predict_with_AmpGram <- function(sequence_file, output_path, output_name) {
   seqs <- read_fasta(sequence_file)
   lapply(seq(1, length(seqs), 20000), function(i) {

@@ -1,3 +1,5 @@
+# This script uses datasets generated in a targets pipeline
+# and calculates summary of sequence numbers at each step of filtering
 library(targets)
 library(dplyr)
 library(biogram)
