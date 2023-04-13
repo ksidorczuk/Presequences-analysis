@@ -428,7 +428,7 @@ p <- ggbiplot(pca_props_res1, choices = 1:2, alpha = 0.25, ellipse = TRUE, group
   facet_wrap(~groups, ncol = 4) + 
     xlim(-8, 12) +
     ylim(-12, 12)
-ggsave(paste0(results_path, "PCA_props_grouped.png"), p, width = 10, height = 12)
+ggsave(paste0(results_path, "PCA_props_grouped.png"), p, width = 15, height = 10)
 ```
 
 #### t-SNE
@@ -510,7 +510,7 @@ p <- pca_bigram_res1[["x"]] %>%
   geom_point(alpha = 0.5) +
   scale_color_manual("Data set", values = colors_short) +
   theme_bw()
-ggsave(paste0(results_path, "PCA_bigrams_grouped.eps"), p, width = 12, height = 10)
+ggsave(paste0(results_path, "PCA_bigrams_grouped.png"), p, width = 12, height = 10)
 pca_bigram_res1[["x"]] %>%
   as.data.frame() %>%
   mutate(dataset = datasets) %>%
