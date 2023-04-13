@@ -14,8 +14,8 @@ library(ggplot2)
 
 source("functions/processing_results.R")
 
-software_color <- c("AmpGram" = "#e42b24", "AmpScanner" = "#815fc2",
-                    "amPEPpy" = "#84c924", "ampir" = "#2482c9")
+software_color <- c("AmpGram" = "#e42b24", "AmpScanner" = "#2482c9",
+                    "amPEPpy" = "#84c924")#, "ampir" = "#2482c9")
 
 pred_res_files <- list.files("/media/kasia/Data/Dropbox/Presequences/Prediction_results/", full.names = TRUE)
 
@@ -27,15 +27,16 @@ ampgram_res <- lapply(pred_res_files[grepl("AmpGram", pred_res_files)], function
   process_ampgram_res_files(ith_file)
 }) %>% bind_rows()
 
-ampir_res <- lapply(pred_res_files[grepl("ampir", pred_res_files)], function(ith_file) {
-  process_ampir_res_files(ith_file)
-}) %>% bind_rows()
+# ampir_res <- lapply(pred_res_files[grepl("ampir", pred_res_files)], function(ith_file) {
+#   process_ampir_res_files(ith_file)
+# }) %>% bind_rows()
 
 ampscanner_res <- lapply(pred_res_files[grepl("AMPScanner", pred_res_files)], function(ith_file) {
   process_ampscanner_res_files(ith_file)
 }) %>% bind_rows()
 
-all_pred_res <- do.call(rbind, list(ampeppy_res, ampgram_res, ampir_res, ampscanner_res))
+#all_pred_res <- do.call(rbind, list(ampeppy_res, ampgram_res, ampir_res, ampscanner_res))
+all_pred_res <- do.call(rbind, list(ampeppy_res, ampgram_res, ampscanner_res))
 ```
 
 ## Presequences

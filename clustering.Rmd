@@ -44,7 +44,8 @@ add_group <- function(df) {
   mutate(df,
          group = case_when(dataset %in% c("Amyloids combined", "AmyPro regions", "CPAD peptides") ~ "Amyloids",
                            dataset %in% c("cTP experimentally verified location", "cTP experimentally verified presequence") ~ "cTP",
-                           dataset %in% c("cTP-mTP experimentally verified location", "cTP-mTP experimentally verified presequence") ~ "cTP-mTP",
+                           dataset %in% c("cTP-mTP experimentally verified location", "cTP-mTP experimentally verified presequence",
+                                          "dTP experimentally verified location", "dTP experimentally verified presequence") ~ "dTP",
                            dataset %in% c("mTP experimentally verified location", "mTP experimentally verified presequence") ~ "mTP",
                            dataset == "SP experimentally verified presequence" ~ "SP",
                            dataset %in% c("DBAASP AMP", "DBAASP AMP max 100 aa") ~ "AMP",
@@ -54,14 +55,16 @@ add_group <- function(df) {
 source("functions/extract_features.R")
 source("functions/aa_comp_functions.R")
 
+results_path <- "~/Dropbox/Presequences/Clustering_grouped_datasets/"
+
 colors <- c("AmyPro regions" = "#e44496", "CPAD peptides" = "#8d44e4", 
-            "cTP experimentally verified location" = "#528313", "cTP-mTP experimentally verified location" = "#837713", 
-            "cTP-mTP experimentally verified presequence" ="#e4d345", "cTP experimentally verified presequence" = "#9de444", 
+            "cTP experimentally verified location" = "#528313", "dTP experimentally verified location" = "#837713", 
+            "dTP experimentally verified presequence" ="#e4d345", "cTP experimentally verified presequence" = "#9de444", 
             "DBAASP AMP" = "#831313", "DBAASP AMP max 100 aa" = "#e44444", "mTP experimentally verified location" = "#834813", 
             "mTP experimentally verified presequence" = "#e49144", "SP experimentally verified presequence" = "#45e495", 
             "TM regions experimentally verified - alpha" = "#44aee4", "TM regions experimentally verified - beta" = "#4451e4")
 
-colors_short <- c("Amyloids" = "#bb45e4", "cTP-mTP" ="#e4d345", "cTP" = "#9de444", 
+colors_short <- c("Amyloids" = "#bb45e4", "dTP" ="#e4d345", "cTP" = "#9de444", 
                   "AMP" = "#e44444", "mTP" = "#e49144", "SP" = "#45e495", 
                   "TM alpha" = "#44aee4", "TM beta" = "#4451e4")
 
@@ -71,7 +74,7 @@ prop_list <- c("BIGC670101", "CHAM820101", "CHOP780201", "CHOP780202", "CHOP7802
 tar_load(c(datasets_list, datasets_list_cdhit))
 
 datasets_list_reduced <- list("Amyloids" = datasets_list_cdhit[["Amyloids combined"]],
-                              "cTP-mTP" = c(datasets_list_cdhit[["cTP-mTP experimentally verified location"]], datasets_list_cdhit[["cTP-mTP experimentally verified presequence"]])[which(!duplicated( c(datasets_list_cdhit[["cTP-mTP experimentally verified location"]], datasets_list_cdhit[["cTP-mTP experimentally verified presequence"]])))],
+                              "dTP" = c(datasets_list_cdhit[["cTP-mTP experimentally verified location"]], datasets_list_cdhit[["cTP-mTP experimentally verified presequence"]])[which(!duplicated( c(datasets_list_cdhit[["cTP-mTP experimentally verified location"]], datasets_list_cdhit[["cTP-mTP experimentally verified presequence"]])))],
                               "cTP" = c(datasets_list_cdhit[["cTP experimentally verified location"]], datasets_list_cdhit[["cTP experimentally verified presequence"]])[which(!duplicated( c(datasets_list_cdhit[["cTP experimentally verified location"]], datasets_list_cdhit[["cTP experimentally verified presequence"]])))],
                               "mTP" = c(datasets_list_cdhit[["mTP experimentally verified location"]], datasets_list_cdhit[["mTP experimentally verified presequence"]])[which(!duplicated( c(datasets_list_cdhit[["mTP experimentally verified location"]], datasets_list_cdhit[["mTP experimentally verified presequence"]])))],
                               "SP" = datasets_list_cdhit[["SP experimentally verified presequence"]],
@@ -80,7 +83,19 @@ datasets_list_reduced <- list("Amyloids" = datasets_list_cdhit[["Amyloids combin
                               "TM beta" = datasets_list_cdhit[["TM regions experimentally verified - beta"]])
 
 datasets_list <- datasets_list[which(names(datasets_list) != "Amyloids combined")]
+names(datasets_list) <- c("AmyPro regions", "CPAD peptides", "cTP experimentally verified location", 
+                          "dTP experimentally verified location", "dTP experimentally verified presequence", 
+                          "cTP experimentally verified presequence", "DBAASP AMP", "DBAASP AMP max 100 aa", 
+                          "mTP experimentally verified location", "mTP experimentally verified presequence", 
+                          "SP experimentally verified presequence", "TM regions experimentally verified - alpha", 
+                          "TM regions experimentally verified - beta")
 datasets_list_cdhit <- datasets_list_cdhit[which(names(datasets_list_cdhit) != "Amyloids combined")]
+names(datasets_list_cdhit) <- c("AmyPro regions", "CPAD peptides", "cTP experimentally verified location", 
+                          "dTP experimentally verified location", "dTP experimentally verified presequence", 
+                          "cTP experimentally verified presequence", "DBAASP AMP", "DBAASP AMP max 100 aa", 
+                          "mTP experimentally verified location", "mTP experimentally verified presequence", 
+                          "SP experimentally verified presequence", "TM regions experimentally verified - alpha", 
+                          "TM regions experimentally verified - beta")
 datasets <- unlist(sapply(names(datasets_list_reduced), function(i) rep(i, length(datasets_list_reduced[[i]])), USE.NAMES = FALSE))
 datasets_cdhit <- unlist(sapply(names(datasets_list_cdhit), function(i) rep(i, length(datasets_list_cdhit[[i]])), USE.NAMES = FALSE))
 ```
@@ -216,18 +231,31 @@ ggplot(all_combns, aes(x = dataset1, y = dataset2, fill = is_signif)) +
   xlab("First data set") +
   ylab("Second data set")
 
+p <- all_combns %>% 
+  mutate(Comparison = paste0(dataset1, " vs. ", dataset2)) %>% 
+  mutate(Comparison = gsub(" experimentally verified", "", Comparison)) %>%
+  mutate(Comparison = gsub("presequence", "(presequence)", Comparison)) %>% 
+  mutate(Comparison = gsub("location", "(location)", Comparison)) %>% 
+  ggplot(aes(x = aa, y = Comparison, fill = is_signif)) +
+  geom_tile(color = "white") +
+  coord_fixed(ratio = 1) +
+  theme_bw() +
+  theme(panel.grid.major = element_blank()) +
+  scale_fill_manual("Is significant", values = c(`FALSE` = "#76bef2", `TRUE` = "#ff4242")) 
+ggsave(paste0(results_path, "Test_aa_comp.eps"), p, width = 9, height = 14)
+  
 
 selected_combns <- get_statistical_analysis_aa_comp(aa_comp_peptides, list(c("AmyPro regions", "CPAD peptides"),
                                                                            c("cTP experimentally verified location", "cTP experimentally verified presequence"), 
-                                                                           c("cTP experimentally verified location", "cTP-mTP experimentally verified location"), 
-                                                                           c("cTP experimentally verified location", "cTP-mTP experimentally verified presequence"),
-                                                                           c("cTP experimentally verified presequence", "cTP-mTP experimentally verified location"), 
-                                                                           c("cTP experimentally verified presequence", "cTP-mTP experimentally verified presequence"),
-                                                                           c("cTP-mTP experimentally verified location", "cTP-mTP experimentally verified presequence"),
-                                                                           c("cTP-mTP experimentally verified location", "mTP experimentally verified presequence"),
-                                                                           c("cTP-mTP experimentally verified presequence", "mTP experimentally verified presequence"),
-                                                                           c("cTP-mTP experimentally verified location", "mTP experimentally verified location"),
-                                                                           c("cTP-mTP experimentally verified presequence", "mTP experimentally verified location"),
+                                                                           c("cTP experimentally verified location", "dTP experimentally verified location"), 
+                                                                           c("cTP experimentally verified location", "dTP experimentally verified presequence"),
+                                                                           c("cTP experimentally verified presequence", "dTP experimentally verified location"), 
+                                                                           c("cTP experimentally verified presequence", "dTP experimentally verified presequence"),
+                                                                           c("dTP experimentally verified location", "dTP experimentally verified presequence"),
+                                                                           c("dTP experimentally verified location", "mTP experimentally verified presequence"),
+                                                                           c("dTP experimentally verified presequence", "mTP experimentally verified presequence"),
+                                                                           c("dTP experimentally verified location", "mTP experimentally verified location"),
+                                                                           c("dTP experimentally verified presequence", "mTP experimentally verified location"),
                                                                            c("mTP experimentally verified location", "mTP experimentally verified presequence"), 
                                                                            c("DBAASP AMP", "DBAASP AMP max 100 aa")))
 ```
@@ -250,13 +278,14 @@ pca_data_all <- aa_comp_datasets %>%
 
 pca_res_all <- prcomp(pca_data_all[, 2:ncol(pca_data_all)], center = TRUE, scale = TRUE)
 
-ggbiplot(pca_res_all, choices = 1:2) +
+p <- ggbiplot(pca_res_all, choices = 1:2) +
   theme_bw() +
   geom_point(aes(color = pca_data_all[["dataset"]]), size = 3) +
   geom_text_repel(label = pca_data_all[["dataset"]]) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual("Data set", values = colors) +
   theme(legend.position = "none")
+ggsave(paste0(results_path, "PCA_aa_comp.eps"), p, width = 10, height = 12)
 ```
 
 ### PCA on physicochemical properties (after CD-HIT)
@@ -376,7 +405,10 @@ umap_res1[["layout"]] %>%
 ```{r}
 props <- lapply(seq_along(datasets_list_reduced), function(i) {
   as.data.frame(calculate_properties(datasets_list_reduced[[i]], prop_list))
-}) %>% do.call(rbind, .)
+}) %>% do.call(rbind, .) %>% 
+  setNames(c("Residue volume", "Polarizability parameter", "Frequency of alpha-helix",
+             "Frequency of beta-sheet", "Frequency of beta-turn",
+             "van der Waals volume", "Net charge", "Hydropathy index", "Polarity"))
 ```
 
 #### PCA
@@ -388,12 +420,15 @@ ggbiplot(pca_props_res1, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = d
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual("Data set", values = colors_short)
 
-ggbiplot(pca_props_res1, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = datasets) +
+p <- ggbiplot(pca_props_res1, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = datasets) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5),
         legend.position = "none") +
   scale_color_manual("Data set", values = colors_short) +
-  facet_wrap(~groups, ncol = 5)
+  facet_wrap(~groups, ncol = 4) + 
+    xlim(-8, 12) +
+    ylim(-12, 12)
+ggsave(paste0(results_path, "PCA_props_grouped.png"), p, width = 10, height = 12)
 ```
 
 #### t-SNE
@@ -468,13 +503,14 @@ ggbiplot(pca_bigram_res1, choices = 1:2, groups = datasets, var.axes = FALSE) +
   scale_color_manual("Data set", values = colors_short) +
   theme(legend.position = "none")
 
-pca_bigram_res1[["x"]] %>%
+p <- pca_bigram_res1[["x"]] %>%
   as.data.frame() %>%
   mutate(dataset = datasets) %>%
   ggplot(aes(x = PC1, y = PC2, color = dataset)) +
   geom_point(alpha = 0.5) +
   scale_color_manual("Data set", values = colors_short) +
   theme_bw()
+ggsave(paste0(results_path, "PCA_bigrams_grouped.eps"), p, width = 12, height = 10)
 pca_bigram_res1[["x"]] %>%
   as.data.frame() %>%
   mutate(dataset = datasets) %>%
@@ -541,8 +577,8 @@ umap_res1[["layout"]] %>%
 ```{r}
 trigrams <- lapply(names(datasets_list_reduced), function(i) {
   calculate_binary_ngram_matrix(datasets_list_reduced[[i]],
-                                 c(3, 3, 3, 3),
-                                 list(c(0, 0), c(1, 0), c(0, 1), c(1, 1)))
+                                c(3, 3, 3, 3),
+                                list(c(0, 0), c(1, 0), c(0, 1), c(1, 1)))
 }) %>% bind_rows()
 trigrams[is.na(trigrams)] <- 0
 ```
@@ -550,7 +586,7 @@ trigrams[is.na(trigrams)] <- 0
 #### PCA
 ```{r}
 pca_trigram_res1 <- prcomp(trigrams[vapply(trigrams, function(x) length(unique(x)) > 1, logical(1L))],
-                            center = TRUE, scale = TRUE)
+                           center = TRUE, scale = TRUE)
 
 ggbiplot(pca_trigram_res1, choices = 1:2, groups = datasets, var.axes = FALSE) +
   theme_bw() +
@@ -637,7 +673,7 @@ pca_trigram_res1[["x"]] %>%
 
 ```{r}
 datasets_list_exp <- list("Amyloids" = datasets_list_reduced[["Amyloids"]],
-                          "cTP-mTP" = datasets_list_cdhit[["cTP-mTP experimentally verified presequence"]],
+                          "dTP" = datasets_list_cdhit[["dTP experimentally verified presequence"]],
                           "cTP" = datasets_list_cdhit[["cTP experimentally verified presequence"]],
                           "mTP" = datasets_list_cdhit[["mTP experimentally verified presequence"]],
                           "SP" = datasets_list_cdhit[["SP experimentally verified presequence"]],
@@ -715,13 +751,14 @@ umap_config[["min_dist"]] <- 0.5
 umap_config[["n_neighbors"]] <- 50
 
 umap_res <- umap(aa_comp_peptides_clust_data, config = umap_config)
-umap_res[["layout"]] %>%
+p <- umap_res[["layout"]] %>%
   as.data.frame() %>%
   mutate(dataset = datasets_exp) %>%
   ggplot(aes(x = V1, y = V2, color = dataset)) +
   geom_point() +
   scale_color_manual("Data set", values = colors_short) +
   theme_bw()
+ggsave(paste0(results_path, "UMAP_aa_comp_exp.eps"), p, width = 12, height = 9)
 ```
 
 
@@ -730,7 +767,10 @@ umap_res[["layout"]] %>%
 ```{r}
 props_exp <- lapply(seq_along(datasets_list_exp), function(i) {
   as.data.frame(calculate_properties(datasets_list_exp[[i]], prop_list))
-}) %>% do.call(rbind, .)
+}) %>% do.call(rbind, .) %>% 
+  setNames(c("Residue volume", "Polarizability parameter", "Frequency of alpha-helix",
+             "Frequency of beta-sheet", "Frequency of beta-turn",
+             "van der Waals volume", "Net charge", "Hydropathy index", "Polarity"))
 ```
 
 #### PCA
@@ -742,12 +782,15 @@ ggbiplot(pca_props_res, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = da
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual("Data set", values = colors_short)
 
-ggbiplot(pca_props_res, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = datasets_exp) +
+p <- ggbiplot(pca_props_res, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = datasets_exp) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5),
         legend.position = "none") +
   scale_color_manual("Data set", values = colors_short) +
-  facet_wrap(~groups, ncol = 5)
+  facet_wrap(~groups, ncol = 4)  + 
+    xlim(-8, 12) +
+    ylim(-12, 12)
+ggsave(paste0(results_path, "PCA_props_exp.png"), p, width = 10, height = 12)
 ```
 
 #### t-SNE
@@ -904,7 +947,7 @@ trigrams_exp[is.na(trigrams_exp)] <- 0
 #### PCA
 ```{r}
 pca_trigram_res <- prcomp(trigrams_exp[vapply(trigrams_exp, function(x) length(unique(x)) > 1, logical(1L))],
-                           center = TRUE, scale = TRUE)
+                          center = TRUE, scale = TRUE)
 ggbiplot(pca_trigram_res, choices = 1:2, groups = datasets_exp, var.axes = FALSE) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5)) +
