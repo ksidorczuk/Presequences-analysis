@@ -36,7 +36,8 @@ ampscanner_res <- lapply(pred_res_files[grepl("AMPScanner", pred_res_files)], fu
 }) %>% bind_rows()
 
 #all_pred_res <- do.call(rbind, list(ampeppy_res, ampgram_res, ampir_res, ampscanner_res))
-all_pred_res <- do.call(rbind, list(ampeppy_res, ampgram_res, ampscanner_res))
+all_pred_res <- do.call(rbind, list(ampeppy_res, ampgram_res, ampscanner_res)) %>% 
+  mutate(Dataset = gsub("cTP-mTP", "dTP", Dataset))
 ```
 
 ## Presequences
@@ -45,8 +46,8 @@ all_pred_res <- do.call(rbind, list(ampeppy_res, ampgram_res, ampscanner_res))
 |-------------|-------------------------------|-------------------|-----------------|---------------------|
 | cTP_tp      | Chloroplast NOT Mitochondrion | any assertion     | transit peptide | any experimental    |
 | cTP_loc     | Chloroplast NOT Mitochondrion | any experimental  | transit peptide | any assertion       |
-| cTP-mTP_tp  | Chloroplast AND Mitochondrion | any assertion     | transit peptide | any experimental    |
-| cTP-mTP_loc | Chloroplast AND Mitochondrion | any experimental  | transit peptide | any assertion       |
+| dTP_tp      | Chloroplast AND Mitochondrion | any assertion     | transit peptide | any experimental    |
+| dTP_loc     | Chloroplast AND Mitochondrion | any experimental  | transit peptide | any assertion       |
 | mTP_tp      | Mitochondrion NOT Chloroplast | any assertion     | transit peptide | any experimental    |
 | mTP_loc     | Mitochondrion NOT Chloroplast | any experimental  | transit peptide | any assertion       |
 | SP_sp       |                               | any assertion     | signal peptide  | any experimental    |
@@ -58,8 +59,8 @@ all_pred_res <- do.call(rbind, list(ampeppy_res, ampgram_res, ampscanner_res))
 |:-----------:|:------------------------------:|:---------------------------------:|:--------------------:|:------------------:|:-----------------:|
 |    cTP_tp   |               280              |                246                |           0          |          0         |        246        |
 |   cTP_loc   |               902              |                835                |           0          |          0         |        835        |
-|  cTP-mTP_tp |               10               |                 9                 |           0          |          0         |         9         |
-| cTP-mTP_loc |               63               |                 42                |           0          |          1         |         41        |
+|   dTP_tp    |               10               |                 9                 |           0          |          0         |         9         |
+|   dTP_loc   |               63               |                 42                |           0          |          1         |         41        |
 |    mTP_tp   |               555              |                549                |           1          |         17         |        531        |
 |   mTP_loc   |              1348              |                1174               |           0          |         22         |        1152       |
 |    SP_sp    |              3776              |                3721               |           2          |          1         |        3718       |
@@ -68,7 +69,7 @@ all_pred_res <- do.call(rbind, list(ampeppy_res, ampgram_res, ampscanner_res))
 #### Prediction results
 
 ```{r}
-presequence_dat <- filter(all_pred_res, Dataset %in% c("cTP_loc_exp", "cTP_tp_exp", "cTP-mTP_loc_exp", "cTP-mTP_tp_exp", 
+presequence_dat <- filter(all_pred_res, Dataset %in% c("cTP_loc_exp", "cTP_tp_exp", "dTP_loc_exp", "dTP_tp_exp", 
                                                        "mTP_loc_exp", "mTP_tp_exp", "SP_sp_exp")) %>% 
   mutate(Presequence = sapply(.[["Dataset"]], function(i) strsplit(i, "_")[[1]][1]),
          Evidence = sapply(.[["Dataset"]], function(i) ifelse(grepl("loc_exp", i), 
@@ -78,6 +79,8 @@ presequence_plot_dat <- presequence_dat %>%
   group_by(Evidence, Presequence, Software) %>% 
   summarise(mean_pred = mean(Probability),
             amp_frac = mean(Prediction))
+
+knitr::kable(presequence_plot_dat)
 
 ggplot(presequence_plot_dat, aes(x = Presequence, y = mean_pred, fill = Software)) +
   geom_col(position = "dodge") +
@@ -113,6 +116,8 @@ tm_plot_dat <- tm_dat %>%
   summarise(mean_pred = mean(Probability),
             amp_frac = mean(Prediction))
 
+knitr::kable(tm_plot_dat)
+
 ggplot(tm_plot_dat, aes(x = Type, y = mean_pred, fill = Software)) +
   geom_col(position = "dodge") +
   theme_bw() +
@@ -147,6 +152,8 @@ amy_plot_dat <- amy_dat %>%
   summarise(mean_pred = mean(Probability),
             amp_frac = mean(Prediction))
 
+knitr::kable(amy_plot_dat)
+
 ggplot(amy_plot_dat, aes(x = Dataset, y = mean_pred, fill = Software)) +
   geom_col(position = "dodge") +
   theme_bw() +
@@ -176,6 +183,8 @@ amp_plot_dat <- amp_dat %>%
   group_by(Dataset, Software) %>% 
   summarise(mean_pred = mean(Probability),
             amp_frac = mean(Prediction))
+
+knitr::kable(amp_plot_dat)
 
 ggplot(amp_plot_dat, aes(x = Dataset, y = mean_pred, fill = Software)) +
   geom_col(position = "dodge") +
