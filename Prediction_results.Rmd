@@ -89,12 +89,15 @@ ggplot(presequence_plot_dat, aes(x = Presequence, y = mean_pred, fill = Software
   scale_fill_manual("Software", values = software_color) +
   ylab("Mean value of prediction")
 
-ggplot(presequence_plot_dat, aes(x = Presequence, y = amp_frac, fill = Software)) +
+pre <- ggplot(presequence_plot_dat, aes(x = Presequence, y = amp_frac, fill = Software)) +
   geom_col(position = "dodge") +
   facet_wrap(~Evidence, nrow = 2) +
   theme_bw() +
   scale_fill_manual("Software", values = software_color) +
-  ylab("Fraction of sequences predicted as AMPs")
+  ylab("Fraction of sequences predicted as AMPs") +
+  geom_text(aes(label = round(amp_frac, 2)), size = 3, position = position_dodge(width = 0.9), vjust = -0.25) +
+  xlab("Preseqences") 
+pre
 ```
 
 ## Transmembrane regions
@@ -114,7 +117,8 @@ tm_dat <- filter(all_pred_res, Dataset %in% c("TM_beta_exp", "TM_alpha_exp")) %>
 tm_plot_dat <- tm_dat %>% 
   group_by(Type, Software) %>% 
   summarise(mean_pred = mean(Probability),
-            amp_frac = mean(Prediction))
+            amp_frac = mean(Prediction)) %>% 
+  mutate(name = "Transmembrane regions")
 
 knitr::kable(tm_plot_dat)
 
@@ -124,11 +128,14 @@ ggplot(tm_plot_dat, aes(x = Type, y = mean_pred, fill = Software)) +
   scale_fill_manual("Software", values = software_color) +
   ylab("Mean value of prediction")
 
-ggplot(tm_plot_dat, aes(x = Type, y = amp_frac, fill = Software)) +
+tm <- ggplot(tm_plot_dat, aes(x = Type, y = amp_frac, fill = Software)) +
   geom_col(position = "dodge") +
   theme_bw() +
   scale_fill_manual("Software", values = software_color) +
-  ylab("Fraction of sequences predicted as AMPs")
+  ylab("Fraction of sequences predicted as AMPs") +
+  geom_text(aes(label = round(amp_frac, 2)), size = 3, position = position_dodge(width = 0.9), vjust = -0.25) +
+  xlab("Transmembrane regions")
+tm
 ```
 
 ## Amyloids
@@ -150,7 +157,8 @@ amy_dat <- filter(all_pred_res, Dataset %in% c("Amyloids_combined", "AmyPro_regi
 amy_plot_dat <- amy_dat %>% 
   group_by(Dataset, Software) %>% 
   summarise(mean_pred = mean(Probability),
-            amp_frac = mean(Prediction))
+            amp_frac = mean(Prediction)) %>% 
+  mutate(name = "Amyloids")
 
 knitr::kable(amy_plot_dat)
 
@@ -160,11 +168,14 @@ ggplot(amy_plot_dat, aes(x = Dataset, y = mean_pred, fill = Software)) +
   scale_fill_manual("Software", values = software_color) +
   ylab("Mean value of prediction")
 
-ggplot(amy_plot_dat, aes(x = Dataset, y = amp_frac, fill = Software)) +
+amy <- ggplot(amy_plot_dat, aes(x = Dataset, y = amp_frac, fill = Software)) +
   geom_col(position = "dodge") +
   theme_bw() +
   scale_fill_manual("Software", values = software_color) +
-  ylab("Fraction of sequences predicted as AMPs")
+  ylab("Fraction of sequences predicted as AMPs") +
+  geom_text(aes(label = round(amp_frac, 2)), size = 3, position = position_dodge(width = 0.9), vjust = -0.25) +
+  xlab("Amyloids") 
+amy
 ```
 
 ## AMP
@@ -182,7 +193,8 @@ amp_dat <- filter(all_pred_res, Dataset %in% c("DBAASP_AMP", "DBAASP_AMP_max100"
 amp_plot_dat <- amp_dat %>% 
   group_by(Dataset, Software) %>% 
   summarise(mean_pred = mean(Probability),
-            amp_frac = mean(Prediction))
+            amp_frac = mean(Prediction)) %>% 
+  mutate(name = "AMP")
 
 knitr::kable(amp_plot_dat)
 
@@ -190,11 +202,28 @@ ggplot(amp_plot_dat, aes(x = Dataset, y = mean_pred, fill = Software)) +
   geom_col(position = "dodge") +
   theme_bw() +
   scale_fill_manual("Software", values = software_color) +
-  ylab("Mean value of prediction")
+  ylab("Mean value of prediction") 
 
-ggplot(amp_plot_dat, aes(x = Dataset, y = amp_frac, fill = Software)) +
+amp <- ggplot(amp_plot_dat, aes(x = Dataset, y = amp_frac, fill = Software)) +
   geom_col(position = "dodge") +
   theme_bw() +
   scale_fill_manual("Software", values = software_color) +
-  ylab("Fraction of sequences predicted as AMPs")
+  ylab("Fraction of sequences predicted as AMPs") +
+  geom_text(aes(label = round(amp_frac, 2)), size = 3, position = position_dodge(width = 0.9), vjust = -0.25) +
+  xlab("AMP") 
+amp
+```
+
+```{r fig.width = 14, fig.height = 8}
+library(patchwork)
+
+wrap_plots(list(pre, amp, amy, tm)) +
+  plot_annotation(tag_levels = c("A", "B", "C", "D")) +
+  plot_layout(design = "
+           AAAABBCCC
+           AAAABBCCC
+           AAAABBDDD
+           AAAABBDDD
+           AAAABBDDD
+           ", guides = 'collect') & theme(legend.position = "bottom")
 ```

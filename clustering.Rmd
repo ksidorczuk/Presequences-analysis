@@ -292,7 +292,10 @@ ggsave(paste0(results_path, "PCA_aa_comp.eps"), p, width = 10, height = 12)
 ```{r}
 props <- lapply(seq_along(datasets_list_cdhit), function(i) {
   as.data.frame(calculate_properties(datasets_list_cdhit[[i]], prop_list))
-}) %>% do.call(rbind, .)
+}) %>% do.call(rbind, .) %>% 
+  setNames(c("Residue volume", "Polarizability parameter", "Frequency of alpha-helix",
+             "Frequency of beta-sheet", "Frequency of beta-turn",
+             "van der Waals volume", "Net charge", "Hydropathy index", "Polarity"))
 
 pca_res_props_all <- prcomp(props, center = TRUE, scale = TRUE)
 
@@ -309,6 +312,19 @@ pca_res_props_all[["x"]] %>%
   geom_point(alpha = 0.5) +
   scale_color_manual("Data set", values = colors) +
   facet_wrap(~group) +
+  theme_bw()
+```
+
+### Distribution of physicochemical properties
+```{r}
+props_long <- props %>%
+  mutate(Dataset = datasets_cdhit) %>%
+  pivot_longer(1:9, names_to = "Property", values_to = "Value")
+
+ggplot(props_long, aes(x = Dataset, y = Value, fill = Dataset)) +
+  geom_violin() +
+  facet_wrap(~Property) +
+  scale_color_manual("Data set", values = colors) +
   theme_bw()
 ```
 
@@ -409,6 +425,16 @@ props <- lapply(seq_along(datasets_list_reduced), function(i) {
   setNames(c("Residue volume", "Polarizability parameter", "Frequency of alpha-helix",
              "Frequency of beta-sheet", "Frequency of beta-turn",
              "van der Waals volume", "Net charge", "Hydropathy index", "Polarity"))
+
+props_long <- props %>%
+  mutate(Dataset = datasets) %>%
+  pivot_longer(1:9, names_to = "Property", values_to = "Value")
+
+ggplot(props_long, aes(x = Dataset, y = Value, fill = Dataset)) +
+  geom_violin() +
+  facet_wrap(~Property) +
+  scale_color_manual("Data set", values = colors) +
+  theme_bw()
 ```
 
 #### PCA
@@ -771,6 +797,16 @@ props_exp <- lapply(seq_along(datasets_list_exp), function(i) {
   setNames(c("Residue volume", "Polarizability parameter", "Frequency of alpha-helix",
              "Frequency of beta-sheet", "Frequency of beta-turn",
              "van der Waals volume", "Net charge", "Hydropathy index", "Polarity"))
+
+props_long <- props_exp %>%
+  mutate(Dataset = datasets_exp) %>%
+  pivot_longer(1:9, names_to = "Property", values_to = "Value")
+
+ggplot(props_long, aes(x = Dataset, y = Value, fill = Dataset)) +
+  geom_violin() +
+  facet_wrap(~Property) +
+  scale_color_manual("Data set", values = colors) +
+  theme_bw()
 ```
 
 #### PCA
