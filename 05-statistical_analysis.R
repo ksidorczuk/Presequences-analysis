@@ -11,6 +11,7 @@ library(purrr)
 library(ggplot2)
 library(tidyr)
 library(ggdendro)
+library(patchwork)
 
 source("./functions/extract_features.R")
 source("./functions/motif_functions.R")
@@ -70,9 +71,22 @@ ngram_data <- mapply(function(k, gap) {
     ngram_dat
   }) %>% reduce(full_join)
 }, k_vec, gap_vec, SIMPLIFY = FALSE) %>% reduce(full_join) %>% 
-  mutate(kingdom = ifelse(is.na(kingdom), "Unknown", kingdom),
-         phylum = ifelse(is.na(phylum), "Unknown", phylum),
-         class = ifelse(is.na(class), "Unknown", class))
+  mutate(kingdom = case_when(is.na(kingdom) ~ "Unknown",
+                             kingdom == "Metazoa" ~ "Animals",
+                             kingdom == "Viridiplantae" ~ "Plants",
+                             TRUE ~ kingdom),
+         phylum = case_when(is.na(phylum) ~ "Unknown",
+                            phylum == "Arthropoda" ~ "Arthropods",
+                            phylum == "Chordata" ~ "Chordates",
+                            phylum == "Streptophyta" ~ "Streptophytes",
+                            phylum == "Chlorophyta" ~ "Chlorophytes",
+                            TRUE ~ phylum),
+         class = case_when(is.na(class) ~ "Unknown", 
+                           class == "Arachnida" ~ "Arachnids",
+                           class == "Insecta" ~ "Insects",
+                           class == "Lepidosauria" ~ "Reptiles",
+                           class == "Mammalia" ~ "Mammals",
+                           TRUE ~ class))
 
 ngram_data[is.na(ngram_data)] <- 0
 saveRDS(ngram_data, "ngram_data.rds")
@@ -84,21 +98,21 @@ test_res <- lapply(unique(motif_data[["Dataset"]]), function(ith_dataset) {
       .[, which(colnames(ngram_data) %in% c(unname(filter(motif_data, Dataset == ith_dataset, `Frequent in` == ith_frequent)[["Motif"]]),
                                             "Entry", "superkingdom", "kingdom", "phylum", "class"))]
     tax_group <- case_when(ith_frequent %in% c("Eukaryota", "Bacteria", "Archaea", "Viruses") ~ "superkingdom",
-                           ith_frequent %in% c("Chloroplastida", "Fungi", "Animals") ~ "kingdom",
-                           ith_frequent %in% c("Streptophyta", "Chlorophyta", "Chordata", "Arthropoda") ~ "phylum",
-                           ith_frequent %in% c("Mammalia", "Insecta", "Amphibia", "Arachnida") ~ "class")
+                           ith_frequent %in% c("Plants", "Fungi", "Animals") ~ "kingdom",
+                           ith_frequent %in% c("Streptophytes", "Chlorophytes", "Chordates", "Arthropods") ~ "phylum",
+                           ith_frequent %in% c("Mammals", "Insects", "Reptiles", "Arachnids") ~ "class")
     groups <- if(tax_group == "phylum" & ith_dataset == "cTP") {
-      c("Streptophyta", "Chlorophyta")
+      c("Streptophytes", "Chlorophytes")
     } else if(ith_dataset == "SP (phylum)") {
-      c("Chordata", "Arthropoda")
+      c("Chordates", "Arthropods")
     } else if(tax_group == "kingdom" & ith_dataset == "cTP") {
-      c("Chloroplastida", "Unknown")
+      c("Plants", "Unknown")
     } else if(tax_group == "kingdom" & ith_dataset != "cTP") {
-      c("Chloroplastida", "Fungi", "Animals")
+      c("Plants", "Fungi", "Animals")
     } else if(tax_group == "superkingdom") {
       c("Eukaryota", "Bacteria", "Archaea", "Viruses") 
     } else if(tax_group == "class") {
-      c("Mammalia", "Insecta", "Amphibia", "Arachnida")
+      c("Mammals", "Insects", "Reptiles", "Arachnids")
     }
     combns <- combn(groups, 2, simplify = FALSE)
     lapply(1:length(combns), function(i) {
@@ -139,11 +153,10 @@ test_res %>%
 
 
 plot_dat <- test_res %>% 
-  
   mutate(Comparison = paste0(Tax1, ' vs. ', Tax2),
          is_significant = ifelse(pval < 0.05, TRUE, FALSE)) %>% 
   select(c("Dataset", "Motif", "Comparison", "is_significant")) %>% 
-  filter(Comparison != "Chloroplastida vs. Unknown")
+  filter(Comparison != "Plants vs. Unknown")
 
 plot_dat_wide <- pivot_wider(plot_dat, c(Dataset, Comparison), names_from = Motif, values_from = is_significant)
 
