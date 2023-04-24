@@ -39,15 +39,15 @@ color_encodings <- function(x) {
 
 dataset_colors <- c("cTP" = "#9de444", "mTP" = "#e49144", "SP" = "#45e495", "AMP" = "#e44444")
 
-taxonomy_colors <- c("Viridiplantae" = "#ABE188", "Chlorophyta" = "#BFEDB2", "Streptophyta" = "#AAD190",
-                     "Unknown" = "grey70", "Metazoa" = "#F7EF99", "Fungi" = "#F1BB87",
+taxonomy_colors <- c("Chloroplastida" = "#ABE188", "Chlorophyta" = "#BFEDB2", "Streptophyta" = "#AAD190",
+                     "Unknown" = "grey70", "Animals" = "#F7EF99", "Fungi" = "#F1BB87",
                      "Archaea" = "#61A385", "Bacteria" = "#DBA385", "Eukaryota" = "#98D2A4", "Viruses" = "#C66C5D",
-                     "Arachnida" = "#ECD0A2", "Insecta" = "#E9B99A", "Lepidosauria" = "#C1D68F", "Mammalia" = "#E6A293",
+                     "Arachnida" = "#ECD0A2", "Insecta" = "#E9B99A", "Amphibia" = "#C1D68F", "Mammalia" = "#E6A293",
                      "Arthropoda" = "#EDD4B2", "Chordata" = "#D0A98F")
 
-types <- c("Bigrams without gaps", "Bigrams with gaps", "Trigrams without gaps", 
-           "Trigrams with gaps", "Tetragrams without gaps", "Tetragrams with gaps", 
-           "Pentagrams without gaps", "Pentagrams with gaps")
+types <- c("Continuous bigrams", "Discontinuous bigrams", "Continuous trigrams", 
+           "Discontinuous trigrams", "Continuous tetragrams", "Discontinuous tetragrams", 
+           "Continuous pentagrams", "Discontinuous pentagrams")
 
 
 ###--- Most frequent motifs, full alphabet ---###
@@ -59,16 +59,16 @@ cutoffs <- df_freq %>%
   group_by(Type, Dataset, Cutoff) %>% 
   summarise(count = n()) 
 
-# Trigrams with gaps were collected with different cutoffs - set threshold to 0.15 for SP and 0.25 for cTP. Change threshold for AMPs to 0.1
-df_freq2 <- df_freq[(which(!(df_freq[["Type"]] == "Trigrams with gaps" & 
+# Discontinuous trigrams were collected with different cutoffs - set threshold to 0.15 for SP and 0.25 for cTP. Change threshold for AMPs to 0.1
+df_freq2 <- df_freq[(which(!(df_freq[["Type"]] == "Discontinuous trigrams" & 
                                ((df_freq[["Dataset"]] == "cTP" & df_freq[["Frequency"]] < 0.25) | (df_freq[["Dataset"]] == "SP" & df_freq[["Frequency"]] < 0.2) |
                                   (df_freq[["Dataset"]] == "mTP" & df_freq[["Frequency"]] < 0.125) | (df_freq[["Dataset"]] == "AMP" & df_freq[["Frequency"]] < 0.1))))),]
-# Pentagrams with gaps - change cTP threshold to 0.03
-df_freq2 <- df_freq2[(which(!(df_freq2[["Type"]] == "Pentagrams with gaps" & df_freq2[["Dataset"]] == "cTP" & df_freq2[["Frequency"]] < 0.03))),]
-# Tetragrams with gaps - change cTP and SP thresholds to 0.1
-df_freq2 <- df_freq2[(which(!(df_freq2[["Type"]] == "Tetragrams with gaps" & df_freq2[["Dataset"]] %in% c("cTP", "SP") & df_freq2[["Frequency"]] < 0.1))),]
-# Tetragrams with gaps - change AMP threshold to 0.05
-df_freq2 <- df_freq2[(which(!(df_freq2[["Type"]] == "Tetragrams with gaps" & df_freq2[["Dataset"]] == "AMP" & df_freq2[["Frequency"]] < 0.05))),]
+# Discontinuous pentagrams - change cTP threshold to 0.03
+df_freq2 <- df_freq2[(which(!(df_freq2[["Type"]] == "Discontinuous pentagrams" & df_freq2[["Dataset"]] == "cTP" & df_freq2[["Frequency"]] < 0.03))),]
+# Discontinuous tetragrams - change cTP and SP thresholds to 0.1
+df_freq2 <- df_freq2[(which(!(df_freq2[["Type"]] == "Discontinuous tetragrams" & df_freq2[["Dataset"]] %in% c("cTP", "SP") & df_freq2[["Frequency"]] < 0.1))),]
+# Discontinuous tetragrams - change AMP threshold to 0.05
+df_freq2 <- df_freq2[(which(!(df_freq2[["Type"]] == "Discontinuous tetragrams" & df_freq2[["Dataset"]] == "AMP" & df_freq2[["Frequency"]] < 0.05))),]
 
 most_frequent_barplots <- lapply(types, function(ith_type) {
   x <- filter(df_freq2, Type == ith_type)
@@ -129,7 +129,7 @@ lapply(unique(df_freq2[["Type"]]), function(ith_type) {
 
 
 ###--- Most frequent motifs, reduced alphabets ---###
-df_freq_enc <- read_xlsx(paste0(data_path, "Motifs_results2.xlsx"), sheet = "Most frequent enc") %>% 
+df_freq_enc <- read_xlsx(paste0(data_path, "Motifs_results.xlsx"), sheet = "Most frequent enc") %>% 
   mutate(Motif = sapply(.[["Motif"]], function(i) gsub(".", " _ ", i, fixed = TRUE)))
 
 df_freq_decoded <- lapply(unique(df_freq_enc[["Encoding"]]), function(ith_enc) {
@@ -148,37 +148,37 @@ ggplot(df_freq_decoded, aes(x = Encoding, y = Frequency, color = Dataset)) +
 
 
 # Change pentagrams with gaps thresholds for SP enc7 and enc8 to 0.3
-df_freq_decoded2 <- df_freq_decoded[(which(!(df_freq_decoded[["Type"]] == "Pentagrams with gaps" & df_freq_decoded[["Dataset"]] == "SP" & 
+df_freq_decoded2 <- df_freq_decoded[(which(!(df_freq_decoded[["Type"]] == "Discontinuous pentagrams" & df_freq_decoded[["Dataset"]] == "SP" & 
                                                df_freq_decoded[["Encoding"]] %in% c("enc7", "enc8") & df_freq_decoded[["Frequency"]] < 0.3))),]
 # Change pentagrams with gaps thresholds for cTP enc7 to 0.45
-df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Pentagrams with gaps" & df_freq_decoded2[["Dataset"]] == "cTP" & 
+df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Discontinuous pentagrams" & df_freq_decoded2[["Dataset"]] == "cTP" & 
                                                 df_freq_decoded2[["Encoding"]] == "enc7" & df_freq_decoded2[["Frequency"]] < 0.45))),]
 # Change tetragrams with gaps thresholds for mTP enc8 to 0.3
-df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Tetragrams with gaps" & df_freq_decoded2[["Dataset"]] == "mTP" & 
+df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Discontinuous tetragrams" & df_freq_decoded2[["Dataset"]] == "mTP" & 
                                                 df_freq_decoded2[["Encoding"]] == "enc8" & df_freq_decoded2[["Frequency"]] < 0.3))),]
 # Change tetragrams with gaps thresholds for cTP enc7 to 0.45
-df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Tetragrams with gaps" & df_freq_decoded2[["Dataset"]] == "cTP" & 
+df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Discontinuous tetragrams" & df_freq_decoded2[["Dataset"]] == "cTP" & 
                                                 df_freq_decoded2[["Encoding"]] == "enc7" & df_freq_decoded2[["Frequency"]] < 0.45))),]
 # Change tetragrams with gaps thresholds for SP enc10 to 0.2
-df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Tetragrams with gaps" & df_freq_decoded2[["Dataset"]] == "SP" & 
+df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Discontinuous tetragrams" & df_freq_decoded2[["Dataset"]] == "SP" & 
                                                 df_freq_decoded2[["Encoding"]] == "enc10" & df_freq_decoded2[["Frequency"]] < 0.2))),]
 # Change trigrams with gaps thresholds for cTP enc7 to 0.75
-df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Trigrams with gaps" & df_freq_decoded2[["Dataset"]] == "cTP" & 
+df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Discontinuous trigrams" & df_freq_decoded2[["Dataset"]] == "cTP" & 
                                                 df_freq_decoded2[["Encoding"]] == "enc7" & df_freq_decoded2[["Frequency"]] < 0.75))),]
 # Change trigrams with gaps thresholds for cTP enc8 to 0.65
-df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Trigrams with gaps" & df_freq_decoded2[["Dataset"]] == "cTP" & 
+df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Discontinuous trigrams" & df_freq_decoded2[["Dataset"]] == "cTP" & 
                                                 df_freq_decoded2[["Encoding"]] == "enc8" & df_freq_decoded2[["Frequency"]] < 0.65))),]
 # Change trigrams with gaps thresholds for cTP enc10 to 0.35
-df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Trigrams with gaps" & df_freq_decoded2[["Dataset"]] == "cTP" & 
+df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Discontinuous trigrams" & df_freq_decoded2[["Dataset"]] == "cTP" & 
                                                 df_freq_decoded2[["Encoding"]] == "enc10" & df_freq_decoded2[["Frequency"]] < 0.35))),]
 # Change trigrams with gaps thresholds for mTP enc7 and enc8 to 0.6
-df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Trigrams with gaps" & df_freq_decoded2[["Dataset"]] == "mTP" & 
+df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Discontinuous trigrams" & df_freq_decoded2[["Dataset"]] == "mTP" & 
                                                 df_freq_decoded2[["Encoding"]] %in% c("enc7", "enc8") & df_freq_decoded2[["Frequency"]] < 0.6))),]
 # Change trigrams with gaps thresholds for SP enc7 and enc8 to 0.6
-df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Trigrams with gaps" & df_freq_decoded2[["Dataset"]] == "SP" & 
+df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Discontinuous trigrams" & df_freq_decoded2[["Dataset"]] == "SP" & 
                                                 df_freq_decoded2[["Encoding"]] %in% c("enc7", "enc8") & df_freq_decoded2[["Frequency"]] < 0.6))),]
 # Change trigrams with gaps thresholds for SP enc10 to 0.5
-df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Trigrams with gaps" & df_freq_decoded2[["Dataset"]] == "SP" & 
+df_freq_decoded2 <- df_freq_decoded2[(which(!(df_freq_decoded2[["Type"]] == "Discontinuous trigrams" & df_freq_decoded2[["Dataset"]] == "SP" & 
                                                 df_freq_decoded2[["Encoding"]] == "enc10" & df_freq_decoded2[["Frequency"]] < 0.5))),]
 
 
@@ -339,142 +339,142 @@ df_freq_tax <- read_xlsx(paste0(data_path, "Motifs_results.xlsx"), sheet = "Taxo
   mutate(Motif = sapply(.[["Motif"]], function(i) gsub(".", " _ ", i, fixed = TRUE))) %>% 
   mutate(`Frequent in` = ifelse(`Frequent in` == "NA", "Unknown", `Frequent in`)) %>% 
   filter(`Frequent in` != "Unknown") %>% 
-  mutate(Dataset = case_when(Dataset == "SP" & `Frequent in` %in% c("Viridiplantae", "Metazoa", "Fungi") ~ "SP (kingdom)",
+  mutate(Dataset = case_when(Dataset == "SP" & `Frequent in` %in% c("Chloroplastida", "Animals", "Fungi") ~ "SP (kingdom)",
                              Dataset == "SP" & `Frequent in` %in% c("Arthropoda", "Chordata") ~ "SP (phylum)",
-                             Dataset == "SP" & `Frequent in` %in% c("Arachnida", "Insecta", "Lepidosauria", "Mammalia") ~ "SP (class)",
+                             Dataset == "SP" & `Frequent in` %in% c("Arachnida", "Insecta", "Amphibia", "Mammalia") ~ "SP (class)",
                              TRUE ~ Dataset))
 
 # Change bigrams with gaps thresholds for SP Archaea to 0.5
-df_freq_tax2 <- df_freq_tax[(which(!(df_freq_tax[["Type"]] == "Bigrams with gaps" & df_freq_tax[["Dataset"]] == "SP" & 
+df_freq_tax2 <- df_freq_tax[(which(!(df_freq_tax[["Type"]] == "Discontinuous bigrams" & df_freq_tax[["Dataset"]] == "SP" & 
                                        df_freq_tax[["Frequent in"]] == "Archaea" & df_freq_tax[["Freq3"]] < 0.5))),]
 # Change pentagrams with gaps thresholds for cTP Chlorophyta to 0.15
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "cTP" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous pentagrams" & df_freq_tax2[["Dataset"]] == "cTP" & 
                                         df_freq_tax2[["Frequent in"]] == "Chlorophyta" & df_freq_tax2[["Freq2"]] < 0.15))),]
 # Change pentagrams with gaps thresholds for cTP Streptophyta to 0.05
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "cTP" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous pentagrams" & df_freq_tax2[["Dataset"]] == "cTP" & 
                                         df_freq_tax2[["Frequent in"]] == "Streptophyta" & df_freq_tax2[["Freq1"]] < 0.05))),]
-# Change pentagrams with gaps thresholds for cTP Viridiplantae to 0.05
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "cTP" & 
-                                        df_freq_tax2[["Frequent in"]] == "Viridiplantae" & df_freq_tax2[["Freq1"]] < 0.05))),]
-# Change pentagrams with gaps thresholds for mTP Fungi and Metazoa to 0.03
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "mTP" & 
+# Change pentagrams with gaps thresholds for cTP Chloroplastida to 0.05
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous pentagrams" & df_freq_tax2[["Dataset"]] == "cTP" & 
+                                        df_freq_tax2[["Frequent in"]] == "Chloroplastida" & df_freq_tax2[["Freq1"]] < 0.05))),]
+# Change pentagrams with gaps thresholds for mTP Fungi and Animals to 0.03
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous pentagrams" & df_freq_tax2[["Dataset"]] == "mTP" & 
                                         df_freq_tax2[["Frequent in"]] == "Fungi" & df_freq_tax2[["Freq3"]] < 0.03))),]
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "mTP" & 
-                                        df_freq_tax2[["Frequent in"]] == "Metazoa" & df_freq_tax2[["Freq2"]] < 0.03))),]
-# Change pentagrams with gaps thresholds for mTP Viridiplantae to 0.05
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "mTP" & 
-                                        df_freq_tax2[["Frequent in"]] == "Viridiplantae" & df_freq_tax2[["Freq1"]] < 0.05))),]
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous pentagrams" & df_freq_tax2[["Dataset"]] == "mTP" & 
+                                        df_freq_tax2[["Frequent in"]] == "Animals" & df_freq_tax2[["Freq2"]] < 0.03))),]
+# Change pentagrams with gaps thresholds for mTP Chloroplastida to 0.05
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous pentagrams" & df_freq_tax2[["Dataset"]] == "mTP" & 
+                                        df_freq_tax2[["Frequent in"]] == "Chloroplastida" & df_freq_tax2[["Freq1"]] < 0.05))),]
 # Change pentagrams with gaps thresholds for SP Archaea to 0.2
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "SP" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous pentagrams" & df_freq_tax2[["Dataset"]] == "SP" & 
                                         df_freq_tax2[["Frequent in"]] == "Archaea" & df_freq_tax2[["Freq3"]] < 0.2))),]
 # Change pentagrams with gaps thresholds for SP Eukaryota to 0.05
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "SP" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous pentagrams" & df_freq_tax2[["Dataset"]] == "SP" & 
                                         df_freq_tax2[["Frequent in"]] == "Eukaryota" & df_freq_tax2[["Freq1"]] < 0.05))),]
 # Change pentagrams with gaps thresholds for SP Viruses to 0.1
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "SP" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous pentagrams" & df_freq_tax2[["Dataset"]] == "SP" & 
                                         df_freq_tax2[["Frequent in"]] == "Viruses" & df_freq_tax2[["Freq4"]] < 0.1))),]
 # Change pentagrams with gaps thresholds for SP Archaea to 0.2
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "SP" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous pentagrams" & df_freq_tax2[["Dataset"]] == "SP" & 
                                         df_freq_tax2[["Frequent in"]] == "Archaea" & df_freq_tax2[["Freq3"]] < 0.2))),]
 # Change tetragrams with gaps thresholds for cTP Chlorophyta to 0.25
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "cTP" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous tetragrams" & df_freq_tax2[["Dataset"]] == "cTP" & 
                                         df_freq_tax2[["Frequent in"]] == "Chlorophyta" & df_freq_tax2[["Freq2"]] < 0.25))),]
-# Change tetragrams with gaps thresholds for cTP Streptophyta and Viridiplantae to 0.1
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "cTP" & 
-                                        df_freq_tax2[["Frequent in"]] %in% c("Viridiplantae", "Streptophyta") & df_freq_tax2[["Freq1"]] < 0.1))),]
-# Change tetragrams with gaps thresholds for mTP Metazoa to 0.075
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "mTP" & 
-                                        df_freq_tax2[["Frequent in"]] == "Metazoa" & df_freq_tax2[["Freq2"]] < 0.075))),]
-# Change tetragrams with gaps thresholds for mTP Viridiplantae to 0.075
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "mTP" & 
-                                        df_freq_tax2[["Frequent in"]] == "Viridiplantae" & df_freq_tax2[["Freq1"]] < 0.075))),]
+# Change tetragrams with gaps thresholds for cTP Streptophyta and Chloroplastida to 0.1
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous tetragrams" & df_freq_tax2[["Dataset"]] == "cTP" & 
+                                        df_freq_tax2[["Frequent in"]] %in% c("Chloroplastida", "Streptophyta") & df_freq_tax2[["Freq1"]] < 0.1))),]
+# Change tetragrams with gaps thresholds for mTP Animals to 0.075
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous tetragrams" & df_freq_tax2[["Dataset"]] == "mTP" & 
+                                        df_freq_tax2[["Frequent in"]] == "Animals" & df_freq_tax2[["Freq2"]] < 0.075))),]
+# Change tetragrams with gaps thresholds for mTP Chloroplastida to 0.075
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous tetragrams" & df_freq_tax2[["Dataset"]] == "mTP" & 
+                                        df_freq_tax2[["Frequent in"]] == "Chloroplastida" & df_freq_tax2[["Freq1"]] < 0.075))),]
 # Change tetragrams with gaps thresholds for SP Archaea to 0.25
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous tetragrams" & df_freq_tax2[["Dataset"]] == "SP" & 
                                         df_freq_tax2[["Frequent in"]] == "Archaea" & df_freq_tax2[["Freq3"]] < 0.25))),]
 # Change tetragrams with gaps thresholds for SP Eukaryota to 0.1
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous tetragrams" & df_freq_tax2[["Dataset"]] == "SP" & 
                                         df_freq_tax2[["Frequent in"]] == "Eukaryota" & df_freq_tax2[["Freq1"]] < 0.1))),]
 # Change tetragrams with gaps thresholds for SP Viruses to 0.15
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous tetragrams" & df_freq_tax2[["Dataset"]] == "SP" & 
                                         df_freq_tax2[["Frequent in"]] == "Viruses" & df_freq_tax2[["Freq4"]] < 0.15))),]
 # Change trigrams with gaps thresholds for cTP Chlorophyta to 0.4
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "cTP" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous trigrams" & df_freq_tax2[["Dataset"]] == "cTP" & 
                                         df_freq_tax2[["Frequent in"]] == "Chlorophyta" & df_freq_tax2[["Freq2"]] < 0.4))),]
 # Change trigrams with gaps thresholds for cTP Streptophyta to 0.3
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "cTP" & 
-                                        df_freq_tax2[["Frequent in"]] %in% c("Viridiplantae", "Streptophyta") & df_freq_tax2[["Freq1"]] < 0.3))),]
-# Change trigrams with gaps thresholds for mTP Metazoa to 0.15
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "mTP" & 
-                                        df_freq_tax2[["Frequent in"]] == "Metazoa" & df_freq_tax2[["Freq2"]] < 0.15))),]
-# Change trigrams with gaps thresholds for mTP Viridiplantae to 0.2
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "mTP" & 
-                                        df_freq_tax2[["Frequent in"]] == "Viridiplantae" & df_freq_tax2[["Freq1"]] < 0.2))),]
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous trigrams" & df_freq_tax2[["Dataset"]] == "cTP" & 
+                                        df_freq_tax2[["Frequent in"]] %in% c("Chloroplastida", "Streptophyta") & df_freq_tax2[["Freq1"]] < 0.3))),]
+# Change trigrams with gaps thresholds for mTP Animals to 0.15
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous trigrams" & df_freq_tax2[["Dataset"]] == "mTP" & 
+                                        df_freq_tax2[["Frequent in"]] == "Animals" & df_freq_tax2[["Freq2"]] < 0.15))),]
+# Change trigrams with gaps thresholds for mTP Chloroplastida to 0.2
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous trigrams" & df_freq_tax2[["Dataset"]] == "mTP" & 
+                                        df_freq_tax2[["Frequent in"]] == "Chloroplastida" & df_freq_tax2[["Freq1"]] < 0.2))),]
 # Change trigrams with gaps thresholds for SP Bacteria to 0.2
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous trigrams" & df_freq_tax2[["Dataset"]] == "SP" & 
                                         df_freq_tax2[["Frequent in"]] == "Bacteria" & df_freq_tax2[["Freq2"]] < 0.2))),]
 # Change trigrams with gaps thresholds for SP Eukaryota to 0.3
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous trigrams" & df_freq_tax2[["Dataset"]] == "SP" & 
                                         df_freq_tax2[["Frequent in"]] == "Eukaryota" & df_freq_tax2[["Freq1"]] < 0.3))),]
 # Change trigrams with gaps thresholds for SP Archaea to 0.35
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous trigrams" & df_freq_tax2[["Dataset"]] == "SP" & 
                                         df_freq_tax2[["Frequent in"]] == "Archaea" & df_freq_tax2[["Freq3"]] < 0.35))),]
 # Change trigrams with gaps thresholds for SP Viruses to 0.25
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous trigrams" & df_freq_tax2[["Dataset"]] == "SP" & 
                                         df_freq_tax2[["Frequent in"]] == "Viruses" & df_freq_tax2[["Freq4"]] < 0.25))),]
 # Change pentagrams with gaps thresholds for SP Arachnida to 0.07
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous pentagrams" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
                                         df_freq_tax2[["Frequent in"]] == "Arachnida" & df_freq_tax2[["Freq1"]] < 0.07))),]
 # Change pentagrams with gaps thresholds for SP Fungi to 0.03
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Pentagrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous pentagrams" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
                                         df_freq_tax2[["Frequent in"]] == "Fungi" & df_freq_tax2[["Freq3"]] < 0.03))),]
 # Change tetragrams with gaps thresholds for SP Arachnida to 0.1
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous tetragrams" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
                                         df_freq_tax2[["Frequent in"]] == "Arachnida" & df_freq_tax2[["Freq1"]] < 0.1))),]
 # Change tetragrams with gaps thresholds for SP Insecta to 0.055
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous tetragrams" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
                                         df_freq_tax2[["Frequent in"]] == "Insecta" & df_freq_tax2[["Freq2"]] < 0.055))),]
-# Change tetragrams with gaps thresholds for SP Lepidosauria to 0.2
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
-                                        df_freq_tax2[["Frequent in"]] == "Lepidosauria" & df_freq_tax2[["Freq3"]] < 0.2))),]
+# Change tetragrams with gaps thresholds for SP Amphibia to 0.2
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous tetragrams" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Amphibia" & df_freq_tax2[["Freq3"]] < 0.2))),]
 # Change tetragrams with gaps thresholds for SP Mammalia to 0.2
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous tetragrams" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
                                         df_freq_tax2[["Frequent in"]] == "Mammalia" & df_freq_tax2[["Freq4"]] < 0.2))),]
 # Change tetragrams with gaps thresholds for SP Fungi to 0.06
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous tetragrams" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
                                         df_freq_tax2[["Frequent in"]] == "Fungi" & df_freq_tax2[["Freq3"]] < 0.06))),]
-# Change tetragrams with gaps thresholds for SP Metazoa to 0.125
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
-                                        df_freq_tax2[["Frequent in"]] == "Metazoa" & df_freq_tax2[["Freq2"]] < 0.125))),]
-# Change tetragrams with gaps thresholds for SP Viridiplantae to 0.0625
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
-                                        df_freq_tax2[["Frequent in"]] == "Viridiplantae" & df_freq_tax2[["Freq1"]] < 0.0625))),]
+# Change tetragrams with gaps thresholds for SP Animals to 0.125
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous tetragrams" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Animals" & df_freq_tax2[["Freq2"]] < 0.125))),]
+# Change tetragrams with gaps thresholds for SP Chloroplastida to 0.0625
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous tetragrams" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Chloroplastida" & df_freq_tax2[["Freq1"]] < 0.0625))),]
 # Change tetragrams with gaps thresholds for SP Chordata to 0.1
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Tetragrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (phylum)" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous tetragrams" & df_freq_tax2[["Dataset"]] == "SP (phylum)" & 
                                         df_freq_tax2[["Frequent in"]] == "Chordata" & df_freq_tax2[["Freq2"]] < 0.1))),]
 # Change trigrams with gaps thresholds for SP Arachnida to 0.2
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous trigrams" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
                                         df_freq_tax2[["Frequent in"]] == "Arachnida" & df_freq_tax2[["Freq1"]] < 0.2))),]
-# Change trigrams with gaps thresholds for SP Lepidosauria to 0.3
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
-                                        df_freq_tax2[["Frequent in"]] == "Lepidosauria" & df_freq_tax2[["Freq3"]] < 0.3))),]
+# Change trigrams with gaps thresholds for SP Amphibia to 0.3
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous trigrams" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Amphibia" & df_freq_tax2[["Freq3"]] < 0.3))),]
 # Change tetragrams with gaps thresholds for SP Mammalia to 0.25
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous trigrams" & df_freq_tax2[["Dataset"]] == "SP (class)" & 
                                         df_freq_tax2[["Frequent in"]] == "Mammalia" & df_freq_tax2[["Freq4"]] < 0.25))),]
 # Change trigrams with gaps thresholds for SP Fungi to 0.2
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous trigrams" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
                                         df_freq_tax2[["Frequent in"]] == "Fungi" & df_freq_tax2[["Freq3"]] < 0.2))),]
-# Change trigrams with gaps thresholds for SP Metazoa to 0.25
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
-                                        df_freq_tax2[["Frequent in"]] == "Metazoa" & df_freq_tax2[["Freq2"]] < 0.25))),]
-# Change trigrams with gaps thresholds for SP Viridiplantae to 0.175
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
-                                        df_freq_tax2[["Frequent in"]] == "Viridiplantae" & df_freq_tax2[["Freq1"]] < 0.175))),]
+# Change trigrams with gaps thresholds for SP Animals to 0.25
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous trigrams" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Animals" & df_freq_tax2[["Freq2"]] < 0.25))),]
+# Change trigrams with gaps thresholds for SP Chloroplastida to 0.175
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous trigrams" & df_freq_tax2[["Dataset"]] == "SP (kingdom)" & 
+                                        df_freq_tax2[["Frequent in"]] == "Chloroplastida" & df_freq_tax2[["Freq1"]] < 0.175))),]
 # Change trigrams with gaps thresholds for SP Chordata to 0.2
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Trigrams with gaps" & df_freq_tax2[["Dataset"]] == "SP (phylum)" & 
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Type"]] == "Discontinuous trigrams" & df_freq_tax2[["Dataset"]] == "SP (phylum)" & 
                                         df_freq_tax2[["Frequent in"]] == "Chordata" & df_freq_tax2[["Freq2"]] < 0.2))),]
 
 # Remove Vidiriplantae/NA from cTP
-df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Dataset"]] == "cTP" & df_freq_tax2[["Frequent in"]] == "Viridiplantae"))),]
+df_freq_tax2 <- df_freq_tax2[(which(!(df_freq_tax2[["Dataset"]] == "cTP" & df_freq_tax2[["Frequent in"]] == "Chloroplastida"))),]
 
 saveRDS(df_freq_tax2, "./data/df_freq_tax2.rds", compress = "xz")
 
@@ -486,13 +486,13 @@ tax_plots <- lapply(unique(df_freq_tax2[["Dataset"]]), function(ith_set) {
       filter(!is.na(Frequency))
     
     if(ith_set == "cTP") {
-      y <- mutate(x, Group = case_when(Group == "Freq1" & `Frequent in` %in% c("Viridiplantae", "Unknown") ~ "Viridiplantae",
-                                       Group == "Freq2" & `Frequent in` %in% c("Viridiplantae", "Unknown") ~ "Unknown",
+      y <- mutate(x, Group = case_when(Group == "Freq1" & `Frequent in` %in% c("Chloroplastida", "Unknown") ~ "Chloroplastida",
+                                       Group == "Freq2" & `Frequent in` %in% c("Chloroplastida", "Unknown") ~ "Unknown",
                                        Group == "Freq1" & `Frequent in` %in% c("Streptophyta", "Chlorophyta") ~ "Streptophyta",
                                        Group == "Freq2" & `Frequent in` %in% c("Streptophyta", "Chlorophyta") ~ "Chlorophyta")) 
     } else if(ith_set == "mTP") {
-      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Viridiplantae",
-                                       Group == "Freq2" ~ "Metazoa",
+      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Chloroplastida",
+                                       Group == "Freq2" ~ "Animals",
                                        Group == "Freq3" ~ "Fungi",
                                        Group == "Freq4" ~ "Unknown")) %>% 
         filter(Group != "Unknown")
@@ -502,8 +502,8 @@ tax_plots <- lapply(unique(df_freq_tax2[["Dataset"]]), function(ith_set) {
                                        Group == "Freq3" ~ "Archaea",
                                        Group == "Freq4" ~ "Viruses")) 
     } else if(ith_set == "SP (kingdom)") {
-      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Viridiplantae",
-                                       Group == "Freq2" ~ "Metazoa",
+      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Chloroplastida",
+                                       Group == "Freq2" ~ "Animals",
                                        Group == "Freq3" ~ "Fungi")) 
     } else if(ith_set == "SP (phylum)") {
       y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Arthropoda",
@@ -511,7 +511,7 @@ tax_plots <- lapply(unique(df_freq_tax2[["Dataset"]]), function(ith_set) {
     } else if(ith_set == "SP (class)") {
       y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Arachnida",
                                        Group == "Freq2" ~ "Insecta",
-                                       Group == "Freq3" ~ "Lepidosauria",
+                                       Group == "Freq3" ~ "Amphibia",
                                        Group == "Freq4" ~ "Mammalia")) 
     }
     p <- ggplot(y, aes(y = Motif, x = Frequency, fill = Group)) +
@@ -654,13 +654,13 @@ tax_group_plots <- lapply(unique(df_freq_tax2[["Dataset"]]), function(ith_set) {
       filter(!is.na(Frequency))
     
     if(ith_set == "cTP") {
-      y <- mutate(x, Group = case_when(Group == "Freq1" & `Frequent in` %in% c("Viridiplantae", "Unknown") ~ "Viridiplantae",
-                                       Group == "Freq2" & `Frequent in` %in% c("Viridiplantae", "Unknown") ~ "Unknown",
+      y <- mutate(x, Group = case_when(Group == "Freq1" & `Frequent in` %in% c("Chloroplastida", "Unknown") ~ "Chloroplastida",
+                                       Group == "Freq2" & `Frequent in` %in% c("Chloroplastida", "Unknown") ~ "Unknown",
                                        Group == "Freq1" & `Frequent in` %in% c("Streptophyta", "Chlorophyta") ~ "Streptophyta",
                                        Group == "Freq2" & `Frequent in` %in% c("Streptophyta", "Chlorophyta") ~ "Chlorophyta")) 
     } else if(ith_set == "mTP") {
-      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Viridiplantae",
-                                       Group == "Freq2" ~ "Metazoa",
+      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Chloroplastida",
+                                       Group == "Freq2" ~ "Animals",
                                        Group == "Freq3" ~ "Fungi",
                                        Group == "Freq4" ~ "Unknown")) %>% 
         filter(Group != "Unknown")
@@ -670,8 +670,8 @@ tax_group_plots <- lapply(unique(df_freq_tax2[["Dataset"]]), function(ith_set) {
                                        Group == "Freq3" ~ "Archaea",
                                        Group == "Freq4" ~ "Viruses")) 
     } else if(ith_set == "SP (kingdom)") {
-      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Viridiplantae",
-                                       Group == "Freq2" ~ "Metazoa",
+      y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Chloroplastida",
+                                       Group == "Freq2" ~ "Animals",
                                        Group == "Freq3" ~ "Fungi")) 
     } else if(ith_set == "SP (phylum)") {
       y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Arthropoda",
@@ -679,7 +679,7 @@ tax_group_plots <- lapply(unique(df_freq_tax2[["Dataset"]]), function(ith_set) {
     } else if(ith_set == "SP (class)") {
       y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Arachnida",
                                        Group == "Freq2" ~ "Insecta",
-                                       Group == "Freq3" ~ "Lepidosauria",
+                                       Group == "Freq3" ~ "Amphibia",
                                        Group == "Freq4" ~ "Mammalia")) 
     }
     p <- filter(y, Group == `Frequent in`) %>% 
@@ -857,9 +857,9 @@ ggsave(paste0(data_path, "ngram_results/Taxonomy_groups_all_trigrams_gaps_combin
 ###--- Common motifs, taxonomy ---###
 df_common_tax <- read_xlsx(paste0(data_path, "Motifs_results.xlsx"), sheet = "Taxonomy common") %>% 
   mutate(Motif = sapply(.[["Motif"]], function(i) gsub(".", " _ ", i, fixed = TRUE))) %>% 
-  # filter cTP to include only motifs with frequency >= 0.1 in Streptophyta & Chlorophyta or frequency >= 0.2 in Viridiplantae & NA
+  # filter cTP to include only motifs with frequency >= 0.1 in Streptophyta & Chlorophyta or frequency >= 0.2 in Chloroplastida & NA
   # filter SP to include only motifs with frequency >= 0.1 in Eukaryota & Archaea
-  filter((Groups == "Viridiplantae, NA" & Freq1 >= 0.2 & Freq2 >= 0.2) |
+  filter((Groups == "Chloroplastida, NA" & Freq1 >= 0.2 & Freq2 >= 0.2) |
            (Groups == "Streptophyta, Chlorophyta" & Freq1 >= 0.15 & Freq2 >= 0.15) |
            (Groups == "Eukaryota, Archaea" & Freq1 >= 0.1 & Freq3 >= 0.1) |
            Dataset == "mTP" |
@@ -873,13 +873,13 @@ lapply(unique(df_common_tax[["Dataset"]]), function(ith_set) {
     filter(!is.na(Frequency))
   
   if(ith_set == "cTP") {
-    y <- mutate(x, Group = case_when(Group == "Freq1" & Groups == "Viridiplantae, NA" ~ "Viridiplantae",
-                                     Group == "Freq2" & Groups == "Viridiplantae, NA" ~ "Unknown",
+    y <- mutate(x, Group = case_when(Group == "Freq1" & Groups == "Chloroplastida, NA" ~ "Chloroplastida",
+                                     Group == "Freq2" & Groups == "Chloroplastida, NA" ~ "Unknown",
                                      Group == "Freq1" & Groups == "Streptophyta, Chlorophyta" ~ "Streptophyta",
                                      Group == "Freq2" & Groups == "Streptophyta, Chlorophyta" ~ "Chlorophyta"))
   } else if(ith_set == "mTP") {
-    y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Viridiplantae",
-                                     Group == "Freq2" ~ "Metazoa",
+    y <- mutate(x, Group = case_when(Group == "Freq1" ~ "Chloroplastida",
+                                     Group == "Freq2" ~ "Animals",
                                      Group == "Freq3" ~ "Fungi",
                                      Group == "Freq4" ~ "Unknown"))  %>% 
       filter(Group != "Unknown")
@@ -907,8 +907,8 @@ lapply(unique(df_common_tax[["Dataset"]]), function(ith_set) {
 ###--- Differentiating motifs ---###
 df_diff <- read_xlsx(paste0(data_path, "Motifs_results.xlsx"), sheet = "Differences") %>% 
   mutate(Motif = sapply(.[["Motif"]], function(i) gsub(".", " _ ", i, fixed = TRUE))) %>% 
-  filter(!(Type == "Tetragrams with gaps" & FreqDiff < 0.075 & Comparison == "AMP/cTP")) %>% 
-  filter(!(Type == "Trigrams with gaps" & FreqDiff < 0.15))
+  filter(!(Type == "Discontinuous tetragrams" & FreqDiff < 0.075 & Comparison == "AMP/cTP")) %>% 
+  filter(!(Type == "Discontinuous trigrams" & FreqDiff < 0.15))
 
 lapply(unique(df_diff[["Type"]]), function(ith_type) {
   x <- filter(df_diff, Type == ith_type) %>% 

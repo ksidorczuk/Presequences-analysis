@@ -84,21 +84,21 @@ test_res <- lapply(unique(motif_data[["Dataset"]]), function(ith_dataset) {
       .[, which(colnames(ngram_data) %in% c(unname(filter(motif_data, Dataset == ith_dataset, `Frequent in` == ith_frequent)[["Motif"]]),
                                             "Entry", "superkingdom", "kingdom", "phylum", "class"))]
     tax_group <- case_when(ith_frequent %in% c("Eukaryota", "Bacteria", "Archaea", "Viruses") ~ "superkingdom",
-                           ith_frequent %in% c("Viridiplantae", "Fungi", "Metazoa") ~ "kingdom",
+                           ith_frequent %in% c("Chloroplastida", "Fungi", "Animals") ~ "kingdom",
                            ith_frequent %in% c("Streptophyta", "Chlorophyta", "Chordata", "Arthropoda") ~ "phylum",
-                           ith_frequent %in% c("Mammalia", "Insecta", "Lepidosauria", "Arachnida") ~ "class")
+                           ith_frequent %in% c("Mammalia", "Insecta", "Amphibia", "Arachnida") ~ "class")
     groups <- if(tax_group == "phylum" & ith_dataset == "cTP") {
       c("Streptophyta", "Chlorophyta")
     } else if(ith_dataset == "SP (phylum)") {
       c("Chordata", "Arthropoda")
     } else if(tax_group == "kingdom" & ith_dataset == "cTP") {
-      c("Viridiplantae", "Unknown")
+      c("Chloroplastida", "Unknown")
     } else if(tax_group == "kingdom" & ith_dataset != "cTP") {
-      c("Viridiplantae", "Fungi", "Metazoa")
+      c("Chloroplastida", "Fungi", "Animals")
     } else if(tax_group == "superkingdom") {
       c("Eukaryota", "Bacteria", "Archaea", "Viruses") 
     } else if(tax_group == "class") {
-      c("Mammalia", "Insecta", "Lepidosauria", "Arachnida")
+      c("Mammalia", "Insecta", "Amphibia", "Arachnida")
     }
     combns <- combn(groups, 2, simplify = FALSE)
     lapply(1:length(combns), function(i) {
@@ -139,10 +139,11 @@ test_res %>%
 
 
 plot_dat <- test_res %>% 
+  
   mutate(Comparison = paste0(Tax1, ' vs. ', Tax2),
          is_significant = ifelse(pval < 0.05, TRUE, FALSE)) %>% 
   select(c("Dataset", "Motif", "Comparison", "is_significant")) %>% 
-  filter(Comparison != "Viridiplantae vs. Unknown")
+  filter(Comparison != "Chloroplastida vs. Unknown")
 
 plot_dat_wide <- pivot_wider(plot_dat, c(Dataset, Comparison), names_from = Motif, values_from = is_significant)
 
