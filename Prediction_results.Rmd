@@ -96,7 +96,8 @@ pre <- ggplot(presequence_plot_dat, aes(x = Presequence, y = amp_frac, fill = So
   scale_fill_manual("Software", values = software_color) +
   ylab("Fraction of sequences predicted as AMPs") +
   geom_text(aes(label = round(amp_frac, 2)), size = 3, position = position_dodge(width = 0.9), vjust = -0.25) +
-  xlab("Preseqences") 
+  xlab("Presequences") +
+  ylim(c(0, 0.55))
 pre
 ```
 

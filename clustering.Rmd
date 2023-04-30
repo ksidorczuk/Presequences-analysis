@@ -124,7 +124,7 @@ ggplot(len_df, aes(x = dataset, y = length, fill = dataset)) +
   geom_violin() +
   facet_wrap(~dataset, scales = "free", ncol = 5) +
   scale_fill_manual("Data set", values = colors) +
-  theme_bw() +
+  theme_bw(base_size = 12) +
   theme(legend.position = "none", 
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
@@ -134,11 +134,25 @@ ggplot(len_df, aes(x = dataset, y = length, fill = dataset)) +
   geom_violin() +
   facet_wrap(~dataset, scales = "free_x", ncol = 5) +
   scale_fill_manual("Data set", values = colors) +
-  theme_bw() +
+  theme_bw(base_size = 12) +
   theme(legend.position = "none", 
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.title.x = element_blank())
+
+x <- len_df %>% 
+  filter(dataset != "DBAASP AMP max 100 aa") %>% 
+  ggplot(aes(x = dataset, y = length, fill = dataset)) +
+  geom_violin() +
+  facet_wrap(~dataset, scales = "free_x", ncol = 4) +
+  scale_fill_manual("Data set", values = colors) +
+  theme_bw(base_size = 12) +
+  theme(legend.position = "none", 
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.x = element_blank())
+x
+ggsave(paste0(results_path, "Lengths.eps"), x, width = 12, height = 14)
 ```
 ```{r fig.height = 12}
 ggplot(len_df, aes(x = dataset, y = length, fill = dataset)) +
@@ -161,7 +175,7 @@ len_df %>%
 ```
 
 ### Amino acid composition of whole datasets before CD-HIT
-```{r}
+```{r fig.height=8}
 aa_comp_datasets <- lapply(names(datasets_list), function(i) {
   aa <- unlist(datasets_list[[i]], use.names = FALSE)
   as.data.frame(table(aa)/length(aa)) %>% 
@@ -188,7 +202,7 @@ get_aa_comp_heatmap(aa_comp_datasets)
 ```
 
 ### Amino acid composition of whole datasets after CD-HIT
-```{r}
+```{r fig.height=8}
 aa_comp_datasets <- lapply(names(datasets_list_cdhit), function(i) {
   aa <- unlist(datasets_list_cdhit[[i]], use.names = FALSE)
   as.data.frame(table(aa)/length(aa)) %>% 
@@ -211,7 +225,7 @@ ggplot(aa_comp_datasets, aes(x = dataset, y = Freq, fill = dataset)) +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank()) 
 
-get_aa_comp_heatmap(aa_comp_datasets)
+get_aa_comp_heatmap(aa_comp_datasets) 
 ```
 
 ### Amino acid composition of peptides (after CD-HIT)
@@ -300,11 +314,41 @@ ggplot(props_long, aes(x = Dataset, y = Value, fill = Dataset)) +
   geom_violin() +
   facet_wrap(~Property, ncol = 2) +
   scale_fill_manual("Data set", values = colors) +
-  theme_bw() +
+  theme_bw(base_size = 14) +
   xlab("") +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         legend.position = "bottom")
+```
+
+### Statistical testing of physicochemical properties distribution
+```{r}
+combns <- combn(sort(unique(props_long[["Dataset"]])), 2, simplify = FALSE)
+props_test_res <- lapply(unique(props_long[["Property"]]), function(ith_prop) {
+  lapply(1:length(combns), function(i) {
+    data.frame(Dataset1 = combns[[i]][1],
+               Dataset2 = combns[[i]][2],
+               Property = ith_prop,
+               pval = wilcox.test(x = filter(props_long, Property == ith_prop, Dataset == combns[[i]][1])[["Value"]],
+                                  y = filter(props_long, Property == ith_prop, Dataset == combns[[i]][2])[["Value"]],
+                                  exact = FALSE)[["p.value"]])
+  }) %>% bind_rows()
+}) %>% bind_rows() %>%
+    mutate(pval_adjusted = p.adjust(pval)) %>%
+    select(-pval) %>%
+    group_by(Property, Dataset1, Dataset2) %>%
+    dplyr::summarise(is_signif = pval_adjusted < 0.05) 
+
+ggplot(props_test_res, aes(x = Dataset1, y = Dataset2, fill = is_signif)) +
+  geom_tile(color = "white") +
+  facet_wrap(~Property) +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        axis.text.x = element_text(angle = 90)) +
+  coord_fixed(ratio = 1) +
+  scale_fill_manual("Is significant", values = c(`FALSE` = "#76bef2", `TRUE` = "#ff4242")) +
+  xlab("First data set") +
+  ylab("Second data set")
 ```
 
 ## Clustering of grouped datasets
@@ -413,21 +457,52 @@ ggplot(props_long, aes(x = Dataset, y = Value, fill = Dataset)) +
   geom_violin() +
   facet_wrap(~Property) +
   scale_fill_manual("Data set", values = colors_short) +
-  theme_bw() +
+  theme_bw(base_size = 14) +
   xlab("") +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         legend.position = "bottom")
+```
+### Statistical testing of physicochemical properties distribution
+```{r}
+combns <- combn(sort(unique(props_long[["Dataset"]])), 2, simplify = FALSE)
+props_test_res <- lapply(unique(props_long[["Property"]]), function(ith_prop) {
+  lapply(1:length(combns), function(i) {
+    data.frame(Dataset1 = combns[[i]][1],
+               Dataset2 = combns[[i]][2],
+               Property = ith_prop,
+               pval = wilcox.test(x = filter(props_long, Property == ith_prop, Dataset == combns[[i]][1])[["Value"]],
+                                  y = filter(props_long, Property == ith_prop, Dataset == combns[[i]][2])[["Value"]],
+                                  exact = FALSE)[["p.value"]])
+  }) %>% bind_rows()
+}) %>% bind_rows() %>%
+    mutate(pval_adjusted = p.adjust(pval)) %>%
+    select(-pval) %>%
+    group_by(Property, Dataset1, Dataset2) %>%
+    dplyr::summarise(is_signif = pval_adjusted < 0.05) 
+
+ggplot(props_test_res, aes(x = Dataset1, y = Dataset2, fill = is_signif)) +
+  geom_tile(color = "white") +
+  facet_wrap(~Property) +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        axis.text.x = element_text(angle = 90)) +
+  coord_fixed(ratio = 1) +
+  scale_fill_manual("Is significant", values = c(`FALSE` = "#76bef2", `TRUE` = "#ff4242")) +
+  xlab("First data set") +
+  ylab("Second data set")
 ```
 
 #### PCA
 ```{r}
 pca_props_res1 <- prcomp(props, center = TRUE, scale = TRUE)
 
-ggbiplot(pca_props_res1, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = datasets) +
+p_all <- ggbiplot(pca_props_res1, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = datasets) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual("Data set", values = colors_short)
+ggsave(paste0(results_path, "PCA_props_grouped_all.eps"), p_all, width = 10, height = 10)
+p_all
 
 p <- ggbiplot(pca_props_res1, choices = 1:2, alpha = 0.25, ellipse = TRUE, groups = datasets) +
   theme_bw() +
@@ -437,7 +512,36 @@ p <- ggbiplot(pca_props_res1, choices = 1:2, alpha = 0.25, ellipse = TRUE, group
   facet_wrap(~groups, ncol = 4) + 
     xlim(-8, 12) +
     ylim(-12, 12)
-ggsave(paste0(results_path, "PCA_props_grouped.png"), p, width = 15, height = 10)
+ggsave(paste0(results_path, "PCA_props_grouped.eps"), p, width = 15, height = 10)
+p
+
+pca_prop_res_amp_tp <- pca_props_res1
+pca_prop_res_amp_tp[["x"]] <- pca_prop_res_amp_tp[["x"]][which(datasets %in% c("AMP", "cTP", "dTP", "mTP")),]
+pca_prop_res_amp_tp[["x"]] <- pca_prop_res_amp_tp[["x"]][order(nrow(pca_prop_res_amp_tp[["x"]]):1),]
+
+p2 <- ggbiplot(pca_prop_res_amp_tp, choices = 1:2, alpha = 0, ellipse = TRUE, groups = rev(datasets[which(datasets %in% c("AMP", "cTP", "dTP", "mTP"))])) +
+  theme_bw() +
+  geom_point(data = mutate(as.data.frame(pca_prop_res_amp_tp[["x"]]),
+                           dataset = rev(datasets[which(datasets %in% c("AMP", "cTP", "dTP", "mTP"))])), 
+             aes(x = PC1, y = PC2, color = dataset), alpha = 0.25) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_color_manual("Data set", values = c(dTP = "#e4d345", cTP = "#9de444", 
+                                            AMP = "grey70", mTP = "#e49144"))
+ggsave(paste0(results_path, "PCA_props_grouped_AMP-TP.pdf"), p2, width = 12, height = 10)
+
+
+pca_prop_res_amp_sp <- pca_props_res1
+pca_prop_res_amp_sp[["x"]] <- pca_prop_res_amp_sp[["x"]][which(datasets %in% c("AMP", "SP")),]
+pca_prop_res_amp_sp[["x"]] <- pca_prop_res_amp_sp[["x"]][order(nrow(pca_prop_res_amp_sp[["x"]]):1),]
+
+p3 <- ggbiplot(pca_prop_res_amp_sp, choices = 1:2, alpha = 0, ellipse = TRUE, groups = rev(datasets[which(datasets %in% c("AMP", "SP"))])) +
+  theme_bw()  +
+  geom_point(data = mutate(as.data.frame(pca_prop_res_amp_sp[["x"]]),
+                           dataset = rev(datasets[which(datasets %in% c("AMP", "SP"))])), 
+             aes(x = PC1, y = PC2, color = dataset), alpha = 0.25) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_color_manual("Data set", values = c(AMP = "grey70", SP = "#45e495"))
+ggsave(paste0(results_path, "PCA_props_grouped_AMP-SP.pdf"), p3, width = 12, height = 10)
 ```
 
 #### t-SNE
@@ -794,6 +898,36 @@ ggplot(props_long, aes(x = Dataset, y = Value, fill = Dataset)) +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         legend.position = "bottom")
+```
+
+### Statistical testing of physicochemical properties distribution
+```{r}
+combns <- combn(sort(unique(props_long[["Dataset"]])), 2, simplify = FALSE)
+props_test_res <- lapply(unique(props_long[["Property"]]), function(ith_prop) {
+  lapply(1:length(combns), function(i) {
+    data.frame(Dataset1 = combns[[i]][1],
+               Dataset2 = combns[[i]][2],
+               Property = ith_prop,
+               pval = wilcox.test(x = filter(props_long, Property == ith_prop, Dataset == combns[[i]][1])[["Value"]],
+                                  y = filter(props_long, Property == ith_prop, Dataset == combns[[i]][2])[["Value"]],
+                                  exact = FALSE)[["p.value"]])
+  }) %>% bind_rows()
+}) %>% bind_rows() %>%
+    mutate(pval_adjusted = p.adjust(pval)) %>%
+    select(-pval) %>%
+    group_by(Property, Dataset1, Dataset2) %>%
+    dplyr::summarise(is_signif = pval_adjusted < 0.05) 
+
+ggplot(props_test_res, aes(x = Dataset1, y = Dataset2, fill = is_signif)) +
+  geom_tile(color = "white") +
+  facet_wrap(~Property) +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        axis.text.x = element_text(angle = 90)) +
+  coord_fixed(ratio = 1) +
+  scale_fill_manual("Is significant", values = c(`FALSE` = "#76bef2", `TRUE` = "#ff4242")) +
+  xlab("First data set") +
+  ylab("Second data set")
 ```
 
 #### PCA

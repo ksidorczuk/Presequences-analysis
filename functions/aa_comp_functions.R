@@ -34,7 +34,7 @@ get_aa_comp_heatmap <- function(aa_comp_all) {
     ggplot(aes(x = `Amino acid`, y = dataset)) +
     geom_tile(aes(fill = Frequency)) +
     scale_fill_gradientn(colors = c("#ffffff", "#ffe96b", "#ff4242", "#630000"), values = rescale(c(0, 0.03, 0.08, 0.14), to = c(0, 1))) +
-    theme_bw() +
+    theme_bw(base_size = 14) +
     theme(legend.position = "bottom",
           legend.key.width = unit(2, "lines")) +
     ylab("Data set")

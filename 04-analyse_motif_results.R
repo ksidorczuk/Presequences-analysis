@@ -908,22 +908,43 @@ lapply(unique(df_common_tax[["Dataset"]]), function(ith_set) {
 df_diff <- read_xlsx(paste0(data_path, "Motifs_results.xlsx"), sheet = "Differences") %>% 
   mutate(Motif = sapply(.[["Motif"]], function(i) gsub(".", " _ ", i, fixed = TRUE))) %>% 
   filter(!(Type == "Discontinuous tetragrams" & FreqDiff < 0.075 & Comparison == "AMP/cTP")) %>% 
+  filter(!(Type == "Discontinuous tetragrams" & FreqDiff < 0.075 & Comparison == "AMP/SP")) %>% 
   filter(!(Type == "Discontinuous trigrams" & FreqDiff < 0.15))
 
-lapply(unique(df_diff[["Type"]]), function(ith_type) {
+diff_plots <- lapply(unique(df_diff[["Type"]]), function(ith_type) {
   x <- filter(df_diff, Type == ith_type) %>% 
     select(-c("quipt_pval", "Cutoff")) %>% 
-    pivot_longer(c(Freq1, Freq2), names_to = "Set", values_to = "Frequency")
-  p <- ggplot(x, aes(y = reorder_within(Motif, FreqDiff, Type), x = Frequency, fill = Set)) +
+    pivot_longer(c(Freq1, Freq2), names_to = "Set", values_to = "Frequency") %>% 
+    filter(!(Comparison %in% c("AMP/cTP", "AMP/all")))
+  y <- mutate(x, Dataset = sapply(1:nrow(x), function(i) ifelse(x[["Set"]][i] == "Freq1", strsplit(x[["Comparison"]][i], "/")[[1]][1], strsplit(x[["Comparison"]][i], "/")[[1]][2])))
+  p <- ggplot(y, aes(y = reorder_within(Motif, FreqDiff, Type), x = Frequency, fill = Dataset)) +
     geom_col(position = position_dodge()) +
     facet_wrap(~Comparison, scales = "free", nrow = 1) +
     theme_bw() +
+    scale_fill_manual("Dataset", values = c(dataset_colors, "TP" = "#e4d345")) +
     scale_y_reordered() +
     ggtitle(ith_type) +
     ylab("Motif")
   ggsave(paste0(data_path, "ngram_results/Differences_", ith_type, ".png"),
          p, width = 4*length(unique(x[["Comparison"]])), height = 4+nrow(x)*0.02, limitsize = FALSE)
+  p
 })
+
+diffs_all <- wrap_plots(diff_plots, ncol = 2) + 
+  plot_annotation(tag_levels = c("A", "B", "C", "D", "E", "F", "G", "H")) +
+  plot_layout(design = "
+              AAAAAABBBBBB
+              AAAAAABBBBBB
+              CCCCCCBBBBBB
+              DDDDDDBBBBBB
+              DDDDDDEEEEEE
+              DDDDDDEEEEEE
+              FFFFFFF#GG##
+              FFFFFFF#HHHH
+              FFFFFFF#HHHH
+              ", guides = 'collect') & theme(legend.position = "bottom")
+ggsave(paste0(data_path, "ngram_results/Differences_combined.png"),
+       diffs_all, width = 18, height = 20)
 
 
 
